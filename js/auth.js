@@ -154,8 +154,16 @@ function evaluateCompanyStatus() {
     const today = new Date();
 
     if (today > end) return { ok: false, reason: 'trialExpired' };
-    return { ok: true, daysLeft: Math.ceil((end - today) / (1000 * 60 * 60 * 24)) };
+    return { ok: true, daysLeft: Math.ceil((end - today) / (1000 * 60 * 60 * 24)), trialEnd: end };
 }
+
+// Fill in your own real contact details here — shown to every client
+// company when they click "Renew Now" on an expiring trial.
+const VENDOR_CONTACT = {
+    name: 'Ishfaque',
+    phone: '+92 333 2392852',
+    email: 'you@example.com'
+};
 
 function evaluateAndGateAccess() {
     const status = evaluateCompanyStatus();
@@ -171,6 +179,7 @@ function evaluateAndGateAccess() {
         if (status.daysLeft !== undefined && status.daysLeft <= 5) {
             showToast(`Your trial ends in ${status.daysLeft} day${status.daysLeft === 1 ? '' : 's'}.`, 'warning', 5000);
         }
+        updateTrialBanner(status);
     } else {
         $('login-screen').classList.add('hidden');
         $('app-root').classList.add('hidden');
@@ -179,10 +188,32 @@ function evaluateAndGateAccess() {
     }
 }
 
+function updateTrialBanner(status) {
+    const banner = $('trial-banner');
+    if (status.daysLeft === undefined) {
+        // Paid/active company — no need to nag them.
+        banner.classList.add('hidden');
+        return;
+    }
+
+    banner.classList.remove('hidden');
+    banner.classList.toggle('is-urgent', status.daysLeft <= 5);
+    $('trial-banner-badge').textContent = 'DEMO';
+
+    const endDateLabel = status.trialEnd.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+    $('trial-banner-text').textContent =
+        `This is a demo account — it expires on ${endDateLabel} (${status.daysLeft} day${status.daysLeft === 1 ? '' : 's'} left). After that, the software will stop working until you subscribe.`;
+}
+
+function showRenewContact() {
+    showToast(`To activate your subscription, contact ${VENDOR_CONTACT.name}: ${VENDOR_CONTACT.phone} / ${VENDOR_CONTACT.email}`, 'info', 8000);
+}
+
 function blockedMessageFor(reason) {
-    if (reason === 'suspended') return 'Your account has been suspended. Contact us to reactivate it.';
-    if (reason === 'trialExpired') return "Your 30-day trial has ended. Contact us to activate your subscription.";
-    return "We couldn't find your company's account. Contact support.";
+    const contact = `Contact ${VENDOR_CONTACT.name}: ${VENDOR_CONTACT.phone} / ${VENDOR_CONTACT.email}`;
+    if (reason === 'suspended') return `Your account has been suspended. ${contact} to reactivate it.`;
+    if (reason === 'trialExpired') return `Your demo period has ended. ${contact} to activate your subscription.`;
+    return `We couldn't find your company's account. ${contact} for support.`;
 }
 
 // ==================== FRIENDLY ERROR MESSAGES ====================

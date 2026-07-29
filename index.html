@@ -119,10 +119,21 @@
     </div>
 </header>
 
+<!-- ==================== TRIAL / STATUS BANNER ==================== -->
+<div id="trial-banner" class="trial-banner hidden">
+    <span class="trial-banner-badge" id="trial-banner-badge">DEMO</span>
+    <span id="trial-banner-text">Your trial is active.</span>
+    <a class="trial-banner-btn" id="trial-banner-btn" href="#" onclick="showRenewContact(); return false;">Renew Now</a>
+</div>
+
 <div class="app-shell">
 
     <!-- ==================== SIDEBAR ==================== -->
     <aside class="sidebar" id="sidebar">
+        <div class="sidebar-product-brand">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 6h6v6"/></svg>
+            <span>LedgerFlow</span>
+        </div>
         <nav class="nav-groups">
 
             <div class="nav-group">
@@ -291,7 +302,7 @@
             <h3 style="margin-top:24px; margin-bottom:6px; font-family:'Manrope',sans-serif;">Everywhere in LedgerFlow</h3>
             <div class="dash-directory-grid">
                 <div class="card dash-directory-card">
-                    <h3>Data Entry</h3>
+                    <h3><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> Data Entry</h3>
                     <div class="dash-directory-list">
                         <a href="#" onclick="navigateTo('page-purchase',this)">Purchase</a>
                         <a href="#" onclick="navigateTo('page-purchase-return',this)">Purchase Return</a>
@@ -300,7 +311,7 @@
                     </div>
                 </div>
                 <div class="card dash-directory-card">
-                    <h3>Vouchers</h3>
+                    <h3><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 9.5V4h20v5.5"/><path d="M2 9.5a2.5 2.5 0 0 0 5 0M7 9.5a2.5 2.5 0 0 0 5 0M12 9.5a2.5 2.5 0 0 0 5 0M17 9.5a2.5 2.5 0 0 0 5 0"/><path d="M4 9.5V20h16V9.5"/></svg> Vouchers</h3>
                     <div class="dash-directory-list">
                         <a href="#" onclick="navigateTo('page-bank-receipt',this)">Bank Receipt</a>
                         <a href="#" onclick="navigateTo('page-bank-payment',this)">Bank Payment</a>
@@ -309,7 +320,7 @@
                     </div>
                 </div>
                 <div class="card dash-directory-card">
-                    <h3>Tools</h3>
+                    <h3><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg> Tools</h3>
                     <div class="dash-directory-list">
                         <a href="#" onclick="navigateTo('page-search-account',this); initSearchAccountPage();">Search Account</a>
                         <a href="#" onclick="navigateTo('page-search-item',this); initSearchItemPage();">Search Item</a>
@@ -317,7 +328,7 @@
                     </div>
                 </div>
                 <div class="card dash-directory-card">
-                    <h3>Reports</h3>
+                    <h3><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> Reports</h3>
                     <div class="dash-directory-list">
                         <a href="#" onclick="navigateTo('page-chart-of-accounts',this); initChartOfAccountsPage();">Chart of Accounts</a>
                         <a href="#" onclick="navigateTo('page-account-balances',this); initAccountBalancesPage();">Account Balances</a>
@@ -335,7 +346,7 @@
                     </div>
                 </div>
                 <div class="card dash-directory-card">
-                    <h3>Management</h3>
+                    <h3><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Management</h3>
                     <div class="dash-directory-list">
                         <a href="#" onclick="navigateTo('page-accounts',this)">Add/Edit Accounts</a>
                         <a href="#" onclick="navigateTo('page-items',this)">Add/Edit Items</a>
@@ -344,7 +355,7 @@
                     </div>
                 </div>
                 <div class="card dash-directory-card">
-                    <h3>Utility</h3>
+                    <h3><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg> Utility</h3>
                     <div class="dash-directory-list">
                         <a href="#" onclick="navigateTo('page-backup',this); renderBackupSummary();">Backup Data</a>
                         <a href="#" onclick="navigateTo('page-change-password',this); initChangePasswordPage();">Change Password</a>

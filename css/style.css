@@ -707,6 +707,64 @@ button { font-family: inherit; }
 .totals-grand { border-top: 1px solid var(--border-strong); margin-top: 4px; padding-top: 8px; font-weight: 800; font-size: 1rem; }
 .totals-grand span:last-child { color: var(--teal-dark); font-weight: 800; }
 
+/* ==================== SIDEBAR PRODUCT BRAND ==================== */
+.sidebar-product-brand {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 0 14px 12px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+    color: var(--ink-faint);
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+.sidebar-product-brand svg { color: var(--teal); flex-shrink: 0; }
+
+/* ==================== TRIAL / STATUS BANNER ==================== */
+.trial-banner {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 0.7rem 24px;
+    background: linear-gradient(90deg, var(--amber-tint), transparent 90%);
+    border-bottom: 1px solid var(--border);
+    font-size: 0.88rem;
+    color: var(--ink);
+}
+.trial-banner.is-urgent { background: linear-gradient(90deg, var(--garnet-tint), transparent 90%); }
+.trial-banner-badge {
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    padding: 0.2rem 0.55rem;
+    border-radius: 999px;
+    background: var(--amber);
+    color: white;
+    flex-shrink: 0;
+}
+.trial-banner.is-urgent .trial-banner-badge { background: var(--garnet); }
+.trial-banner-btn {
+    margin-left: auto;
+    flex-shrink: 0;
+    background: var(--ink);
+    color: white;
+    font-weight: 700;
+    font-size: 0.82rem;
+    padding: 0.4rem 0.9rem;
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+    transition: transform .15s var(--ease), box-shadow .15s var(--ease);
+}
+.trial-banner-btn:hover { transform: translateY(-1px); box-shadow: var(--shadow-sm); }
+
+@media (max-width: 640px) {
+    .trial-banner { flex-wrap: wrap; padding: 0.7rem 14px; }
+    .trial-banner-btn { margin-left: 0; }
+}
+
 /* ==================== LOGIN SCREEN ==================== */
 .login-screen {
     position: fixed; inset: 0;
@@ -835,7 +893,11 @@ button { font-family: inherit; }
     margin-bottom: 0.6rem;
     color: var(--teal-dark);
     font-family: 'Manrope', sans-serif;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
+.dash-directory-card h3 svg { flex-shrink: 0; color: var(--teal); }
 .dash-directory-list { display: flex; flex-direction: column; }
 .dash-directory-list a {
     padding: 0.45rem 0;
