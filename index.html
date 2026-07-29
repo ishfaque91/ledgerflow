@@ -1,0 +1,1998 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LedgerFlow — Business Accounting</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ==================== LOGIN SCREEN ==================== -->
+<div id="login-screen" class="login-screen">
+    <div class="login-card">
+        <div class="login-brand">
+            <img id="login-logo-img" class="login-logo-img hidden" alt="Company logo">
+            <span id="login-logo-fallback" class="brand-mark login-logo-fallback">L</span>
+            <span id="login-company-name" class="login-company-name">LedgerFlow</span>
+        </div>
+
+        <!-- ============ LOG IN ============ -->
+        <div id="login-form-panel">
+            <p class="login-sub">Sign in to continue</p>
+            <form id="login-form" onsubmit="return false;" class="login-form">
+                <div class="field">
+                    <label for="login-email">Email</label>
+                    <input type="email" id="login-email" placeholder="you@business.com" autocomplete="username" required>
+                </div>
+                <div class="field">
+                    <label for="login-password">Password</label>
+                    <input type="password" id="login-password" placeholder="Enter your password" autocomplete="current-password" required>
+                </div>
+                <button class="btn btn-primary login-submit" id="login-submit-btn" onclick="handleLogin()">
+                    <span class="btn-label">Log In</span>
+                    <span class="btn-spinner hidden"></span>
+                </button>
+            </form>
+            <p class="login-hint">New company? <a href="#" onclick="showSignupForm(); return false;">Create an account</a> — starts with a free 30-day trial.</p>
+        </div>
+
+        <!-- ============ SIGN UP ============ -->
+        <div id="signup-form-panel" class="hidden">
+            <p class="login-sub">Create your company's account</p>
+            <form id="signup-form" onsubmit="return false;" class="login-form">
+                <div class="field">
+                    <label for="signup-company-name">Company Name</label>
+                    <input type="text" id="signup-company-name" placeholder="Your business name" required>
+                </div>
+                <div class="field">
+                    <label for="signup-fullname">Your Full Name</label>
+                    <input type="text" id="signup-fullname" placeholder="e.g. Ishfaque Ahmed" required>
+                </div>
+                <div class="field">
+                    <label for="signup-email">Email</label>
+                    <input type="email" id="signup-email" placeholder="you@business.com" autocomplete="username" required>
+                </div>
+                <div class="field">
+                    <label for="signup-phone">Phone</label>
+                    <div class="phone-control">
+                        <span class="phone-prefix">+92</span>
+                        <input type="tel" id="signup-phone" placeholder="333 2392852" maxlength="11" oninput="formatPhoneInput(this)">
+                    </div>
+                </div>
+                <div class="field">
+                    <label for="signup-password">Password</label>
+                    <input type="password" id="signup-password" placeholder="Minimum 6 characters" autocomplete="new-password" required>
+                </div>
+                <div class="field">
+                    <label for="signup-confirm-password">Confirm Password</label>
+                    <input type="password" id="signup-confirm-password" placeholder="Retype your password" autocomplete="new-password" required>
+                </div>
+                <button class="btn btn-primary login-submit" id="signup-submit-btn" onclick="handleSignup()">
+                    <span class="btn-label">Create Account &amp; Start Trial</span>
+                    <span class="btn-spinner hidden"></span>
+                </button>
+            </form>
+            <p class="login-hint">Already have an account? <a href="#" onclick="showLoginForm(); return false;">Log in</a></p>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== ACCOUNT BLOCKED SCREEN ==================== -->
+<div id="account-blocked-screen" class="login-screen hidden">
+    <div class="login-card">
+        <div class="login-brand">
+            <span class="brand-mark login-logo-fallback" style="background:linear-gradient(155deg,var(--garnet),var(--garnet-dark));">!</span>
+            <span class="login-company-name">Account not active</span>
+        </div>
+        <p class="login-sub" id="blocked-message">Your account isn't active right now.</p>
+        <button class="btn btn-ghost login-submit" onclick="handleLogout()">Log Out</button>
+    </div>
+</div>
+
+<div id="app-root" class="hidden">
+
+<!-- ==================== TOP BAR ==================== -->
+<header class="topbar">
+    <button class="icon-btn" id="menu-toggle" onclick="toggleSidebar()" aria-label="Toggle menu">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <div class="brand">
+        <img id="brand-logo-img" class="brand-logo-img hidden" alt="Company logo">
+        <span class="brand-mark" id="brand-logo-fallback">L</span>
+        <span class="brand-name" id="brand-name-text">LedgerFlow</span>
+    </div>
+    <div class="topbar-right">
+        <span class="user-chip" id="active-user-chip">—</span>
+        <button class="icon-btn" id="theme-toggle-btn" title="Toggle dark mode" onclick="toggleTheme()">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z"/></svg>
+        </button>
+        <button class="icon-btn" title="Settings" onclick="navigateTo('page-settings'); initSettingsPage();">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        </button>
+        <button class="icon-btn" title="Log out" onclick="handleLogout()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        </button>
+    </div>
+</header>
+
+<div class="app-shell">
+
+    <!-- ==================== SIDEBAR ==================== -->
+    <aside class="sidebar" id="sidebar">
+        <nav class="nav-groups">
+
+            <div class="nav-group">
+                <a href="#" class="nav-group-header nav-group-header-link nav-link is-active" data-page="page-dashboard" onclick="navigateTo('page-dashboard',this)">
+                    <span class="nav-group-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+                    </span>
+                    <span>Dashboard</span>
+                </a>
+            </div>
+
+            <div class="nav-group is-active">
+                <button class="nav-group-header" onclick="toggleGroup(this)">
+                    <span class="nav-group-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                    </span>
+                    <span>Data Entry</span>
+                    <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+                <div class="nav-group-body">
+                    <a href="#" class="nav-link" data-page="page-purchase" onclick="navigateTo('page-purchase',this)">Purchase</a>
+                    <a href="#" class="nav-link" data-page="page-purchase-return" onclick="navigateTo('page-purchase-return',this)">Purchase Return</a>
+                    <a href="#" class="nav-link" data-page="page-sale" onclick="navigateTo('page-sale',this)">Sale</a>
+                    <a href="#" class="nav-link" data-page="page-sale-return" onclick="navigateTo('page-sale-return',this)">Sale Return</a>
+                </div>
+            </div>
+
+            <div class="nav-group">
+                <button class="nav-group-header" onclick="toggleGroup(this)">
+                    <span class="nav-group-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 9.5V4h20v5.5"/><path d="M2 9.5a2.5 2.5 0 0 0 5 0M7 9.5a2.5 2.5 0 0 0 5 0M12 9.5a2.5 2.5 0 0 0 5 0M17 9.5a2.5 2.5 0 0 0 5 0"/><path d="M4 9.5V20h16V9.5"/></svg>
+                    </span>
+                    <span>Vouchers</span>
+                    <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+                <div class="nav-group-body">
+                    <a href="#" class="nav-link" data-page="page-bank-receipt" onclick="navigateTo('page-bank-receipt',this)">Bank Receipt</a>
+                    <a href="#" class="nav-link" data-page="page-bank-payment" onclick="navigateTo('page-bank-payment',this)">Bank Payment</a>
+                    <a href="#" class="nav-link" data-page="page-petty-cash" onclick="navigateTo('page-petty-cash',this)">Petty Cash</a>
+                    <a href="#" class="nav-link" data-page="page-journal" onclick="navigateTo('page-journal',this)">Journal Voucher</a>
+                </div>
+            </div>
+
+            <div class="nav-group">
+                <button class="nav-group-header" onclick="toggleGroup(this)">
+                    <span class="nav-group-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    </span>
+                    <span>Tools</span>
+                    <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+                <div class="nav-group-body">
+                    <a href="#" class="nav-link" data-page="page-search-account" onclick="navigateTo('page-search-account',this); initSearchAccountPage();">Search Account</a>
+                    <a href="#" class="nav-link" data-page="page-search-item" onclick="navigateTo('page-search-item',this); initSearchItemPage();">Search Item</a>
+                    <a href="#" class="nav-link" data-page="page-edit-log" onclick="navigateTo('page-edit-log',this); initEditLogPage();">Edit Log</a>
+                </div>
+            </div>
+
+            <div class="nav-group">
+                <button class="nav-group-header" onclick="toggleGroup(this)">
+                    <span class="nav-group-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                    </span>
+                    <span>Reports</span>
+                    <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+                <div class="nav-group-body">
+                    <a href="#" class="nav-link" data-page="page-chart-of-accounts" onclick="navigateTo('page-chart-of-accounts',this); initChartOfAccountsPage();">Chart of Accounts</a>
+                    <a href="#" class="nav-link" data-page="page-account-balances" onclick="navigateTo('page-account-balances',this); initAccountBalancesPage();">Account Balances</a>
+                    <a href="#" class="nav-link" data-page="page-account-ledger" onclick="navigateTo('page-account-ledger',this); initAccountLedgerPage();">Account Ledger</a>
+                    <a href="#" class="nav-link" data-page="page-load-ledger" onclick="navigateTo('page-load-ledger',this); initLoadLedgerPage();">Load Ledger</a>
+                    <a href="#" class="nav-link" data-page="page-item-ledger" onclick="navigateTo('page-item-ledger',this); initItemLedgerPage();">Item Ledger</a>
+                    <a href="#" class="nav-link" data-page="page-stock-report" onclick="navigateTo('page-stock-report',this); initStockReportPage();">Stock Report</a>
+                    <a href="#" class="nav-link" data-page="page-cash-book" onclick="navigateTo('page-cash-book',this); initCashBookPage();">Cash Book</a>
+                    <a href="#" class="nav-link" data-page="page-sale-report" onclick="navigateTo('page-sale-report',this); initInvoiceReportPage('Sale');">Sale Invoices Report</a>
+                    <a href="#" class="nav-link" data-page="page-purchase-report" onclick="navigateTo('page-purchase-report',this); initInvoiceReportPage('Purchase');">Purchase Invoices Report</a>
+                    <a href="#" class="nav-link" data-page="page-trial-balance" onclick="navigateTo('page-trial-balance',this); initTrialBalancePage();">Trial Balance</a>
+                    <a href="#" class="nav-link" data-page="page-balance-sheet" onclick="navigateTo('page-balance-sheet',this); initBalanceSheetPage();">Balance Sheet</a>
+                    <a href="#" class="nav-link" data-page="page-profit-on-sale" onclick="navigateTo('page-profit-on-sale',this); initProfitOnSalePage();">Profit on Sale</a>
+                    <a href="#" class="nav-link" data-page="page-profit-loss" onclick="navigateTo('page-profit-loss',this); initProfitLossPage();">Profit &amp; Loss</a>
+                </div>
+            </div>
+
+            <div class="nav-group">
+                <button class="nav-group-header" onclick="toggleGroup(this)">
+                    <span class="nav-group-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                    </span>
+                    <span>Management</span>
+                    <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+                <div class="nav-group-body">
+                    <a href="#" class="nav-link" data-page="page-accounts" onclick="navigateTo('page-accounts',this)">Add/Edit Accounts</a>
+                    <a href="#" class="nav-link" data-page="page-items" onclick="navigateTo('page-items',this)">Add/Edit Items</a>
+                    <a href="#" class="nav-link" data-page="page-users" onclick="navigateTo('page-users',this)">Add/Edit Users</a>
+                    <a href="#" class="nav-link" data-page="page-rights" onclick="navigateTo('page-rights',this)">User Rights</a>
+                </div>
+            </div>
+
+            <div class="nav-group">
+                <button class="nav-group-header" onclick="toggleGroup(this)">
+                    <span class="nav-group-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+                    </span>
+                    <span>Utility</span>
+                    <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+                <div class="nav-group-body">
+                    <a href="#" class="nav-link" data-page="page-backup" onclick="navigateTo('page-backup',this); renderBackupSummary();">Backup Data</a>
+                    <a href="#" class="nav-link" data-page="page-change-password" onclick="navigateTo('page-change-password',this); initChangePasswordPage();">Change Password</a>
+                    <a href="#" class="nav-link" data-page="page-settings" onclick="navigateTo('page-settings',this); initSettingsPage();">Settings</a>
+                </div>
+            </div>
+
+        </nav>
+    </aside>
+    <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+    <!-- ==================== MAIN CONTENT ==================== -->
+    <main class="main-content">
+
+        <!-- ============ DASHBOARD ============ -->
+        <section id="page-dashboard" class="page is-active">
+            <div class="page-head">
+                <div>
+                    <h1>Dashboard</h1>
+                    <p class="page-sub">A quick look at what's in the system right now.</p>
+                </div>
+            </div>
+
+            <div class="dash-grid">
+                <div class="card dash-stat">
+                    <span class="dash-stat-label">Accounts</span>
+                    <span class="dash-stat-value" id="dash-accounts-count">0</span>
+                </div>
+                <div class="card dash-stat">
+                    <span class="dash-stat-label">Items</span>
+                    <span class="dash-stat-value" id="dash-items-count">0</span>
+                </div>
+                <div class="card dash-stat">
+                    <span class="dash-stat-label">Users</span>
+                    <span class="dash-stat-value" id="dash-users-count">0</span>
+                </div>
+                <div class="card dash-stat">
+                    <span class="dash-stat-label">Load Balance</span>
+                    <span class="dash-stat-value" id="dash-load-balance">0</span>
+                </div>
+            </div>
+
+            <div class="card dash-invoices-card">
+                <h3>Invoices so far</h3>
+                <div class="dash-invoice-row">
+                    <span>Purchase</span><span id="dash-count-Purchase">0</span>
+                </div>
+                <div class="dash-invoice-row">
+                    <span>Purchase Return</span><span id="dash-count-PurchaseReturn">0</span>
+                </div>
+                <div class="dash-invoice-row">
+                    <span>Sale</span><span id="dash-count-Sale">0</span>
+                </div>
+                <div class="dash-invoice-row">
+                    <span>Sale Return</span><span id="dash-count-SaleReturn">0</span>
+                </div>
+            </div>
+
+            <h3 style="margin-top:24px; margin-bottom:6px; font-family:'Manrope',sans-serif;">Everywhere in LedgerFlow</h3>
+            <div class="dash-directory-grid">
+                <div class="card dash-directory-card">
+                    <h3>Data Entry</h3>
+                    <div class="dash-directory-list">
+                        <a href="#" onclick="navigateTo('page-purchase',this)">Purchase</a>
+                        <a href="#" onclick="navigateTo('page-purchase-return',this)">Purchase Return</a>
+                        <a href="#" onclick="navigateTo('page-sale',this)">Sale</a>
+                        <a href="#" onclick="navigateTo('page-sale-return',this)">Sale Return</a>
+                    </div>
+                </div>
+                <div class="card dash-directory-card">
+                    <h3>Vouchers</h3>
+                    <div class="dash-directory-list">
+                        <a href="#" onclick="navigateTo('page-bank-receipt',this)">Bank Receipt</a>
+                        <a href="#" onclick="navigateTo('page-bank-payment',this)">Bank Payment</a>
+                        <a href="#" onclick="navigateTo('page-petty-cash',this)">Petty Cash</a>
+                        <a href="#" onclick="navigateTo('page-journal',this)">Journal Voucher</a>
+                    </div>
+                </div>
+                <div class="card dash-directory-card">
+                    <h3>Tools</h3>
+                    <div class="dash-directory-list">
+                        <a href="#" onclick="navigateTo('page-search-account',this); initSearchAccountPage();">Search Account</a>
+                        <a href="#" onclick="navigateTo('page-search-item',this); initSearchItemPage();">Search Item</a>
+                        <a href="#" onclick="navigateTo('page-edit-log',this); initEditLogPage();">Edit Log</a>
+                    </div>
+                </div>
+                <div class="card dash-directory-card">
+                    <h3>Reports</h3>
+                    <div class="dash-directory-list">
+                        <a href="#" onclick="navigateTo('page-chart-of-accounts',this); initChartOfAccountsPage();">Chart of Accounts</a>
+                        <a href="#" onclick="navigateTo('page-account-balances',this); initAccountBalancesPage();">Account Balances</a>
+                        <a href="#" onclick="navigateTo('page-account-ledger',this); initAccountLedgerPage();">Account Ledger</a>
+                        <a href="#" onclick="navigateTo('page-load-ledger',this); initLoadLedgerPage();">Load Ledger</a>
+                        <a href="#" onclick="navigateTo('page-item-ledger',this); initItemLedgerPage();">Item Ledger</a>
+                        <a href="#" onclick="navigateTo('page-stock-report',this); initStockReportPage();">Stock Report</a>
+                        <a href="#" onclick="navigateTo('page-cash-book',this); initCashBookPage();">Cash Book</a>
+                        <a href="#" onclick="navigateTo('page-sale-report',this); initInvoiceReportPage('Sale');">Sale Invoices Report</a>
+                        <a href="#" onclick="navigateTo('page-purchase-report',this); initInvoiceReportPage('Purchase');">Purchase Invoices Report</a>
+                        <a href="#" onclick="navigateTo('page-trial-balance',this); initTrialBalancePage();">Trial Balance</a>
+                        <a href="#" onclick="navigateTo('page-balance-sheet',this); initBalanceSheetPage();">Balance Sheet</a>
+                        <a href="#" onclick="navigateTo('page-profit-on-sale',this); initProfitOnSalePage();">Profit on Sale</a>
+                        <a href="#" onclick="navigateTo('page-profit-loss',this); initProfitLossPage();">Profit &amp; Loss</a>
+                    </div>
+                </div>
+                <div class="card dash-directory-card">
+                    <h3>Management</h3>
+                    <div class="dash-directory-list">
+                        <a href="#" onclick="navigateTo('page-accounts',this)">Add/Edit Accounts</a>
+                        <a href="#" onclick="navigateTo('page-items',this)">Add/Edit Items</a>
+                        <a href="#" onclick="navigateTo('page-users',this)">Add/Edit Users</a>
+                        <a href="#" onclick="navigateTo('page-rights',this)">User Rights</a>
+                    </div>
+                </div>
+                <div class="card dash-directory-card">
+                    <h3>Utility</h3>
+                    <div class="dash-directory-list">
+                        <a href="#" onclick="navigateTo('page-backup',this); renderBackupSummary();">Backup Data</a>
+                        <a href="#" onclick="navigateTo('page-change-password',this); initChangePasswordPage();">Change Password</a>
+                        <a href="#" onclick="navigateTo('page-settings',this); initSettingsPage();">Settings</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ============ ACCOUNTS: LIST ============ -->
+        <section id="page-accounts" class="page">
+            <div class="page-head">
+                <div>
+                    <h1>Accounts</h1>
+                    <p class="page-sub">Every customer, supplier, bank, and ledger head lives here.</p>
+                </div>
+                <button class="btn btn-primary" onclick="openAccountForm()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    New Account
+                </button>
+            </div>
+
+            <div class="toolbar-row">
+                <div class="search-field">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input type="text" id="account-search" placeholder="Search by title, phone, or city…" oninput="renderAccountList(this.value)">
+                </div>
+                <select id="account-type-filter" class="select-chip" onchange="renderAccountList(document.getElementById('account-search').value)">
+                    <option value="">All types</option>
+                </select>
+                <span class="count-pill" id="account-count">0 accounts</span>
+            </div>
+
+            <div class="card table-card">
+                <div class="table-scroll">
+                    <table class="data-table" id="account-table">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Type</th>
+                                <th>Mobile</th>
+                                <th>City</th>
+                                <th class="num">Opening Bal.</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="account-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ ACCOUNTS: FORM (modal) ============ -->
+        <div class="modal-backdrop hidden" id="account-modal">
+            <div class="modal modal-lg">
+                <div class="modal-head">
+                    <h2 id="account-modal-title">New Account</h2>
+                    <button class="icon-btn" onclick="closeAccountForm()">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    </button>
+                </div>
+
+                <form id="account-form" class="modal-body" onsubmit="return false;">
+                    <input type="hidden" id="acc-id">
+
+                    <div class="field-grid">
+                        <div class="field">
+                            <label for="acc-type">A/c Type <span class="req">*</span></label>
+                            <select id="acc-type" required onchange="onAccountTypeChange()">
+                                <option value="">Select account type…</option>
+                                <optgroup label="Trading">
+                                    <option value="Customer">Customer</option>
+                                    <option value="Supplier">Supplier</option>
+                                    <option value="Customer/Supplier">Customer/Supplier</option>
+                                    <option value="Employee/RSO">Employee/RSO</option>
+                                </optgroup>
+                                <optgroup label="Funds">
+                                    <option value="Cash">Cash</option>
+                                    <option value="Bank">Bank</option>
+                                </optgroup>
+                                <optgroup label="Chart of Accounts">
+                                    <option value="Income">Income</option>
+                                    <option value="Expense">Expense</option>
+                                    <option value="Asset">Asset</option>
+                                    <option value="Liability">Liability</option>
+                                    <option value="Owner Equity">Owner Equity</option>
+                                    <option value="Branch">Branch</option>
+                                </optgroup>
+                            </select>
+                            <span class="hint" id="acc-type-hint">Choosing a type sets the normal Dr/Cr side automatically below.</span>
+                        </div>
+
+                        <div class="field">
+                            <label for="acc-title">A/c Title <span class="req">*</span></label>
+                            <input type="text" id="acc-title" placeholder="e.g. Al-Karam Mobile Point" required>
+                        </div>
+                    </div>
+
+                    <!-- ===== Opening balance — the signature Dr/Cr balance control ===== -->
+                    <div class="field balance-field">
+                        <label>Opening Balance</label>
+                        <div class="balance-control">
+                            <div class="balance-amount">
+                                <span class="balance-prefix">Rs.</span>
+                                <input type="text" id="acc-opening" inputmode="decimal" placeholder="0" oninput="formatAmountInput(this)">
+                            </div>
+                            <div class="balance-toggle" id="balance-toggle" role="radiogroup" aria-label="Debit or Credit">
+                                <button type="button" class="balance-side side-dr" data-side="Dr" onclick="setBalanceSide('Dr')">
+                                    <span class="side-label">Dr</span>
+                                    <span class="side-caption">Debit</span>
+                                </button>
+                                <button type="button" class="balance-side side-cr" data-side="Cr" onclick="setBalanceSide('Cr')">
+                                    <span class="side-label">Cr</span>
+                                    <span class="side-caption">Credit</span>
+                                </button>
+                            </div>
+                        </div>
+                        <span class="hint">This posts as the opening entry in the Account Ledger and feeds the Trial Balance and Balance Sheet.</span>
+                    </div>
+
+                    <div class="field-grid">
+                        <div class="field">
+                            <label for="acc-mobile">Mobile</label>
+                            <div class="phone-control">
+                                <span class="phone-prefix">+92</span>
+                                <input type="tel" id="acc-mobile" placeholder="333 2392852" maxlength="11" oninput="formatPhoneInput(this)">
+                            </div>
+                            <span class="hint">10 digits after +92, starting with 3.</span>
+                        </div>
+                        <div class="field">
+                            <label for="acc-phone">Phone (Landline)</label>
+                            <div class="phone-control">
+                                <span class="phone-prefix">+92</span>
+                                <input type="tel" id="acc-phone" placeholder="21 34567890" maxlength="12" oninput="formatPhoneInput(this)">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="field-grid">
+                        <div class="field">
+                            <label for="acc-email">Email</label>
+                            <input type="email" id="acc-email" placeholder="name@business.com">
+                        </div>
+                        <div class="field">
+                            <label for="acc-city">City</label>
+                            <input type="text" id="acc-city" placeholder="Karachi">
+                        </div>
+                    </div>
+
+                    <div class="field-grid">
+                        <div class="field">
+                            <label for="acc-gst">GST No.</label>
+                            <input type="text" id="acc-gst" placeholder="Optional">
+                        </div>
+                        <div class="field">
+                            <label for="acc-ntn">NTN No.</label>
+                            <input type="text" id="acc-ntn" placeholder="Optional">
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label for="acc-address">Address</label>
+                        <textarea id="acc-address" rows="2" placeholder="Street, area, landmark"></textarea>
+                    </div>
+                </form>
+
+                <div class="modal-foot">
+                    <button class="btn btn-ghost" onclick="closeAccountForm()">Cancel</button>
+                    <button class="btn btn-primary" id="account-save-btn" onclick="saveAccount()">
+                        <span class="btn-label">Save Account</span>
+                        <span class="btn-spinner hidden"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ ITEMS: LIST ============ -->
+        <section id="page-items" class="page">
+            <div class="page-head">
+                <div>
+                    <h1>Items</h1>
+                    <p class="page-sub">Your product catalog. Stock quantity builds only from Purchase, Sale, and their returns — never from an opening entry here.</p>
+                </div>
+                <button class="btn btn-primary" onclick="openItemForm()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    New Item
+                </button>
+            </div>
+
+            <div class="toolbar-row">
+                <div class="search-field">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input type="text" id="item-search" placeholder="Search by item name or category…" oninput="renderItemList(this.value)">
+                </div>
+                <span class="count-pill" id="item-count">0 items</span>
+            </div>
+
+            <div class="card table-card">
+                <div class="table-scroll">
+                    <table class="data-table" id="item-table">
+                        <thead>
+                            <tr>
+                                <th>Item Name</th>
+                                <th>Category</th>
+                                <th>Unit</th>
+                                <th class="num">Purchase Price</th>
+                                <th class="num">Sale Price</th>
+                                <th class="num">Tax %</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="item-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ ITEMS: FORM (modal) ============ -->
+        <div class="modal-backdrop hidden" id="item-modal">
+            <div class="modal">
+                <div class="modal-head">
+                    <h2 id="item-modal-title">New Item</h2>
+                    <button class="icon-btn" onclick="closeItemForm()">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    </button>
+                </div>
+
+                <form id="item-form" class="modal-body" onsubmit="return false;">
+                    <input type="hidden" id="item-id">
+
+                    <div class="field">
+                        <label for="item-name">Item Name <span class="req">*</span></label>
+                        <input type="text" id="item-name" placeholder="e.g. Jazz Load Card Rs.100" required>
+                    </div>
+
+                    <div class="field-grid">
+                        <div class="field">
+                            <label for="item-category">Category</label>
+                            <input type="text" id="item-category" placeholder="e.g. Scratch Cards" list="item-category-list">
+                            <datalist id="item-category-list"></datalist>
+                        </div>
+                        <div class="field">
+                            <label for="item-unit">Unit</label>
+                            <select id="item-unit">
+                                <option>Pcs</option>
+                                <option>Box</option>
+                                <option>Carton</option>
+                                <option>Set</option>
+                                <option>Dozen</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="field-grid">
+                        <div class="field">
+                            <label for="item-purchase-price">Purchase Price</label>
+                            <div class="amount-control">
+                                <span class="amount-prefix">Rs.</span>
+                                <input type="text" id="item-purchase-price" inputmode="decimal" placeholder="0" oninput="formatAmountInput(this)">
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label for="item-sale-price">Sale Price</label>
+                            <div class="amount-control">
+                                <span class="amount-prefix">Rs.</span>
+                                <input type="text" id="item-sale-price" inputmode="decimal" placeholder="0" oninput="formatAmountInput(this)">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="field-grid">
+                        <div class="field">
+                            <label for="item-tax">Tax %</label>
+                            <input type="text" id="item-tax" inputmode="decimal" placeholder="0">
+                        </div>
+                        <div class="field">
+                            <label for="item-hsn">HSN / Tariff Code</label>
+                            <input type="text" id="item-hsn" placeholder="Optional">
+                        </div>
+                    </div>
+
+                    <div class="no-opening-note">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                        There's no opening quantity field by design — record existing stock as a Purchase entry instead, so it stays traceable in the Item Ledger.
+                    </div>
+                </form>
+
+                <div class="modal-foot">
+                    <button class="btn btn-ghost" onclick="closeItemForm()">Cancel</button>
+                    <button class="btn btn-primary" id="item-save-btn" onclick="saveItem()">
+                        <span class="btn-label">Save Item</span>
+                        <span class="btn-spinner hidden"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ USERS: LIST ============ -->
+        <section id="page-users" class="page">
+            <div class="page-head">
+                <div>
+                    <h1>Users</h1>
+                    <p class="page-sub">People who can log in, and what happens to their access when they leave.</p>
+                </div>
+                <button class="btn btn-primary" onclick="openUserForm()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    New User
+                </button>
+            </div>
+
+            <div class="toolbar-row">
+                <div class="search-field">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input type="text" id="user-search" placeholder="Search by name or username…" oninput="renderUserList(this.value)">
+                </div>
+                <span class="count-pill" id="user-count">0 users</span>
+            </div>
+
+            <div class="card table-card">
+                <div class="table-scroll">
+                    <table class="data-table" id="user-table">
+                        <thead>
+                            <tr>
+                                <th>Full Name</th>
+                                <th>Username</th>
+                                <th>Status</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="user-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ USERS: FORM (modal) ============ -->
+        <div class="modal-backdrop hidden" id="user-modal">
+            <div class="modal">
+                <div class="modal-head">
+                    <h2 id="user-modal-title">New User</h2>
+                    <button class="icon-btn" onclick="closeUserForm()">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    </button>
+                </div>
+
+                <form id="user-form" class="modal-body" onsubmit="return false;">
+                    <input type="hidden" id="user-id">
+                    <input type="hidden" id="user-auth-uid">
+
+                    <div class="field">
+                        <label for="user-fullname">Full Name <span class="req">*</span></label>
+                        <input type="text" id="user-fullname" placeholder="e.g. Ishfaque Ahmed" required>
+                    </div>
+
+                    <div class="field-grid">
+                        <div class="field">
+                            <label for="user-username">Email <span class="req">*</span></label>
+                            <input type="email" id="user-username" placeholder="e.g. staff@business.com" required>
+                        </div>
+                        <div class="field">
+                            <label for="user-status">Status</label>
+                            <select id="user-status">
+                                <option value="Active">Active</option>
+                                <option value="Inactive">Inactive</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="field" id="user-password-field">
+                        <label for="user-password">Password <span class="req">*</span></label>
+                        <div class="password-control">
+                            <input type="password" id="user-password" placeholder="Minimum 6 characters">
+                            <button type="button" class="password-toggle" onclick="togglePasswordVisibility()">Show</button>
+                        </div>
+                        <span class="hint" id="user-password-hint">This creates their real login — they'll use this email + password to sign in.</span>
+                    </div>
+                </form>
+
+                <div class="modal-foot">
+                    <button class="btn btn-ghost" onclick="closeUserForm()">Cancel</button>
+                    <button class="btn btn-primary" id="user-save-btn" onclick="saveUser()">
+                        <span class="btn-label">Save User</span>
+                        <span class="btn-spinner hidden"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ USER RIGHTS ============ -->
+        <section id="page-rights" class="page">
+            <div class="page-head">
+                <div>
+                    <h1>User Rights</h1>
+                    <p class="page-sub">Set broad access fast up top, then fine-tune every screen below.</p>
+                </div>
+            </div>
+
+            <div class="card rights-quick-card">
+                <div class="rights-quick-top">
+                    <label class="check-row check-row-strong">
+                        <input type="checkbox" id="rights-enable-all" onchange="toggleAllRights(this.checked)">
+                        <span>Enable/Disable All</span>
+                    </label>
+
+                    <div class="field rights-user-field">
+                        <label for="rights-user">User</label>
+                        <select id="rights-user" onchange="loadRightsForUser(this.value)">
+                            <option value="">— users —</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="rights-quick-grid">
+                    <label class="check-row"><input type="checkbox" data-group="DATA ENTRY" onchange="toggleGroupRights(this)"><span>Enable/Disable <b>Data Entry</b></span></label>
+                    <label class="check-row"><input type="checkbox" data-group="VOUCHERS" onchange="toggleGroupRights(this)"><span>Enable/Disable <b>Vouchers</b></span></label>
+                    <label class="check-row"><input type="checkbox" data-group="TOOLS" onchange="toggleGroupRights(this)"><span>Enable/Disable <b>Tools</b></span></label>
+                    <label class="check-row"><input type="checkbox" data-group="REPORTS" onchange="toggleGroupRights(this)"><span>Enable/Disable <b>Reports</b></span></label>
+                    <label class="check-row"><input type="checkbox" data-group="MANAGEMENT" onchange="toggleGroupRights(this)"><span>Enable/Disable <b>Management</b></span></label>
+                    <label class="check-row"><input type="checkbox" data-group="UTILITY" onchange="toggleGroupRights(this)"><span>Enable/Disable <b>Utility</b></span></label>
+                </div>
+
+                <div class="rights-lockback">
+                    <p>Allow entry/modification in Invoices and Vouchers only for the previous <input type="number" id="rights-lockback-days" class="lockback-input" placeholder="0"> days.</p>
+                    <ul class="lockback-notes">
+                        <li>Entering <b>0</b> allows entry/modification only in today's Invoices and Vouchers.</li>
+                        <li>Entering <b>-1</b> disables this restriction — any date can be entered or modified.</li>
+                    </ul>
+                </div>
+
+                <div class="rights-actions">
+                    <button class="btn btn-primary" onclick="saveRights()">
+                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        Save
+                    </button>
+                    <button class="btn btn-ghost" onclick="navigateTo('page-accounts')">Exit</button>
+                </div>
+            </div>
+
+            <div class="card rights-detail-card">
+                <div class="search-field rights-search">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input type="text" id="rights-search" placeholder="Search a menu, screen, or permission…" oninput="renderRightsTable(this.value)">
+                </div>
+                <div id="rights-groups"></div>
+            </div>
+        </section>
+
+        <!-- ============ PURCHASE ============ -->
+        <section id="page-purchase" class="page">
+            <div class="page-head">
+                <div>
+                    <h1>Purchase</h1>
+                    <p class="page-sub">Load and/or items bought in — post the supplier's bill here.</p>
+                </div>
+                <button class="btn btn-primary" onclick="openInvoiceForm('Purchase')">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    New Purchase
+                </button>
+            </div>
+            <div class="toolbar-row">
+                <div class="search-field">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input type="text" id="Purchase-search" placeholder="Search by invoice no. or supplier…" oninput="renderInvoiceList('Purchase', this.value)">
+                </div>
+                <span class="count-pill" id="Purchase-count">0 invoices</span>
+            </div>
+            <div class="card table-card">
+                <div class="table-scroll">
+                    <table class="data-table">
+                        <thead><tr><th>Invoice No.</th><th>Date</th><th>Supplier</th><th>Load Qty</th><th class="num">Grand Total</th><th class="num">Balance</th><th></th></tr></thead>
+                        <tbody id="Purchase-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ PURCHASE RETURN ============ -->
+        <section id="page-purchase-return" class="page">
+            <div class="page-head">
+                <div>
+                    <h1>Purchase Return</h1>
+                    <p class="page-sub">Load and/or items sent back to a supplier.</p>
+                </div>
+                <button class="btn btn-primary" onclick="openInvoiceForm('PurchaseReturn')">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    New Purchase Return
+                </button>
+            </div>
+            <div class="toolbar-row">
+                <div class="search-field">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input type="text" id="PurchaseReturn-search" placeholder="Search by invoice no. or supplier…" oninput="renderInvoiceList('PurchaseReturn', this.value)">
+                </div>
+                <span class="count-pill" id="PurchaseReturn-count">0 invoices</span>
+            </div>
+            <div class="card table-card">
+                <div class="table-scroll">
+                    <table class="data-table">
+                        <thead><tr><th>Invoice No.</th><th>Date</th><th>Supplier</th><th>Load Qty</th><th class="num">Grand Total</th><th class="num">Balance</th><th></th></tr></thead>
+                        <tbody id="PurchaseReturn-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ SALE ============ -->
+        <section id="page-sale" class="page">
+            <div class="page-head">
+                <div>
+                    <h1>Sale</h1>
+                    <p class="page-sub">Load and/or items sold out — to a Customer or billed to an RSO.</p>
+                </div>
+                <button class="btn btn-primary" onclick="openInvoiceForm('Sale')">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    New Sale
+                </button>
+            </div>
+            <div class="toolbar-row">
+                <div class="search-field">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input type="text" id="Sale-search" placeholder="Search by invoice no. or party…" oninput="renderInvoiceList('Sale', this.value)">
+                </div>
+                <span class="count-pill" id="Sale-count">0 invoices</span>
+            </div>
+            <div class="card table-card">
+                <div class="table-scroll">
+                    <table class="data-table">
+                        <thead><tr><th>Invoice No.</th><th>Date</th><th>Party</th><th>Load Qty</th><th class="num">Grand Total</th><th class="num">Balance</th><th></th></tr></thead>
+                        <tbody id="Sale-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ SALE RETURN ============ -->
+        <section id="page-sale-return" class="page">
+            <div class="page-head">
+                <div>
+                    <h1>Sale Return</h1>
+                    <p class="page-sub">Load and/or items returned by a Customer or RSO.</p>
+                </div>
+                <button class="btn btn-primary" onclick="openInvoiceForm('SaleReturn')">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    New Sale Return
+                </button>
+            </div>
+            <div class="toolbar-row">
+                <div class="search-field">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input type="text" id="SaleReturn-search" placeholder="Search by invoice no. or party…" oninput="renderInvoiceList('SaleReturn', this.value)">
+                </div>
+                <span class="count-pill" id="SaleReturn-count">0 invoices</span>
+            </div>
+            <div class="card table-card">
+                <div class="table-scroll">
+                    <table class="data-table">
+                        <thead><tr><th>Invoice No.</th><th>Date</th><th>Party</th><th>Load Qty</th><th class="num">Grand Total</th><th class="num">Balance</th><th></th></tr></thead>
+                        <tbody id="SaleReturn-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ SHARED INVOICE FORM (Purchase / Purchase Return / Sale / Sale Return) ============ -->
+        <div class="modal-backdrop hidden" id="invoice-modal">
+            <div class="modal modal-lg">
+                <div class="modal-head">
+                    <h2 id="invoice-modal-title">New Purchase</h2>
+                    <button class="icon-btn" onclick="closeInvoiceForm()">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    </button>
+                </div>
+
+                <form id="invoice-form" class="modal-body" onsubmit="return false;">
+                    <input type="hidden" id="inv-id">
+                    <input type="hidden" id="inv-type">
+
+                    <div class="field-grid">
+                        <div class="field">
+                            <label>Invoice No.</label>
+                            <input type="text" id="inv-number" readonly>
+                        </div>
+                        <div class="field">
+                            <label for="inv-date">Date <span class="req">*</span></label>
+                            <input type="date" id="inv-date" required>
+                        </div>
+                    </div>
+
+                    <div class="field-grid">
+                        <div class="field">
+                            <label for="inv-ref-number">Reference Inv. No.</label>
+                            <input type="text" id="inv-ref-number" placeholder="Their invoice number (optional)">
+                        </div>
+                        <div class="field">
+                            <label for="inv-ref-date">Reference Inv. Date</label>
+                            <input type="date" id="inv-ref-date">
+                        </div>
+                    </div>
+
+                    <!-- Sale-only: Debit to Customer / RSO -->
+                    <div class="field hidden" id="inv-debitto-field">
+                        <label>Debit to</label>
+                        <div class="radio-group" id="inv-debitto-group">
+                            <label class="radio-option"><input type="radio" name="inv-debitto" value="Customer" checked onchange="onDebitToChange()"><span>Customer</span></label>
+                            <label class="radio-option"><input type="radio" name="inv-debitto" value="RSO" onchange="onDebitToChange()"><span>RSO</span></label>
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label for="inv-party" id="inv-party-label">Supplier <span class="req">*</span></label>
+                        <select id="inv-party" required onchange="onInvoicePartyChange()"></select>
+                        <span class="hint" id="inv-party-balance"></span>
+                    </div>
+
+                    <!-- ===== Load block ===== -->
+                    <div class="field balance-field">
+                        <label class="check-row check-row-strong">
+                            <input type="checkbox" id="inv-has-load" checked onchange="onLoadToggle()">
+                            <span>Include Load</span>
+                        </label>
+
+                        <div id="inv-load-fields">
+                            <div class="field-grid" style="margin-top: 0.8rem;">
+                                <div class="field">
+                                    <label id="inv-load-amount-label">Purchase Amount</label>
+                                    <div class="amount-control">
+                                        <span class="amount-prefix">Rs.</span>
+                                        <input type="text" id="inv-load-amount" inputmode="decimal" placeholder="0" oninput="onLoadFieldInput('amount')">
+                                    </div>
+                                </div>
+                                <div class="field">
+                                    <label>Discount</label>
+                                    <div class="amount-control">
+                                        <input type="text" id="inv-load-discount" inputmode="decimal" placeholder="0" oninput="onLoadFieldInput('discount')">
+                                        <span class="amount-prefix">%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="field" style="margin-top: 0.8rem;">
+                                <label id="inv-load-qty-label">Load Received</label>
+                                <div class="amount-control">
+                                    <span class="amount-prefix">Rs.</span>
+                                    <input type="text" id="inv-load-qty" inputmode="decimal" placeholder="0" oninput="onLoadFieldInput('qty')">
+                                </div>
+                                <span class="hint">Type into any two of Amount / Discount / Qty — the third fills in automatically.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ===== Item lines ===== -->
+                    <div class="field">
+                        <div class="item-lines-head">
+                            <label>Items</label>
+                            <span class="hint">Enter a quantity for whatever you're buying/selling — leave the rest blank.</span>
+                        </div>
+                        <div class="item-rows-table">
+                            <div class="item-row item-row-head">
+                                <span>Item</span><span>Qty</span><span>Rate</span><span class="num">Amount</span>
+                            </div>
+                            <div id="inv-item-rows"></div>
+                        </div>
+                    </div>
+
+                    <!-- ===== Totals ===== -->
+                    <div class="totals-box">
+                        <div class="totals-row"><span>Items Total</span><span id="inv-items-total">Rs. 0</span></div>
+                        <div class="totals-row"><span>Load Amount</span><span id="inv-load-total">Rs. 0</span></div>
+                        <div class="totals-row totals-grand"><span>Grand Total</span><span id="inv-grand-total">Rs. 0</span></div>
+                    </div>
+
+                    <!-- ===== Payment ===== -->
+                    <div class="field balance-field">
+                        <label id="inv-payment-heading">Received in Cash / Bank</label>
+                        <div class="field-grid" style="margin-top: 0.6rem;">
+                            <div class="field">
+                                <label>Mode</label>
+                                <select id="inv-payment-mode" onchange="onPaymentModeChange()">
+                                    <option value="None">Not now — post full amount to account</option>
+                                    <option value="Cash">Cash</option>
+                                    <option value="Bank">Bank</option>
+                                </select>
+                            </div>
+                            <div class="field hidden" id="inv-payment-account-field">
+                                <label>Account</label>
+                                <select id="inv-payment-account"></select>
+                            </div>
+                        </div>
+                        <div class="field-grid hidden" id="inv-payment-amount-row" style="margin-top: 0.6rem;">
+                            <div class="field">
+                                <label>Amount received/paid now</label>
+                                <div class="amount-control">
+                                    <span class="amount-prefix">Rs.</span>
+                                    <input type="text" id="inv-payment-amount" inputmode="decimal" placeholder="0" oninput="onPaymentAmountInput()">
+                                </div>
+                            </div>
+                            <div class="field">
+                                <label id="inv-balance-label">Balance to account</label>
+                                <input type="text" id="inv-balance-preview" readonly>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+                <div class="modal-foot">
+                    <button class="btn btn-ghost" onclick="closeInvoiceForm()">Cancel</button>
+                    <button class="btn btn-primary" id="invoice-save-btn" onclick="saveInvoice()">
+                        <span class="btn-label">Save Invoice</span>
+                        <span class="btn-spinner hidden"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ BANK RECEIPT ============ -->
+        <section id="page-bank-receipt" class="page">
+            <div class="page-head">
+                <div>
+                    <h1>Bank Receipt</h1>
+                    <p class="page-sub">Money coming in against any account — settling an old balance, a deposit, anything not tied to a Sale invoice.</p>
+                </div>
+                <button class="btn btn-primary" onclick="openBankVoucherForm('BankReceipt')">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    New Bank Receipt
+                </button>
+            </div>
+            <div class="toolbar-row">
+                <div class="search-field">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input type="text" id="BankReceipt-search" placeholder="Search by voucher no. or party…" oninput="renderVoucherList('BankReceipt', this.value)">
+                </div>
+                <span class="count-pill" id="BankReceipt-count">0 vouchers</span>
+            </div>
+            <div class="card table-card">
+                <div class="table-scroll">
+                    <table class="data-table">
+                        <thead><tr><th>Voucher No.</th><th>Date</th><th>Bank/Cash A/c</th><th>Party</th><th class="num">Amount</th><th></th></tr></thead>
+                        <tbody id="BankReceipt-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ BANK PAYMENT ============ -->
+        <section id="page-bank-payment" class="page">
+            <div class="page-head">
+                <div>
+                    <h1>Bank Payment</h1>
+                    <p class="page-sub">Money going out against any account — paying down a supplier balance, anything not tied to a Purchase invoice.</p>
+                </div>
+                <button class="btn btn-primary" onclick="openBankVoucherForm('BankPayment')">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    New Bank Payment
+                </button>
+            </div>
+            <div class="toolbar-row">
+                <div class="search-field">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input type="text" id="BankPayment-search" placeholder="Search by voucher no. or party…" oninput="renderVoucherList('BankPayment', this.value)">
+                </div>
+                <span class="count-pill" id="BankPayment-count">0 vouchers</span>
+            </div>
+            <div class="card table-card">
+                <div class="table-scroll">
+                    <table class="data-table">
+                        <thead><tr><th>Voucher No.</th><th>Date</th><th>Bank/Cash A/c</th><th>Party</th><th class="num">Amount</th><th></th></tr></thead>
+                        <tbody id="BankPayment-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ SHARED BANK RECEIPT / PAYMENT FORM ============ -->
+        <div class="modal-backdrop hidden" id="bankvoucher-modal">
+            <div class="modal">
+                <div class="modal-head">
+                    <h2 id="bankvoucher-modal-title">New Bank Receipt</h2>
+                    <button class="icon-btn" onclick="closeBankVoucherForm()">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    </button>
+                </div>
+                <form id="bankvoucher-form" class="modal-body" onsubmit="return false;">
+                    <input type="hidden" id="bv-id">
+                    <input type="hidden" id="bv-type">
+
+                    <div class="field-grid">
+                        <div class="field">
+                            <label>Voucher No.</label>
+                            <input type="text" id="bv-number" readonly>
+                        </div>
+                        <div class="field">
+                            <label for="bv-date">Date <span class="req">*</span></label>
+                            <input type="date" id="bv-date" required>
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label id="bv-bank-label">Bank/Cash Account <span class="req">*</span></label>
+                        <select id="bv-bank-account" required></select>
+                    </div>
+
+                    <div class="field">
+                        <label id="bv-party-label">Party <span class="req">*</span></label>
+                        <select id="bv-party-account" required onchange="onBankVoucherPartyChange()"></select>
+                        <span class="hint" id="bv-party-balance"></span>
+                    </div>
+
+                    <div class="field">
+                        <label for="bv-amount">Amount <span class="req">*</span></label>
+                        <div class="amount-control">
+                            <span class="amount-prefix">Rs.</span>
+                            <input type="text" id="bv-amount" inputmode="decimal" placeholder="0" oninput="formatAmountInput(this)">
+                        </div>
+                    </div>
+
+                    <div class="field-grid">
+                        <div class="field">
+                            <label for="bv-cheque-no">Cheque No.</label>
+                            <input type="text" id="bv-cheque-no" placeholder="Optional">
+                        </div>
+                        <div class="field">
+                            <label for="bv-cheque-date">Cheque Date</label>
+                            <input type="date" id="bv-cheque-date">
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label for="bv-narration">Narration</label>
+                        <textarea id="bv-narration" rows="2" placeholder="What is this for?"></textarea>
+                    </div>
+                </form>
+                <div class="modal-foot">
+                    <button class="btn btn-ghost" onclick="closeBankVoucherForm()">Cancel</button>
+                    <button class="btn btn-primary" id="bankvoucher-save-btn" onclick="saveBankVoucher()">
+                        <span class="btn-label">Save Voucher</span>
+                        <span class="btn-spinner hidden"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ PETTY CASH ============ -->
+        <section id="page-petty-cash" class="page">
+            <div class="page-head">
+                <div>
+                    <h1>Petty Cash</h1>
+                    <p class="page-sub">Small day-to-day cash expenses — tea, transport, stationery — several in one voucher.</p>
+                </div>
+                <button class="btn btn-primary" onclick="openPettyCashForm()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    New Petty Cash Voucher
+                </button>
+            </div>
+            <div class="toolbar-row">
+                <div class="search-field">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input type="text" id="PettyCash-search" placeholder="Search by voucher no…" oninput="renderVoucherList('PettyCash', this.value)">
+                </div>
+                <span class="count-pill" id="PettyCash-count">0 vouchers</span>
+            </div>
+            <div class="card table-card">
+                <div class="table-scroll">
+                    <table class="data-table">
+                        <thead><tr><th>Voucher No.</th><th>Date</th><th>Cash A/c</th><th>Lines</th><th class="num">Total</th><th></th></tr></thead>
+                        <tbody id="PettyCash-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ PETTY CASH FORM ============ -->
+        <div class="modal-backdrop hidden" id="pettycash-modal">
+            <div class="modal modal-lg">
+                <div class="modal-head">
+                    <h2>New Petty Cash Voucher</h2>
+                    <button class="icon-btn" onclick="closePettyCashForm()">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    </button>
+                </div>
+                <form id="pettycash-form" class="modal-body" onsubmit="return false;">
+                    <input type="hidden" id="pc-id">
+
+                    <div class="field-grid">
+                        <div class="field">
+                            <label>Voucher No.</label>
+                            <input type="text" id="pc-number" readonly>
+                        </div>
+                        <div class="field">
+                            <label for="pc-date">Date <span class="req">*</span></label>
+                            <input type="date" id="pc-date" required>
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label for="pc-cash-account">Paid From (Cash/Bank Account) <span class="req">*</span></label>
+                        <select id="pc-cash-account" required></select>
+                    </div>
+
+                    <div class="field">
+                        <div class="item-lines-head">
+                            <label>Expense lines</label>
+                            <button type="button" class="btn-outline-text" onclick="addPettyCashLine()">+ Add expense line</button>
+                        </div>
+                        <div class="item-rows-table">
+                            <div class="pc-line pc-line-head">
+                                <span>Expense head</span><span>Amount</span><span>Narration</span><span></span>
+                            </div>
+                            <div id="pc-lines"></div>
+                        </div>
+                    </div>
+
+                    <div class="totals-box">
+                        <div class="totals-row totals-grand"><span>Total</span><span id="pc-total">Rs. 0</span></div>
+                    </div>
+                </form>
+                <div class="modal-foot">
+                    <button class="btn btn-ghost" onclick="closePettyCashForm()">Cancel</button>
+                    <button class="btn btn-primary" id="pettycash-save-btn" onclick="savePettyCash()">
+                        <span class="btn-label">Save Voucher</span>
+                        <span class="btn-spinner hidden"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ JOURNAL VOUCHER ============ -->
+        <section id="page-journal" class="page">
+            <div class="page-head">
+                <div>
+                    <h1>Journal Voucher</h1>
+                    <p class="page-sub">Manual Dr/Cr entries between any accounts — corrections, adjustments, missed opening entries.</p>
+                </div>
+                <button class="btn btn-primary" onclick="openJournalForm()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    New Journal Voucher
+                </button>
+            </div>
+            <div class="toolbar-row">
+                <div class="search-field">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input type="text" id="Journal-search" placeholder="Search by voucher no. or narration…" oninput="renderVoucherList('Journal', this.value)">
+                </div>
+                <span class="count-pill" id="Journal-count">0 vouchers</span>
+            </div>
+            <div class="card table-card">
+                <div class="table-scroll">
+                    <table class="data-table">
+                        <thead><tr><th>Voucher No.</th><th>Date</th><th>Narration</th><th>Lines</th><th class="num">Total</th><th></th></tr></thead>
+                        <tbody id="Journal-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ JOURNAL VOUCHER FORM ============ -->
+        <div class="modal-backdrop hidden" id="journal-modal">
+            <div class="modal modal-lg">
+                <div class="modal-head">
+                    <h2>New Journal Voucher</h2>
+                    <button class="icon-btn" onclick="closeJournalForm()">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    </button>
+                </div>
+                <form id="journal-form" class="modal-body" onsubmit="return false;">
+                    <input type="hidden" id="jv-id">
+
+                    <div class="field-grid">
+                        <div class="field">
+                            <label>Voucher No.</label>
+                            <input type="text" id="jv-number" readonly>
+                        </div>
+                        <div class="field">
+                            <label for="jv-date">Date <span class="req">*</span></label>
+                            <input type="date" id="jv-date" required>
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label for="jv-narration">Narration</label>
+                        <input type="text" id="jv-narration" placeholder="What is this adjustment for?">
+                    </div>
+
+                    <div class="field">
+                        <div class="item-lines-head">
+                            <label>Dr / Cr lines</label>
+                            <button type="button" class="btn-outline-text" onclick="addJournalLine()">+ Add line</button>
+                        </div>
+                        <div class="item-rows-table">
+                            <div class="jv-line jv-line-head">
+                                <span>Account</span><span>Debit</span><span>Credit</span><span></span>
+                            </div>
+                            <div id="jv-lines"></div>
+                        </div>
+                        <span class="hint">Every line needs either a Debit or a Credit amount, not both.</span>
+                    </div>
+
+                    <div class="totals-box">
+                        <div class="totals-row"><span>Total Debit</span><span id="jv-total-dr">Rs. 0</span></div>
+                        <div class="totals-row"><span>Total Credit</span><span id="jv-total-cr">Rs. 0</span></div>
+                        <div class="totals-row totals-grand"><span id="jv-balance-label">Difference</span><span id="jv-difference">Rs. 0</span></div>
+                    </div>
+                </form>
+                <div class="modal-foot">
+                    <button class="btn btn-ghost" onclick="closeJournalForm()">Cancel</button>
+                    <button class="btn btn-primary" id="journal-save-btn" onclick="saveJournal()">
+                        <span class="btn-label">Save Voucher</span>
+                        <span class="btn-spinner hidden"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ CHART OF ACCOUNTS ============ -->
+        <section id="page-chart-of-accounts" class="page">
+            <div class="page-head">
+                <div>
+                    <h1>Chart of Accounts</h1>
+                    <p class="page-sub">Every account, grouped by type, with its opening balance.</p>
+                </div>
+            </div>
+            <div class="toolbar-row">
+                <div class="search-field">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input type="text" id="coa-search" placeholder="Search by title…" oninput="renderChartOfAccounts()">
+                </div>
+                <select id="coa-type-filter" class="select-chip" onchange="renderChartOfAccounts()"><option value="">All types</option></select>
+                <span class="count-pill" id="coa-count">0 accounts</span>
+            </div>
+            <div class="card table-card">
+                <div class="table-scroll">
+                    <table class="data-table">
+                        <thead><tr><th>Type</th><th>Title</th><th>Mobile</th><th>City</th><th class="num">Opening Balance</th></tr></thead>
+                        <tbody id="coa-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ ACCOUNT BALANCES ============ -->
+        <section id="page-account-balances" class="page">
+            <div class="page-head">
+                <div>
+                    <h1>Account Balances</h1>
+                    <p class="page-sub">Opening balance plus every ledger movement since — where every account stands right now.</p>
+                </div>
+            </div>
+            <div class="toolbar-row">
+                <div class="search-field">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input type="text" id="bal-search" placeholder="Search by title…" oninput="renderAccountBalances()">
+                </div>
+                <select id="bal-type-filter" class="select-chip" onchange="renderAccountBalances()"><option value="">All types</option></select>
+                <label class="check-row"><input type="checkbox" id="bal-hide-zero" onchange="renderAccountBalances()"><span>Hide zero balances</span></label>
+                <span class="count-pill" id="bal-count">0 accounts</span>
+            </div>
+            <div class="card table-card">
+                <div class="table-scroll">
+                    <table class="data-table">
+                        <thead><tr><th>Title</th><th>Type</th><th class="num">Current Balance</th></tr></thead>
+                        <tbody id="balances-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ ACCOUNT LEDGER ============ -->
+        <section id="page-account-ledger" class="page">
+            <div class="page-head">
+                <div>
+                    <h1>Account Ledger</h1>
+                    <p class="page-sub">Every entry posted to one account, with a running balance.</p>
+                </div>
+            </div>
+            <div class="report-toolbar">
+                <div class="report-field"><label>Account</label><select id="al-account" onchange="renderAccountLedgerReport()"></select></div>
+                <div class="report-field"><label>From</label><input type="date" id="al-date-from" onchange="renderAccountLedgerReport()"></div>
+                <div class="report-field"><label>To</label><input type="date" id="al-date-to" onchange="renderAccountLedgerReport()"></div>
+            </div>
+            <div class="report-summary-row">
+                <div class="report-summary-card"><span class="report-summary-label">Opening Balance</span><span class="report-summary-value" id="al-opening">Rs. 0</span></div>
+                <div class="report-summary-card"><span class="report-summary-label">Closing Balance</span><span class="report-summary-value" id="al-closing">Rs. 0</span></div>
+            </div>
+            <div class="card table-card">
+                <div class="table-scroll">
+                    <table class="data-table">
+                        <thead><tr><th>Date</th><th>Type</th><th>Ref</th><th>Note</th><th class="num">Debit</th><th class="num">Credit</th><th class="num">Balance</th></tr></thead>
+                        <tbody id="account-ledger-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ LOAD LEDGER ============ -->
+        <section id="page-load-ledger" class="page">
+            <div class="page-head">
+                <div>
+                    <h1>Load Ledger</h1>
+                    <p class="page-sub">Pure quantity movement of Load — every Purchase, Sale, and Return, no currency involved.</p>
+                </div>
+            </div>
+            <div class="report-toolbar">
+                <div class="report-field"><label>From</label><input type="date" id="ll-date-from" onchange="renderLoadLedgerReport()"></div>
+                <div class="report-field"><label>To</label><input type="date" id="ll-date-to" onchange="renderLoadLedgerReport()"></div>
+            </div>
+            <div class="report-summary-row">
+                <div class="report-summary-card"><span class="report-summary-label">Opening Balance</span><span class="report-summary-value" id="ll-opening">0</span></div>
+                <div class="report-summary-card"><span class="report-summary-label">Closing Balance</span><span class="report-summary-value" id="ll-closing">0</span></div>
+            </div>
+            <div class="card table-card">
+                <div class="table-scroll">
+                    <table class="data-table">
+                        <thead><tr><th>Date</th><th>Type</th><th>Ref</th><th>Note</th><th class="num">Qty In</th><th class="num">Qty Out</th><th class="num">Balance</th></tr></thead>
+                        <tbody id="load-ledger-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ ITEM LEDGER ============ -->
+        <section id="page-item-ledger" class="page">
+            <div class="page-head">
+                <div>
+                    <h1>Item Ledger</h1>
+                    <p class="page-sub">Stock movement for one item, with a running quantity balance.</p>
+                </div>
+            </div>
+            <div class="report-toolbar">
+                <div class="report-field"><label>Item</label><select id="il-item" onchange="renderItemLedgerReport()"></select></div>
+                <div class="report-field"><label>From</label><input type="date" id="il-date-from" onchange="renderItemLedgerReport()"></div>
+                <div class="report-field"><label>To</label><input type="date" id="il-date-to" onchange="renderItemLedgerReport()"></div>
+            </div>
+            <div class="report-summary-row">
+                <div class="report-summary-card"><span class="report-summary-label">Opening Stock</span><span class="report-summary-value" id="il-opening">0</span></div>
+                <div class="report-summary-card"><span class="report-summary-label">Closing Stock</span><span class="report-summary-value" id="il-closing">0</span></div>
+            </div>
+            <div class="card table-card">
+                <div class="table-scroll">
+                    <table class="data-table">
+                        <thead><tr><th>Date</th><th>Type</th><th>Ref</th><th class="num">Qty In</th><th class="num">Qty Out</th><th class="num">Balance</th></tr></thead>
+                        <tbody id="item-ledger-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ STOCK REPORT ============ -->
+        <section id="page-stock-report" class="page">
+            <div class="page-head">
+                <div>
+                    <h1>Stock Report</h1>
+                    <p class="page-sub">Current stock on hand for every item, computed from the Item Ledger.</p>
+                </div>
+            </div>
+            <div class="toolbar-row">
+                <div class="search-field">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input type="text" id="stock-search" placeholder="Search by item name…" oninput="renderStockReport()">
+                </div>
+                <span class="count-pill" id="stock-count">0 items</span>
+            </div>
+            <div class="card table-card">
+                <div class="table-scroll">
+                    <table class="data-table">
+                        <thead><tr><th>Item Name</th><th>Category</th><th>Unit</th><th class="num">Current Stock</th><th class="num">Purchase Price</th><th class="num">Sale Price</th></tr></thead>
+                        <tbody id="stock-report-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ CASH BOOK ============ -->
+        <section id="page-cash-book" class="page">
+            <div class="page-head">
+                <div>
+                    <h1>Cash Book</h1>
+                    <p class="page-sub">Every entry posted to a Cash or Bank account, with a running balance.</p>
+                </div>
+            </div>
+            <div class="report-toolbar">
+                <div class="report-field"><label>Account</label><select id="cb-account" onchange="renderCashBookReport()"></select></div>
+                <div class="report-field"><label>From</label><input type="date" id="cb-date-from" onchange="renderCashBookReport()"></div>
+                <div class="report-field"><label>To</label><input type="date" id="cb-date-to" onchange="renderCashBookReport()"></div>
+            </div>
+            <div class="report-summary-row">
+                <div class="report-summary-card"><span class="report-summary-label">Opening Balance</span><span class="report-summary-value" id="cb-opening">Rs. 0</span></div>
+                <div class="report-summary-card"><span class="report-summary-label">Closing Balance</span><span class="report-summary-value" id="cb-closing">Rs. 0</span></div>
+            </div>
+            <div class="card table-card">
+                <div class="table-scroll">
+                    <table class="data-table">
+                        <thead><tr><th>Date</th><th>Type</th><th>Ref</th><th>Note</th><th class="num">Debit</th><th class="num">Credit</th><th class="num">Balance</th></tr></thead>
+                        <tbody id="cash-book-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ SALE INVOICES REPORT ============ -->
+        <section id="page-sale-report" class="page">
+            <div class="page-head">
+                <div>
+                    <h1>Sale Invoices Report</h1>
+                    <p class="page-sub">Every Sale invoice, filterable by date.</p>
+                </div>
+            </div>
+            <div class="report-toolbar">
+                <div class="report-field"><label>From</label><input type="date" id="Sale-report-date-from" onchange="renderInvoiceReport('Sale')"></div>
+                <div class="report-field"><label>To</label><input type="date" id="Sale-report-date-to" onchange="renderInvoiceReport('Sale')"></div>
+                <div class="search-field" style="flex:1;">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input type="text" id="Sale-report-search" placeholder="Search by invoice no. or party…" oninput="renderInvoiceReport('Sale')">
+                </div>
+            </div>
+            <div class="report-summary-row">
+                <div class="report-summary-card"><span class="report-summary-label">Invoices</span><span class="report-summary-value" id="Sale-report-count">0</span></div>
+                <div class="report-summary-card"><span class="report-summary-label">Total Sale Amount</span><span class="report-summary-value" id="Sale-report-total">Rs. 0</span></div>
+            </div>
+            <div class="card table-card">
+                <div class="table-scroll">
+                    <table class="data-table">
+                        <thead><tr><th>Invoice No.</th><th>Date</th><th>Party</th><th class="num">Load Qty</th><th class="num">Grand Total</th><th class="num">Balance</th></tr></thead>
+                        <tbody id="Sale-report-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ PURCHASE INVOICES REPORT ============ -->
+        <section id="page-purchase-report" class="page">
+            <div class="page-head">
+                <div>
+                    <h1>Purchase Invoices Report</h1>
+                    <p class="page-sub">Every Purchase invoice, filterable by date.</p>
+                </div>
+            </div>
+            <div class="report-toolbar">
+                <div class="report-field"><label>From</label><input type="date" id="Purchase-report-date-from" onchange="renderInvoiceReport('Purchase')"></div>
+                <div class="report-field"><label>To</label><input type="date" id="Purchase-report-date-to" onchange="renderInvoiceReport('Purchase')"></div>
+                <div class="search-field" style="flex:1;">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input type="text" id="Purchase-report-search" placeholder="Search by invoice no. or supplier…" oninput="renderInvoiceReport('Purchase')">
+                </div>
+            </div>
+            <div class="report-summary-row">
+                <div class="report-summary-card"><span class="report-summary-label">Invoices</span><span class="report-summary-value" id="Purchase-report-count">0</span></div>
+                <div class="report-summary-card"><span class="report-summary-label">Total Purchase Amount</span><span class="report-summary-value" id="Purchase-report-total">Rs. 0</span></div>
+            </div>
+            <div class="card table-card">
+                <div class="table-scroll">
+                    <table class="data-table">
+                        <thead><tr><th>Invoice No.</th><th>Date</th><th>Supplier</th><th class="num">Load Qty</th><th class="num">Grand Total</th><th class="num">Balance</th></tr></thead>
+                        <tbody id="Purchase-report-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ TRIAL BALANCE ============ -->
+        <section id="page-trial-balance" class="page">
+            <div class="page-head">
+                <div>
+                    <h1>Trial Balance</h1>
+                    <p class="page-sub">Every account's balance as of a chosen date — Debit and Credit totals should match.</p>
+                </div>
+            </div>
+            <div class="report-toolbar">
+                <div class="report-field"><label>As of</label><input type="date" id="tb-as-of" onchange="renderTrialBalance()"></div>
+            </div>
+            <div class="card table-card">
+                <div class="table-scroll">
+                    <table class="data-table">
+                        <thead><tr><th>Account</th><th>Type</th><th class="num">Debit</th><th class="num">Credit</th></tr></thead>
+                        <tbody id="tb-table-body"></tbody>
+                        <tfoot id="tb-table-foot"></tfoot>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ BALANCE SHEET ============ -->
+        <section id="page-balance-sheet" class="page">
+            <div class="page-head">
+                <div>
+                    <h1>Balance Sheet</h1>
+                    <p class="page-sub">What the business owns, owes, and is worth, as of a chosen date.</p>
+                </div>
+            </div>
+            <div class="report-toolbar">
+                <div class="report-field"><label>As of</label><input type="date" id="bs-as-of" onchange="renderBalanceSheet()"></div>
+            </div>
+            <div class="report-summary-row">
+                <div class="report-summary-card"><span class="report-summary-label">Total Assets</span><span class="report-summary-value" id="bs-total-assets">Rs. 0</span></div>
+                <div class="report-summary-card"><span class="report-summary-label">Liabilities + Equity</span><span class="report-summary-value" id="bs-total-liab-equity">Rs. 0</span></div>
+                <div class="report-summary-card"><span class="report-summary-label">Difference</span><span class="report-summary-value" id="bs-difference">Rs. 0</span></div>
+            </div>
+            <div class="statement-grid">
+                <div class="card statement-section">
+                    <h3>Assets</h3>
+                    <div id="bs-assets-rows"></div>
+                    <div class="statement-row statement-total"><span>Total Assets</span><span id="bs-assets-total">Rs. 0</span></div>
+                </div>
+                <div class="card statement-section">
+                    <h3>Liabilities &amp; Equity</h3>
+                    <div class="statement-subtitle">Liabilities</div>
+                    <div id="bs-liabilities-rows"></div>
+                    <div class="statement-subtitle">Equity</div>
+                    <div id="bs-equity-rows"></div>
+                    <div class="statement-row statement-total"><span>Total Liabilities + Equity</span><span id="bs-liab-equity-total">Rs. 0</span></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ PROFIT ON SALE ============ -->
+        <section id="page-profit-on-sale" class="page">
+            <div class="page-head">
+                <div>
+                    <h1>Profit on Sale</h1>
+                    <p class="page-sub">Trading margin over a period — Load and Items broken out separately.</p>
+                </div>
+            </div>
+            <div class="report-toolbar">
+                <div class="report-field"><label>From</label><input type="date" id="pos-date-from" onchange="renderProfitOnSale()"></div>
+                <div class="report-field"><label>To</label><input type="date" id="pos-date-to" onchange="renderProfitOnSale()"></div>
+            </div>
+            <div class="card statement-section">
+                <div class="statement-subtitle">Load</div>
+                <div class="statement-row"><span>Sales</span><span id="pos-load-sales">Rs. 0</span></div>
+                <div class="statement-row"><span>Purchases</span><span id="pos-load-purchases">Rs. 0</span></div>
+                <div class="statement-row statement-total"><span>Load Profit</span><span id="pos-load-profit">Rs. 0</span></div>
+
+                <div class="statement-subtitle">Items</div>
+                <div class="statement-row"><span>Sales</span><span id="pos-items-sales">Rs. 0</span></div>
+                <div class="statement-row"><span>Purchases</span><span id="pos-items-purchases">Rs. 0</span></div>
+                <div class="statement-row statement-total"><span>Items Profit</span><span id="pos-items-profit">Rs. 0</span></div>
+
+                <div class="statement-subtitle">Combined</div>
+                <div class="statement-row statement-total"><span>Total Trading Profit</span><span id="pos-total-profit">Rs. 0</span></div>
+            </div>
+        </section>
+
+        <!-- ============ PROFIT & LOSS ============ -->
+        <section id="page-profit-loss" class="page">
+            <div class="page-head">
+                <div>
+                    <h1>Profit &amp; Loss</h1>
+                    <p class="page-sub">Trading profit plus other income, minus operating expenses, over a period.</p>
+                </div>
+            </div>
+            <div class="report-toolbar">
+                <div class="report-field"><label>From</label><input type="date" id="pl-date-from" onchange="renderProfitAndLoss()"></div>
+                <div class="report-field"><label>To</label><input type="date" id="pl-date-to" onchange="renderProfitAndLoss()"></div>
+            </div>
+            <div class="statement-grid">
+                <div class="card statement-section">
+                    <h3>Trading Profit</h3>
+                    <div class="statement-row"><span>Load profit</span><span id="pl-load-profit">Rs. 0</span></div>
+                    <div class="statement-row"><span>Items profit</span><span id="pl-items-profit">Rs. 0</span></div>
+                    <div class="statement-row statement-total"><span>Trading Profit</span><span id="pl-trading-profit">Rs. 0</span></div>
+
+                    <div class="statement-subtitle">Other Income</div>
+                    <div id="pl-income-rows"></div>
+                    <div class="statement-row statement-total"><span>Total Other Income</span><span id="pl-income-total">Rs. 0</span></div>
+                </div>
+                <div class="card statement-section">
+                    <h3>Operating Expenses</h3>
+                    <div id="pl-expense-rows"></div>
+                    <div class="statement-row statement-total"><span>Total Operating Expenses</span><span id="pl-expense-total">Rs. 0</span></div>
+
+                    <div class="statement-subtitle">Result</div>
+                    <div class="statement-row"><span>Trading Profit</span><span id="pl-summary-trading">Rs. 0</span></div>
+                    <div class="statement-row"><span>+ Other Income</span><span id="pl-summary-income">Rs. 0</span></div>
+                    <div class="statement-row"><span>− Operating Expenses</span><span id="pl-summary-expense">Rs. 0</span></div>
+                    <div class="statement-row statement-total"><span id="pl-net-label">Net Profit</span><span id="pl-net-profit">Rs. 0</span></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ SEARCH ACCOUNT ============ -->
+        <section id="page-search-account" class="page">
+            <div class="page-head">
+                <div>
+                    <h1>Search Account</h1>
+                    <p class="page-sub">A quick lookup — type a name, phone, or city to find any account and its current balance.</p>
+                </div>
+            </div>
+            <div class="toolbar-row">
+                <div class="search-field" style="max-width:none; flex:1;">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input type="text" id="sa-search" placeholder="Search by title, mobile, or city…" oninput="renderSearchAccountResults()" autofocus>
+                </div>
+                <span class="count-pill" id="sa-count">0 accounts</span>
+            </div>
+            <div class="card table-card">
+                <div class="table-scroll">
+                    <table class="data-table">
+                        <thead><tr><th>Title</th><th>Type</th><th>Mobile</th><th>City</th><th class="num">Current Balance</th><th></th></tr></thead>
+                        <tbody id="sa-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ SEARCH ITEM ============ -->
+        <section id="page-search-item" class="page">
+            <div class="page-head">
+                <div>
+                    <h1>Search Item</h1>
+                    <p class="page-sub">A quick lookup — type an item name or category to find current stock and prices.</p>
+                </div>
+            </div>
+            <div class="toolbar-row">
+                <div class="search-field" style="max-width:none; flex:1;">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input type="text" id="si-search" placeholder="Search by item name or category…" oninput="renderSearchItemResults()" autofocus>
+                </div>
+                <span class="count-pill" id="si-count">0 items</span>
+            </div>
+            <div class="card table-card">
+                <div class="table-scroll">
+                    <table class="data-table">
+                        <thead><tr><th>Item Name</th><th>Category</th><th>Unit</th><th class="num">Current Stock</th><th class="num">Purchase Price</th><th class="num">Sale Price</th><th></th></tr></thead>
+                        <tbody id="si-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ EDIT LOG ============ -->
+        <section id="page-edit-log" class="page">
+            <div class="page-head">
+                <div>
+                    <h1>Edit Log</h1>
+                    <p class="page-sub">Every create, update, and delete across the app, with who did it and when.</p>
+                </div>
+            </div>
+            <div class="toolbar-row">
+                <div class="search-field" style="max-width:none; flex:1;">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input type="text" id="el-search" placeholder="Search by user, type, or details…" oninput="renderEditLog()">
+                </div>
+                <select id="el-action-filter" class="select-chip" onchange="renderEditLog()">
+                    <option value="">All actions</option>
+                    <option value="Created">Created</option>
+                    <option value="Updated">Updated</option>
+                    <option value="Deleted">Deleted</option>
+                </select>
+                <span class="count-pill" id="el-count">0 entries</span>
+            </div>
+            <div class="card table-card">
+                <div class="table-scroll">
+                    <table class="data-table">
+                        <thead><tr><th>When</th><th>User</th><th>Action</th><th>Type</th><th>Details</th></tr></thead>
+                        <tbody id="el-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ PLACEHOLDER (unbuilt sections) ============ -->
+        <section id="page-placeholder" class="page">
+            <div class="empty-panel">
+                <svg width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 12h8M12 8v8"/></svg>
+                <h2>Not built yet</h2>
+                <p>This screen comes later — we're building LedgerFlow module by module. Management is up first.</p>
+            </div>
+        </section>
+
+        <!-- ============ BACKUP DATA ============ -->
+        <section id="page-backup" class="page">
+            <div class="page-head">
+                <div>
+                    <h1>Backup Data</h1>
+                    <p class="page-sub">Everything currently lives in this browser only — download a backup regularly so nothing is lost if the browser data is ever cleared.</p>
+                </div>
+            </div>
+
+            <div class="dash-grid">
+                <div class="card dash-stat"><span class="dash-stat-label">Accounts</span><span class="dash-stat-value" id="backup-accounts-count">0</span></div>
+                <div class="card dash-stat"><span class="dash-stat-label">Items</span><span class="dash-stat-value" id="backup-items-count">0</span></div>
+                <div class="card dash-stat"><span class="dash-stat-label">Invoices</span><span class="dash-stat-value" id="backup-invoices-count">0</span></div>
+                <div class="card dash-stat"><span class="dash-stat-label">Vouchers</span><span class="dash-stat-value" id="backup-vouchers-count">0</span></div>
+            </div>
+
+            <div class="statement-grid">
+                <div class="card statement-section">
+                    <h3>Download a backup</h3>
+                    <p class="page-sub" style="margin-bottom:1rem;">Saves everything — accounts, items, users, invoices, vouchers, and every ledger — into one file you can keep safe or hand to another device.</p>
+                    <button class="btn btn-primary" onclick="exportBackup()">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        Download Backup (.json)
+                    </button>
+                </div>
+                <div class="card statement-section">
+                    <h3>Restore from a backup</h3>
+                    <p class="page-sub" style="margin-bottom:1rem;">⚠️ This replaces everything currently in LedgerFlow with what's in the file. There's no undo — download a fresh backup first if you're unsure.</p>
+                    <input type="file" id="restore-file-input" accept="application/json" onchange="handleRestoreFile(this)" style="display:none;">
+                    <button class="btn btn-ghost" onclick="$('restore-file-input').click()">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                        Choose Backup File to Restore
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ CHANGE PASSWORD ============ -->
+        <section id="page-change-password" class="page">
+            <div class="page-head">
+                <div>
+                    <h1>Change Password</h1>
+                    <p class="page-sub">Update your own login password.</p>
+                </div>
+            </div>
+            <div class="card" style="max-width:480px; padding:1.4rem;">
+                <p class="hint" style="margin-bottom:1rem;">Signed in as <strong id="cp-current-user-email">—</strong></p>
+                <form id="change-password-form" onsubmit="return false;" style="display:flex; flex-direction:column; gap:1.1rem;">
+                    <div class="field">
+                        <label for="cp-current">Current Password <span class="req">*</span></label>
+                        <input type="password" id="cp-current" placeholder="Enter current password" required>
+                    </div>
+                    <div class="field">
+                        <label for="cp-new">New Password <span class="req">*</span></label>
+                        <input type="password" id="cp-new" placeholder="Minimum 6 characters" required>
+                    </div>
+                    <div class="field">
+                        <label for="cp-confirm">Confirm New Password <span class="req">*</span></label>
+                        <input type="password" id="cp-confirm" placeholder="Retype the new password" required>
+                    </div>
+                    <button class="btn btn-primary" id="change-password-btn" onclick="saveNewPassword()" style="align-self:flex-start;">
+                        <span class="btn-label">Update Password</span>
+                        <span class="btn-spinner hidden"></span>
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- ============ SETTINGS ============ -->
+        <section id="page-settings" class="page">
+            <div class="page-head">
+                <div>
+                    <h1>Settings</h1>
+                    <p class="page-sub">This is what makes each company's copy of the software its own.</p>
+                </div>
+            </div>
+
+            <div class="statement-grid">
+                <div class="card statement-section">
+                    <h3>Company Profile</h3>
+                    <form id="settings-form" onsubmit="return false;" style="display:flex; flex-direction:column; gap:1.1rem;">
+                        <div class="field">
+                            <label>Logo</label>
+                            <div class="logo-upload-row">
+                                <img id="settings-logo-preview" class="logo-preview hidden" alt="Logo preview">
+                                <span class="brand-mark logo-preview-fallback" id="settings-logo-fallback">L</span>
+                                <input type="file" id="settings-logo-input" accept="image/*" style="display:none;" onchange="handleLogoUpload(this)">
+                                <button type="button" class="btn-outline-text" onclick="$('settings-logo-input').click()">Upload logo</button>
+                                <button type="button" class="btn-danger-text" onclick="clearLogo()">Remove</button>
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <label for="settings-company-name">Company Name</label>
+                            <input type="text" id="settings-company-name" placeholder="Your business name">
+                        </div>
+
+                        <div class="field-grid">
+                            <div class="field">
+                                <label for="settings-company-phone">Phone</label>
+                                <div class="phone-control">
+                                    <span class="phone-prefix">+92</span>
+                                    <input type="tel" id="settings-company-phone" placeholder="333 2392852" maxlength="11" oninput="formatPhoneInput(this)">
+                                </div>
+                            </div>
+                            <div class="field">
+                                <label for="settings-company-email">Email</label>
+                                <input type="email" id="settings-company-email" placeholder="name@business.com">
+                            </div>
+                        </div>
+
+                        <div class="field-grid">
+                            <div class="field">
+                                <label for="settings-company-city">City</label>
+                                <input type="text" id="settings-company-city" placeholder="Karachi">
+                            </div>
+                            <div class="field">
+                                <label for="settings-company-ntn">NTN No.</label>
+                                <input type="text" id="settings-company-ntn" placeholder="Optional">
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <label for="settings-company-gst">GST No.</label>
+                            <input type="text" id="settings-company-gst" placeholder="Optional">
+                        </div>
+
+                        <div class="field">
+                            <label for="settings-company-address">Address</label>
+                            <textarea id="settings-company-address" rows="2" placeholder="Street, area, landmark"></textarea>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="card statement-section">
+                    <h3>Preferences</h3>
+                    <div style="display:flex; flex-direction:column; gap:1.1rem;">
+                        <div class="field">
+                            <label for="settings-currency-label">Currency Label</label>
+                            <input type="text" id="settings-currency-label" placeholder="Rs.">
+                            <span class="hint">Shown in front of every amount across the app.</span>
+                        </div>
+                        <label class="check-row check-row-strong">
+                            <input type="checkbox" id="settings-dark-mode" onchange="onDarkModeCheckboxChange()">
+                            <span>Dark Mode</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn btn-primary" id="settings-save-btn" onclick="saveSettings()">
+                <span class="btn-label">Save Settings</span>
+                <span class="btn-spinner hidden"></span>
+            </button>
+
+        </section>
+
+    </main>
+</div>
+</div>
+
+<!-- ==================== TOAST ==================== -->
+<div class="toast-stack" id="toast-stack"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/db.js"></script>
+<script src="js/app.js"></script>
+<script src="js/accounts.js"></script>
+<script src="js/items.js"></script>
+<script src="js/users.js"></script>
+<script src="js/rights.js"></script>
+<script src="js/dataentry.js"></script>
+<script src="js/vouchers.js"></script>
+<script src="js/reports.js"></script>
+<script src="js/reports-financial.js"></script>
+<script src="js/utility.js"></script>
+<script src="js/tools.js"></script>
+<script src="js/auth.js"></script>
+</body>
+</html>
