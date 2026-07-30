@@ -201,8 +201,9 @@ function openReportFilterModal(pageId) {
     }
     if (config.fields.includes('dateRange')) {
         $('rf-field-date-range').classList.remove('hidden');
-        $('rf-date-from').value = '';
-        $('rf-date-to').value = '';
+        const companyStart = getCompanyDoc().signupDate || '';
+        $('rf-date-from').value = companyStart;
+        $('rf-date-to').value = new Date().toISOString().slice(0, 10);
     }
     if (config.fields.includes('asOf')) {
         $('rf-field-as-of').classList.remove('hidden');
