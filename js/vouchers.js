@@ -153,6 +153,15 @@ function openBankVoucherForm(type, editId = null) {
     if (editId) {
         const v = lfFindById(LF_KEYS.VOUCHERS, editId);
         if (!v) { showToast('Voucher not found.', 'error'); return; }
+
+        const note = $('bv-entered-by-note');
+        if (v.enteredBy) {
+            note.textContent = `Entered by ${v.enteredBy}` + (v.lastEditedBy && v.lastEditedBy !== v.enteredBy ? ` · last edited by ${v.lastEditedBy}` : '');
+            note.classList.remove('hidden');
+        } else {
+            note.classList.add('hidden');
+        }
+
         $('bv-id').value = v.id;
         $('bv-number').value = v.number;
         $('bv-date').value = v.date;
@@ -166,6 +175,7 @@ function openBankVoucherForm(type, editId = null) {
     } else {
         $('bv-number').value = peekNextVoucherNumber(type);
         $('bv-date').value = new Date().toISOString().slice(0, 10);
+        $('bv-entered-by-note').classList.add('hidden');
     }
 
     $('bankvoucher-modal').classList.remove('hidden');
@@ -255,6 +265,15 @@ function openPettyCashForm(editId = null) {
     if (editId) {
         const v = lfFindById(LF_KEYS.VOUCHERS, editId);
         if (!v) { showToast('Voucher not found.', 'error'); return; }
+
+        const note = $('pc-entered-by-note');
+        if (v.enteredBy) {
+            note.textContent = `Entered by ${v.enteredBy}` + (v.lastEditedBy && v.lastEditedBy !== v.enteredBy ? ` · last edited by ${v.lastEditedBy}` : '');
+            note.classList.remove('hidden');
+        } else {
+            note.classList.add('hidden');
+        }
+
         $('pc-id').value = v.id;
         $('pc-number').value = v.number;
         $('pc-date').value = v.date;
@@ -263,6 +282,7 @@ function openPettyCashForm(editId = null) {
     } else {
         $('pc-number').value = peekNextVoucherNumber('PettyCash');
         $('pc-date').value = new Date().toISOString().slice(0, 10);
+        $('pc-entered-by-note').classList.add('hidden');
         addPettyCashLine();
     }
 
@@ -389,6 +409,15 @@ function openJournalForm(editId = null) {
     if (editId) {
         const v = lfFindById(LF_KEYS.VOUCHERS, editId);
         if (!v) { showToast('Voucher not found.', 'error'); return; }
+
+        const note = $('jv-entered-by-note');
+        if (v.enteredBy) {
+            note.textContent = `Entered by ${v.enteredBy}` + (v.lastEditedBy && v.lastEditedBy !== v.enteredBy ? ` · last edited by ${v.lastEditedBy}` : '');
+            note.classList.remove('hidden');
+        } else {
+            note.classList.add('hidden');
+        }
+
         $('jv-id').value = v.id;
         $('jv-number').value = v.number;
         $('jv-date').value = v.date;
@@ -397,6 +426,7 @@ function openJournalForm(editId = null) {
     } else {
         $('jv-number').value = peekNextVoucherNumber('Journal');
         $('jv-date').value = new Date().toISOString().slice(0, 10);
+        $('jv-entered-by-note').classList.add('hidden');
         addJournalLine();
         addJournalLine();
     }

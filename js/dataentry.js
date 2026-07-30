@@ -136,6 +136,14 @@ function openInvoiceForm(type, editId = null) {
         const inv = lfFindById(LF_KEYS.INVOICES, editId);
         if (!inv) { showToast('Invoice not found.', 'error'); return; }
 
+        const note = $('inv-entered-by-note');
+        if (inv.enteredBy) {
+            note.textContent = `Entered by ${inv.enteredBy}` + (inv.lastEditedBy && inv.lastEditedBy !== inv.enteredBy ? ` · last edited by ${inv.lastEditedBy}` : '');
+            note.classList.remove('hidden');
+        } else {
+            note.classList.add('hidden');
+        }
+
         $('inv-id').value = inv.id;
         $('inv-number').value = inv.number;
         $('inv-date').value = inv.date;
@@ -168,6 +176,7 @@ function openInvoiceForm(type, editId = null) {
     } else {
         $('inv-number').value = peekNextDocNumber(type, INVOICE_CONFIG[type].prefix);
         $('inv-date').value = new Date().toISOString().slice(0, 10);
+        $('inv-entered-by-note').classList.add('hidden');
     }
 
     recalcTotals();

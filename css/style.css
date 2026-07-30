@@ -937,17 +937,24 @@ button { font-family: inherit; }
     gap: 8px;
 }
 .dash-directory-card h3 svg { flex-shrink: 0; color: var(--teal); }
-.dash-directory-list { display: flex; flex-direction: column; }
+.dash-directory-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
 .dash-directory-list a {
-    padding: 0.45rem 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 0.8rem 0.5rem;
     color: var(--ink-soft);
     text-decoration: none;
-    font-size: 0.88rem;
-    border-top: 1px solid var(--border);
-    transition: color .15s var(--ease);
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-align: center;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    transition: all .15s var(--ease);
 }
-.dash-directory-list a:first-child { border-top: none; }
-.dash-directory-list a:hover { color: var(--teal-dark); }
+.dash-directory-list a svg { color: var(--teal); flex-shrink: 0; }
+.dash-directory-list a:hover { background: var(--teal-tint); color: var(--teal-dark); border-color: var(--teal); transform: translateY(-1px); }
 
 @media (max-width: 900px) {
     .dash-directory-grid { grid-template-columns: 1fr; }
