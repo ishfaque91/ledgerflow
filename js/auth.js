@@ -134,6 +134,28 @@ async function resolveCompanyAndShowApp(user) {
         watchCollection(LF_KEYS.INVOICES, () => Object.keys(INVOICE_CONFIG).forEach(t => renderInvoiceList(t)));
         watchCollection(LF_KEYS.VOUCHERS, () => ['BankReceipt', 'BankPayment', 'PettyCash', 'Journal'].forEach(t => renderVoucherList(t)));
         watchCollection(LF_KEYS.EDIT_LOG, () => renderEditLog());
+
+        // These three were previously never watched at all — meaning every
+        // screen that reads them (Account Ledger, Cash Book, Trial Balance,
+        // Balance Sheet, P&L, Load Ledger, Item Ledger, Stock Report, and the
+        // Dashboard's Load Balance) always showed empty, no matter what had
+        // actually been posted to the database.
+        watchCollection(LF_KEYS.ACCOUNT_LEDGER, () => {
+            renderAccountLedgerReport();
+            renderCashBookReport();
+            renderAccountBalances();
+            renderTrialBalance();
+            renderBalanceSheet();
+            renderProfitAndLoss();
+        });
+        watchCollection(LF_KEYS.LOAD_LEDGER, () => {
+            renderLoadLedgerReport();
+            renderDashboard();
+        });
+        watchCollection(LF_KEYS.ITEM_LEDGER, () => {
+            renderItemLedgerReport();
+            renderStockReport();
+        });
     } catch (err) {
         console.error('[Auth] Resolving company failed:', err);
         showToast('Something went wrong loading your account.', 'error');
