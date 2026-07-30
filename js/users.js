@@ -38,7 +38,7 @@ function renderUserList(searchTerm = '') {
 
     tbody.innerHTML = users.map(u => `
         <tr>
-            <td><strong>${escapeHtml(u.fullName)}</strong></td>
+            <td><strong>${escapeHtml(u.fullName)}</strong> <span class="type-badge">${u.role === 'owner' ? 'Owner' : 'Staff'}</span></td>
             <td>${escapeHtml(u.username)}</td>
             <td><span class="status-badge ${u.status === 'Inactive' ? 'is-inactive' : 'is-active'}">${escapeHtml(u.status || 'Active')}</span></td>
             <td>
@@ -128,7 +128,7 @@ async function saveUser() {
             await fbSecondaryAuth.signOut();
 
             await fbDb.collection('users').doc(uid).set({ companyId: currentCompanyId, email, fullName, role: 'staff' });
-            await lfUpsert(LF_KEYS.USERS, { fullName, username: email, status, linkedAuthUid: uid });
+            await lfUpsert(LF_KEYS.USERS, { fullName, username: email, status, linkedAuthUid: uid, role: 'staff' });
 
             showToast('User created — they can log in with that email and password now.', 'success');
             logActivity('Created', 'User', fullName);

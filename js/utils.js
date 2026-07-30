@@ -87,6 +87,15 @@ function debounce(fn, wait = 200) {
     };
 }
 
+// ==================== CURRENT USER DISPLAY NAME ====================
+// Used to record who entered/edited each transaction (Invoices, Vouchers).
+function getCurrentUserDisplayName() {
+    const authUser = (typeof fbAuth !== 'undefined') ? fbAuth.currentUser : null;
+    if (!authUser) return 'Unknown';
+    const match = lfGetAll(LF_KEYS.USERS).find(u => u.linkedAuthUid === authUser.uid);
+    return match ? match.fullName : (authUser.email || 'Unknown');
+}
+
 // ==================== ACTIVITY LOG ====================
 // Fire-and-forget on purpose — logging a failure should never block or
 // break the actual save/delete the person is trying to do.

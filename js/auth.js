@@ -61,7 +61,7 @@ async function handleSignup() {
         await fbDb.collection('users').doc(uid).set({ companyId, email, fullName, role: 'owner' });
 
         await companyDocRef.collection('users').add({
-            fullName, username: email, status: 'Active', linkedAuthUid: uid,
+            fullName, username: email, status: 'Active', linkedAuthUid: uid, role: 'owner',
             createdAt: new Date().toISOString(), updatedAt: new Date().toISOString()
         });
 

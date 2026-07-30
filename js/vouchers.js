@@ -55,7 +55,7 @@ function renderVoucherList(type, searchTerm = '') {
     $(`${type}-count`).textContent = `${vouchers.length} voucher${vouchers.length === 1 ? '' : 's'}`;
 
     if (vouchers.length === 0) {
-        tbody.innerHTML = `<tr class="empty-row"><td colspan="6">No entries yet.</td></tr>`;
+        tbody.innerHTML = `<tr class="empty-row"><td colspan="7">No entries yet.</td></tr>`;
         return;
     }
 
@@ -67,6 +67,7 @@ function renderVoucherList(type, searchTerm = '') {
                 <td>${escapeHtml(v.bankName)}</td>
                 <td>${escapeHtml(v.partyName)}</td>
                 <td class="num">${formatCurrency(v.amount)}</td>
+                <td>${escapeHtml(v.enteredBy) || '-'}</td>
                 <td>
                     <div class="row-actions">
                         <button class="btn-outline-text" onclick="openBankVoucherForm('${type}','${v.id}')">Edit</button>
@@ -83,6 +84,7 @@ function renderVoucherList(type, searchTerm = '') {
                 <td>${escapeHtml(v.cashAccountName)}</td>
                 <td>${(v.lines || []).length} line${(v.lines || []).length === 1 ? '' : 's'}</td>
                 <td class="num">${formatCurrency(v.total)}</td>
+                <td>${escapeHtml(v.enteredBy) || '-'}</td>
                 <td>
                     <div class="row-actions">
                         <button class="btn-outline-text" onclick="openPettyCashForm('${v.id}')">Edit</button>
@@ -99,6 +101,7 @@ function renderVoucherList(type, searchTerm = '') {
                 <td>${escapeHtml(v.narration) || '-'}</td>
                 <td>${(v.lines || []).length} line${(v.lines || []).length === 1 ? '' : 's'}</td>
                 <td class="num">${formatCurrency(v.totalDr)}</td>
+                <td>${escapeHtml(v.enteredBy) || '-'}</td>
                 <td>
                     <div class="row-actions">
                         <button class="btn-outline-text" onclick="openJournalForm('${v.id}')">Edit</button>
@@ -222,7 +225,9 @@ async function saveBankVoucher() {
             id: voucherId, type, number, date,
             bankAccountId, bankName: bankAcc ? bankAcc.title : '',
             partyAccountId, partyName: partyAcc ? partyAcc.title : '',
-            amount, chequeNo, chequeDate, narration
+            amount, chequeNo, chequeDate, narration,
+            enteredBy: id ? undefined : getCurrentUserDisplayName(),
+            lastEditedBy: getCurrentUserDisplayName()
         });
 
         showToast(`${config.title} ${id ? 'updated' : 'saved'} as ${number}.`, 'success');
@@ -357,7 +362,9 @@ async function savePettyCash() {
         await lfUpsert(LF_KEYS.VOUCHERS, {
             id: voucherId, type: 'PettyCash', number, date,
             cashAccountId, cashAccountName: cashAcc ? cashAcc.title : '',
-            lines, total
+            lines, total,
+            enteredBy: id ? undefined : getCurrentUserDisplayName(),
+            lastEditedBy: getCurrentUserDisplayName()
         });
 
         showToast(`Petty Cash voucher ${id ? 'updated' : 'saved'} as ${number}.`, 'success');
@@ -506,7 +513,9 @@ async function saveJournal() {
 
         await lfUpsert(LF_KEYS.VOUCHERS, {
             id: voucherId, type: 'Journal', number, date, narration,
-            lines, totalDr, totalCr
+            lines, totalDr, totalCr,
+            enteredBy: id ? undefined : getCurrentUserDisplayName(),
+            lastEditedBy: getCurrentUserDisplayName()
         });
 
         showToast(`Journal Voucher ${id ? 'updated' : 'saved'} as ${number}.`, 'success');

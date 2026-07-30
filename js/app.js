@@ -4,13 +4,6 @@
  * resolved after login — there's no data to show before that.
  */
 
-document.addEventListener('DOMContentLoaded', () => {
-    // Open the Management group by default since that's what we're building first
-    document.querySelectorAll('.nav-group').forEach(group => {
-        if (group.classList.contains('is-active')) group.classList.add('is-open');
-    });
-});
-
 // ==================== NAVIGATION ====================
 function navigateTo(pageId, linkEl) {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('is-active'));
@@ -18,7 +11,17 @@ function navigateTo(pageId, linkEl) {
     if (target) target.classList.add('is-active');
 
     document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('is-active'));
-    if (linkEl) linkEl.classList.add('is-active');
+
+    // Always look up the real sidebar link for this page — regardless of
+    // whether navigateTo() was triggered from the sidebar itself or from
+    // somewhere else, like the Dashboard's directory of links.
+    const sidebarLink = document.querySelector(`.sidebar .nav-link[data-page="${pageId}"]`);
+    if (sidebarLink) sidebarLink.classList.add('is-active');
+
+    // Collapse every other group, expand only the one this page belongs to.
+    document.querySelectorAll('.nav-group').forEach(g => g.classList.remove('is-open'));
+    const parentGroup = sidebarLink?.closest('.nav-group');
+    if (parentGroup) parentGroup.classList.add('is-open');
 
     if (pageId === 'page-dashboard') renderDashboard();
 

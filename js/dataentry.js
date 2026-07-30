@@ -77,7 +77,7 @@ function renderInvoiceList(type, searchTerm = '') {
     $(`${type}-count`).textContent = `${invoices.length} invoice${invoices.length === 1 ? '' : 's'}`;
 
     if (invoices.length === 0) {
-        tbody.innerHTML = `<tr class="empty-row"><td colspan="7">No ${INVOICE_CONFIG[type].title.toLowerCase()} entries yet.</td></tr>`;
+        tbody.innerHTML = `<tr class="empty-row"><td colspan="8">No ${INVOICE_CONFIG[type].title.toLowerCase()} entries yet.</td></tr>`;
         return;
     }
 
@@ -89,6 +89,7 @@ function renderInvoiceList(type, searchTerm = '') {
             <td>${inv.hasLoad ? inv.loadQty.toLocaleString('en-US') : '-'}</td>
             <td class="num">${formatCurrency(inv.grandTotal)}</td>
             <td class="num">${inv.balanceAmount > 0 ? formatCurrency(inv.balanceAmount) : '<span class="balance-tag is-cr">Settled</span>'}</td>
+            <td>${escapeHtml(inv.enteredBy) || '-'}</td>
             <td>
                 <div class="row-actions">
                     <button class="btn-outline-text" onclick="openInvoiceForm('${type}','${inv.id}')">Edit</button>
@@ -444,7 +445,9 @@ async function saveInvoice() {
             partyAccountId, partyName: party ? party.title : '', debitTo,
             hasLoad, loadAmount, loadDiscount, loadQty,
             items, itemsTotal, loadTotal, grandTotal,
-            paymentMode, paymentAccountId, paymentAmount, balanceAmount
+            paymentMode, paymentAccountId, paymentAmount, balanceAmount,
+            enteredBy: id ? undefined : getCurrentUserDisplayName(),
+            lastEditedBy: getCurrentUserDisplayName()
         });
 
         showToast(`${config.title} ${id ? 'updated' : 'saved'} as ${number}.`, 'success');
