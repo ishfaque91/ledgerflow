@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Company Document Listener Test</title>
+<style>
+  body { font-family: sans-serif; max-width: 600px; margin: 40px auto; padding: 0 20px; }
+  button { padding: 10px 20px; font-size: 16px; margin: 10px 0; cursor: pointer; }
+  #result { white-space: pre-wrap; background: #f0f0f0; padding: 15px; border-radius: 6px; margin-top: 15px; font-family: monospace; font-size: 13px; min-height: 40px; }
+  input { padding: 8px; font-size: 14px; width: 100%; margin: 5px 0; box-sizing: border-box; }
+</style>
+</head>
+<body>
+
+<h2>Company Document Listener Test</h2>
+<p>This tests the EXACT document and EXACT listener type the real app uses right after login.</p>
+
+<label>Your real email:</label>
+<input type="email" id="test-email" placeholder="you@business.com">
+<label>Your real password:</label>
+<input type="password" id="test-password" placeholder="Your password">
+
+<button id="run-btn">Run Test</button>
+
+<div id="result">Click the button above to start.</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore-compat.js"></script>
+<script>
+window.addEventListener('load', function () {
+    var resultBox = document.getElementById('result');
+    function log(msg) { resultBox.textContent += '\n' + msg; }
+
+    document.getElementById('run-btn').addEventListener('click', function () {
+        resultBox.textContent = 'Starting at ' + new Date().toLocaleTimeString() + '...';
+
+        var firebaseConfig = {
+            apiKey: "AIzaSyCpQtMlAB9mcoFdVBpSKMVszRkGrLWbl30",
+            authDomain: "ledgerflow-df765.firebaseapp.com",
+            projectId: "ledgerflow-df765",
+            storageBucket: "ledgerflow-df765.firebasestorage.app",
+            messagingSenderId: "467557800619",
+            appId: "1:467557800619:web:eda2eeb95c36162ae2f5ee"
+        };
+        if (!firebase.apps || firebase.apps.length === 0) firebase.initializeApp(firebaseConfig);
+
+        var auth = firebase.auth();
+        var db = firebase.firestore();
+
+        var email = document.getElementById('test-email').value;
+        var password = document.getElementById('test-password').value;
+
+        log('Step 1: Signing in...');
+
+        auth.signInWithEmailAndPassword(email, password).then(function (cred) {
+            log('✅ Signed in as ' + cred.user.email);
+            log('\nStep 2: Reading YOUR users/{uid} doc to get your real companyId...');
+
+            return db.collection('users').doc(cred.user.uid).get().then(function (userDoc) {
+                var companyId = userDoc.data().companyId;
+                log('✅ Got companyId: ' + companyId);
+
+                log('\nStep 3: One-time read of companies/' + companyId + '...');
+                var step3Timeout = setTimeout(function () {
+                    log('❌ Step 3 TIMED OUT after 10s.');
+                }, 10000);
+
+                return db.collection('companies').doc(companyId).get().then(function (companyDoc) {
+                    clearTimeout(step3Timeout);
+                    if (companyDoc.exists) {
+                        log('✅ Step 3 PASSED — one-time read of company doc worked. companyName: ' + companyDoc.data().companyName);
+                    } else {
+                        log('⚠️ Step 3: read succeeded but company doc does not exist!');
+                    }
+
+                    log('\nStep 4: LIVE listener (onSnapshot) on companies/' + companyId + '...');
+                    var step4Done = false;
+                    setTimeout(function () {
+                        if (!step4Done) {
+                            log('❌ Step 4 TIMED OUT after 12s — THIS is the specific hang.');
+                        }
+                    }, 12000);
+
+                    var unsub = db.collection('companies').doc(companyId).onSnapshot(function (snap) {
+                        if (!step4Done) {
+                            step4Done = true;
+                            log('✅ Step 4 PASSED — live listener on the company doc works fine!');
+                            log('Data received: ' + JSON.stringify(snap.data()));
+                            log('\nIf this all passed, the hang in the real app must be something else in its code, not Firebase.');
+                            unsub();
+                        }
+                    }, function (err) {
+                        step4Done = true;
+                        log('❌ Step 4 FAILED with error: ' + err.code + ' - ' + err.message);
+                    });
+                });
+            });
+        }).catch(function (err) {
+            log('❌ FAILED at an earlier step: ' + (err.code || '') + ' - ' + err.message);
+        });
+    });
+});
+</script>
+</body>
+</html>
