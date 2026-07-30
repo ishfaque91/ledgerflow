@@ -166,6 +166,10 @@ function renderAccountLedgerReport() {
         return;
     }
     const result = computeAccountLedgerRows(accountId, dateFrom, dateTo);
+    if (!result) {
+        $('account-ledger-table-body').innerHTML = `<tr class="empty-row"><td colspan="7">Could not find that account — try selecting it again.</td></tr>`;
+        return;
+    }
     $('al-opening').textContent = `${formatCurrency(result.opening.amount)} ${result.opening.side}`;
     $('al-opening').className = `report-summary-value ${result.opening.side === 'Cr' ? 'is-cr' : 'is-dr'}`;
     $('al-closing').textContent = `${formatCurrency(result.closing.amount)} ${result.closing.side}`;
@@ -190,6 +194,10 @@ function renderCashBookReport() {
         return;
     }
     const result = computeAccountLedgerRows(accountId, dateFrom, dateTo);
+    if (!result) {
+        $('cash-book-table-body').innerHTML = `<tr class="empty-row"><td colspan="7">Could not find that account — try selecting it again.</td></tr>`;
+        return;
+    }
     $('cb-opening').textContent = `${formatCurrency(result.opening.amount)} ${result.opening.side}`;
     $('cb-opening').className = `report-summary-value ${result.opening.side === 'Cr' ? 'is-cr' : 'is-dr'}`;
     $('cb-closing').textContent = `${formatCurrency(result.closing.amount)} ${result.closing.side}`;
