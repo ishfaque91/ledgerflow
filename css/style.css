@@ -773,6 +773,37 @@ button { font-family: inherit; }
     .trial-banner-btn { margin-left: 0; }
 }
 
+/* ==================== REPORT EXPORT TOOLBAR ==================== */
+.export-toolbar { display: flex; gap: 8px; margin-left: auto; }
+.export-btn {
+    display: flex; align-items: center; gap: 6px;
+    background: var(--surface);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    padding: 0.5rem 0.8rem;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    cursor: pointer;
+    transition: all .15s var(--ease);
+}
+.export-btn:hover { background: var(--paper); color: var(--teal-dark); border-color: var(--teal); }
+
+/* ==================== PRINT ====================
+   Hides everything except the currently active report/page content. */
+@media print {
+    .topbar, .trial-banner, .sidebar, .sidebar-overlay, .toast-stack,
+    .export-toolbar, .toolbar-row .search-field, #menu-toggle {
+        display: none !important;
+    }
+    .app-shell { display: block !important; }
+    .main-content { padding: 0 !important; max-width: none !important; }
+    .page { display: none !important; }
+    .page.is-active { display: block !important; }
+    body { background: white !important; }
+    .card { box-shadow: none !important; border: 1px solid #ccc !important; }
+}
+
 /* ==================== LOGIN SCREEN ==================== */
 .login-screen {
     position: fixed; inset: 0;

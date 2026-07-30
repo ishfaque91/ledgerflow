@@ -157,10 +157,10 @@
                     <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
                 </button>
                 <div class="nav-group-body">
-                    <a href="#" class="nav-link" data-page="page-purchase" onclick="navigateTo('page-purchase',this)">Purchase</a>
-                    <a href="#" class="nav-link" data-page="page-purchase-return" onclick="navigateTo('page-purchase-return',this)">Purchase Return</a>
-                    <a href="#" class="nav-link" data-page="page-sale" onclick="navigateTo('page-sale',this)">Sale</a>
-                    <a href="#" class="nav-link" data-page="page-sale-return" onclick="navigateTo('page-sale-return',this)">Sale Return</a>
+                    <a href="#" class="nav-link" data-page="page-purchase" onclick="navigateTo('page-purchase',this); openInvoiceForm('Purchase');">Purchase</a>
+                    <a href="#" class="nav-link" data-page="page-purchase-return" onclick="navigateTo('page-purchase-return',this); openInvoiceForm('PurchaseReturn');">Purchase Return</a>
+                    <a href="#" class="nav-link" data-page="page-sale" onclick="navigateTo('page-sale',this); openInvoiceForm('Sale');">Sale</a>
+                    <a href="#" class="nav-link" data-page="page-sale-return" onclick="navigateTo('page-sale-return',this); openInvoiceForm('SaleReturn');">Sale Return</a>
                 </div>
             </div>
 
@@ -173,10 +173,10 @@
                     <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
                 </button>
                 <div class="nav-group-body">
-                    <a href="#" class="nav-link" data-page="page-bank-receipt" onclick="navigateTo('page-bank-receipt',this)">Bank Receipt</a>
-                    <a href="#" class="nav-link" data-page="page-bank-payment" onclick="navigateTo('page-bank-payment',this)">Bank Payment</a>
-                    <a href="#" class="nav-link" data-page="page-petty-cash" onclick="navigateTo('page-petty-cash',this)">Petty Cash</a>
-                    <a href="#" class="nav-link" data-page="page-journal" onclick="navigateTo('page-journal',this)">Journal Voucher</a>
+                    <a href="#" class="nav-link" data-page="page-bank-receipt" onclick="navigateTo('page-bank-receipt',this); openBankVoucherForm('BankReceipt');">Bank Receipt</a>
+                    <a href="#" class="nav-link" data-page="page-bank-payment" onclick="navigateTo('page-bank-payment',this); openBankVoucherForm('BankPayment');">Bank Payment</a>
+                    <a href="#" class="nav-link" data-page="page-petty-cash" onclick="navigateTo('page-petty-cash',this); openPettyCashForm();">Petty Cash</a>
+                    <a href="#" class="nav-link" data-page="page-journal" onclick="navigateTo('page-journal',this); openJournalForm();">Journal Voucher</a>
                 </div>
             </div>
 
@@ -307,19 +307,19 @@
                 <div class="card dash-directory-card">
                     <h3><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> Data Entry</h3>
                     <div class="dash-directory-list">
-                        <a href="#" onclick="navigateTo('page-purchase',this)">Purchase</a>
-                        <a href="#" onclick="navigateTo('page-purchase-return',this)">Purchase Return</a>
-                        <a href="#" onclick="navigateTo('page-sale',this)">Sale</a>
-                        <a href="#" onclick="navigateTo('page-sale-return',this)">Sale Return</a>
+                        <a href="#" onclick="navigateTo('page-purchase',this); openInvoiceForm('Purchase');">Purchase</a>
+                        <a href="#" onclick="navigateTo('page-purchase-return',this); openInvoiceForm('PurchaseReturn');">Purchase Return</a>
+                        <a href="#" onclick="navigateTo('page-sale',this); openInvoiceForm('Sale');">Sale</a>
+                        <a href="#" onclick="navigateTo('page-sale-return',this); openInvoiceForm('SaleReturn');">Sale Return</a>
                     </div>
                 </div>
                 <div class="card dash-directory-card">
                     <h3><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 9.5V4h20v5.5"/><path d="M2 9.5a2.5 2.5 0 0 0 5 0M7 9.5a2.5 2.5 0 0 0 5 0M12 9.5a2.5 2.5 0 0 0 5 0M17 9.5a2.5 2.5 0 0 0 5 0"/><path d="M4 9.5V20h16V9.5"/></svg> Vouchers</h3>
                     <div class="dash-directory-list">
-                        <a href="#" onclick="navigateTo('page-bank-receipt',this)">Bank Receipt</a>
-                        <a href="#" onclick="navigateTo('page-bank-payment',this)">Bank Payment</a>
-                        <a href="#" onclick="navigateTo('page-petty-cash',this)">Petty Cash</a>
-                        <a href="#" onclick="navigateTo('page-journal',this)">Journal Voucher</a>
+                        <a href="#" onclick="navigateTo('page-bank-receipt',this); openBankVoucherForm('BankReceipt');">Bank Receipt</a>
+                        <a href="#" onclick="navigateTo('page-bank-payment',this); openBankVoucherForm('BankPayment');">Bank Payment</a>
+                        <a href="#" onclick="navigateTo('page-petty-cash',this); openPettyCashForm();">Petty Cash</a>
+                        <a href="#" onclick="navigateTo('page-journal',this); openJournalForm();">Journal Voucher</a>
                     </div>
                 </div>
                 <div class="card dash-directory-card">
@@ -1386,7 +1386,7 @@
                 </div>
                 <select id="coa-type-filter" class="select-chip" onchange="renderChartOfAccounts()"><option value="">All types</option></select>
                 <span class="count-pill" id="coa-count">0 accounts</span>
-            </div>
+            <div class="export-toolbar"><button class="export-btn" onclick="printCurrentReport()">Print</button><button class="export-btn" onclick="exportReportToPDF('coa-table-body', 'Chart of Accounts')">PDF</button><button class="export-btn" onclick="exportReportToExcel('coa-table-body', 'Chart of Accounts')">Excel</button></div></div>
             <div class="card table-card">
                 <div class="table-scroll">
                     <table class="data-table">
@@ -1413,7 +1413,7 @@
                 <select id="bal-type-filter" class="select-chip" onchange="renderAccountBalances()"><option value="">All types</option></select>
                 <label class="check-row"><input type="checkbox" id="bal-hide-zero" onchange="renderAccountBalances()"><span>Hide zero balances</span></label>
                 <span class="count-pill" id="bal-count">0 accounts</span>
-            </div>
+            <div class="export-toolbar"><button class="export-btn" onclick="printCurrentReport()">Print</button><button class="export-btn" onclick="exportReportToPDF('balances-table-body', 'Account Balances')">PDF</button><button class="export-btn" onclick="exportReportToExcel('balances-table-body', 'Account Balances')">Excel</button></div></div>
             <div class="card table-card">
                 <div class="table-scroll">
                     <table class="data-table">
@@ -1436,7 +1436,7 @@
                 <div class="report-field"><label>Account</label><select id="al-account" onchange="renderAccountLedgerReport()"></select></div>
                 <div class="report-field"><label>From</label><input type="date" id="al-date-from" onchange="renderAccountLedgerReport()"></div>
                 <div class="report-field"><label>To</label><input type="date" id="al-date-to" onchange="renderAccountLedgerReport()"></div>
-            </div>
+            <div class="export-toolbar"><button class="export-btn" onclick="printCurrentReport()">Print</button><button class="export-btn" onclick="exportReportToPDF('account-ledger-table-body', 'Account Ledger')">PDF</button><button class="export-btn" onclick="exportReportToExcel('account-ledger-table-body', 'Account Ledger')">Excel</button></div></div>
             <div class="report-summary-row">
                 <div class="report-summary-card"><span class="report-summary-label">Opening Balance</span><span class="report-summary-value" id="al-opening">Rs. 0</span></div>
                 <div class="report-summary-card"><span class="report-summary-label">Closing Balance</span><span class="report-summary-value" id="al-closing">Rs. 0</span></div>
@@ -1462,7 +1462,7 @@
             <div class="report-toolbar">
                 <div class="report-field"><label>From</label><input type="date" id="ll-date-from" onchange="renderLoadLedgerReport()"></div>
                 <div class="report-field"><label>To</label><input type="date" id="ll-date-to" onchange="renderLoadLedgerReport()"></div>
-            </div>
+            <div class="export-toolbar"><button class="export-btn" onclick="printCurrentReport()">Print</button><button class="export-btn" onclick="exportReportToPDF('load-ledger-table-body', 'Load Ledger')">PDF</button><button class="export-btn" onclick="exportReportToExcel('load-ledger-table-body', 'Load Ledger')">Excel</button></div></div>
             <div class="report-summary-row">
                 <div class="report-summary-card"><span class="report-summary-label">Opening Balance</span><span class="report-summary-value" id="ll-opening">0</span></div>
                 <div class="report-summary-card"><span class="report-summary-label">Closing Balance</span><span class="report-summary-value" id="ll-closing">0</span></div>
@@ -1489,7 +1489,7 @@
                 <div class="report-field"><label>Item</label><select id="il-item" onchange="renderItemLedgerReport()"></select></div>
                 <div class="report-field"><label>From</label><input type="date" id="il-date-from" onchange="renderItemLedgerReport()"></div>
                 <div class="report-field"><label>To</label><input type="date" id="il-date-to" onchange="renderItemLedgerReport()"></div>
-            </div>
+            <div class="export-toolbar"><button class="export-btn" onclick="printCurrentReport()">Print</button><button class="export-btn" onclick="exportReportToPDF('item-ledger-table-body', 'Item Ledger')">PDF</button><button class="export-btn" onclick="exportReportToExcel('item-ledger-table-body', 'Item Ledger')">Excel</button></div></div>
             <div class="report-summary-row">
                 <div class="report-summary-card"><span class="report-summary-label">Opening Stock</span><span class="report-summary-value" id="il-opening">0</span></div>
                 <div class="report-summary-card"><span class="report-summary-label">Closing Stock</span><span class="report-summary-value" id="il-closing">0</span></div>
@@ -1518,7 +1518,7 @@
                     <input type="text" id="stock-search" placeholder="Search by item name…" oninput="renderStockReport()">
                 </div>
                 <span class="count-pill" id="stock-count">0 items</span>
-            </div>
+            <div class="export-toolbar"><button class="export-btn" onclick="printCurrentReport()">Print</button><button class="export-btn" onclick="exportReportToPDF('stock-report-table-body', 'Stock Report')">PDF</button><button class="export-btn" onclick="exportReportToExcel('stock-report-table-body', 'Stock Report')">Excel</button></div></div>
             <div class="card table-card">
                 <div class="table-scroll">
                     <table class="data-table">
@@ -1541,7 +1541,7 @@
                 <div class="report-field"><label>Account</label><select id="cb-account" onchange="renderCashBookReport()"></select></div>
                 <div class="report-field"><label>From</label><input type="date" id="cb-date-from" onchange="renderCashBookReport()"></div>
                 <div class="report-field"><label>To</label><input type="date" id="cb-date-to" onchange="renderCashBookReport()"></div>
-            </div>
+            <div class="export-toolbar"><button class="export-btn" onclick="printCurrentReport()">Print</button><button class="export-btn" onclick="exportReportToPDF('cash-book-table-body', 'Cash Book')">PDF</button><button class="export-btn" onclick="exportReportToExcel('cash-book-table-body', 'Cash Book')">Excel</button></div></div>
             <div class="report-summary-row">
                 <div class="report-summary-card"><span class="report-summary-label">Opening Balance</span><span class="report-summary-value" id="cb-opening">Rs. 0</span></div>
                 <div class="report-summary-card"><span class="report-summary-label">Closing Balance</span><span class="report-summary-value" id="cb-closing">Rs. 0</span></div>
@@ -1571,7 +1571,7 @@
                     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                     <input type="text" id="Sale-report-search" placeholder="Search by invoice no. or party…" oninput="renderInvoiceReport('Sale')">
                 </div>
-            </div>
+            <div class="export-toolbar"><button class="export-btn" onclick="printCurrentReport()">Print</button><button class="export-btn" onclick="exportReportToPDF('Sale-report-table-body', 'Sale Invoices Report')">PDF</button><button class="export-btn" onclick="exportReportToExcel('Sale-report-table-body', 'Sale Invoices Report')">Excel</button></div></div>
             <div class="report-summary-row">
                 <div class="report-summary-card"><span class="report-summary-label">Invoices</span><span class="report-summary-value" id="Sale-report-count">0</span></div>
                 <div class="report-summary-card"><span class="report-summary-label">Total Sale Amount</span><span class="report-summary-value" id="Sale-report-total">Rs. 0</span></div>
@@ -1601,7 +1601,7 @@
                     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                     <input type="text" id="Purchase-report-search" placeholder="Search by invoice no. or supplier…" oninput="renderInvoiceReport('Purchase')">
                 </div>
-            </div>
+            <div class="export-toolbar"><button class="export-btn" onclick="printCurrentReport()">Print</button><button class="export-btn" onclick="exportReportToPDF('Purchase-report-table-body', 'Purchase Invoices Report')">PDF</button><button class="export-btn" onclick="exportReportToExcel('Purchase-report-table-body', 'Purchase Invoices Report')">Excel</button></div></div>
             <div class="report-summary-row">
                 <div class="report-summary-card"><span class="report-summary-label">Invoices</span><span class="report-summary-value" id="Purchase-report-count">0</span></div>
                 <div class="report-summary-card"><span class="report-summary-label">Total Purchase Amount</span><span class="report-summary-value" id="Purchase-report-total">Rs. 0</span></div>
@@ -1626,7 +1626,7 @@
             </div>
             <div class="report-toolbar">
                 <div class="report-field"><label>As of</label><input type="date" id="tb-as-of" onchange="renderTrialBalance()"></div>
-            </div>
+            <div class="export-toolbar"><button class="export-btn" onclick="printCurrentReport()">Print</button><button class="export-btn" onclick="exportReportToPDF('tb-table-body', 'Trial Balance')">PDF</button><button class="export-btn" onclick="exportReportToExcel('tb-table-body', 'Trial Balance')">Excel</button></div></div>
             <div class="card table-card">
                 <div class="table-scroll">
                     <table class="data-table">
@@ -1648,18 +1648,13 @@
             </div>
             <div class="report-toolbar">
                 <div class="report-field"><label>As of</label><input type="date" id="bs-as-of" onchange="renderBalanceSheet()"></div>
-            </div>
+            <div class="export-toolbar"><button class="export-btn" onclick="printCurrentReport()">Print</button><button class="export-btn" onclick="exportReportToPDF('bs-report-container', 'Balance Sheet')">PDF</button><button class="export-btn" onclick="exportReportToExcel('bs-report-container', 'Balance Sheet')">Excel</button></div></div>
             <div class="report-summary-row">
                 <div class="report-summary-card"><span class="report-summary-label">Total Assets</span><span class="report-summary-value" id="bs-total-assets">Rs. 0</span></div>
                 <div class="report-summary-card"><span class="report-summary-label">Liabilities + Equity</span><span class="report-summary-value" id="bs-total-liab-equity">Rs. 0</span></div>
                 <div class="report-summary-card"><span class="report-summary-label">Difference</span><span class="report-summary-value" id="bs-difference">Rs. 0</span></div>
             </div>
-            <div class="statement-grid">
-                <div class="card statement-section">
-                    <h3>Assets</h3>
-                    <div id="bs-assets-rows"></div>
-                    <div class="statement-row statement-total"><span>Total Assets</span><span id="bs-assets-total">Rs. 0</span></div>
-                </div>
+            <div class="statement-grid" id="bs-report-container">
                 <div class="card statement-section">
                     <h3>Liabilities &amp; Equity</h3>
                     <div class="statement-subtitle">Liabilities</div>
@@ -1682,8 +1677,8 @@
             <div class="report-toolbar">
                 <div class="report-field"><label>From</label><input type="date" id="pos-date-from" onchange="renderProfitOnSale()"></div>
                 <div class="report-field"><label>To</label><input type="date" id="pos-date-to" onchange="renderProfitOnSale()"></div>
-            </div>
-            <div class="card statement-section">
+            <div class="export-toolbar"><button class="export-btn" onclick="printCurrentReport()">Print</button><button class="export-btn" onclick="exportReportToPDF('pos-report-container', 'Profit on Sale')">PDF</button><button class="export-btn" onclick="exportReportToExcel('pos-report-container', 'Profit on Sale')">Excel</button></div></div>
+            <div class="card statement-section" id="pos-report-container">
                 <div class="statement-subtitle">Load</div>
                 <div class="statement-row"><span>Sales</span><span id="pos-load-sales">Rs. 0</span></div>
                 <div class="statement-row"><span>Purchases</span><span id="pos-load-purchases">Rs. 0</span></div>
@@ -1710,8 +1705,8 @@
             <div class="report-toolbar">
                 <div class="report-field"><label>From</label><input type="date" id="pl-date-from" onchange="renderProfitAndLoss()"></div>
                 <div class="report-field"><label>To</label><input type="date" id="pl-date-to" onchange="renderProfitAndLoss()"></div>
-            </div>
-            <div class="statement-grid">
+            <div class="export-toolbar"><button class="export-btn" onclick="printCurrentReport()">Print</button><button class="export-btn" onclick="exportReportToPDF('pl-report-container', 'Profit and Loss')">PDF</button><button class="export-btn" onclick="exportReportToExcel('pl-report-container', 'Profit and Loss')">Excel</button></div></div>
+            <div class="statement-grid" id="pl-report-container">
                 <div class="card statement-section">
                     <h3>Trading Profit</h3>
                     <div class="statement-row"><span>Load profit</span><span id="pl-load-profit">Rs. 0</span></div>
@@ -2002,6 +1997,9 @@
 <!-- ==================== TOAST ==================== -->
 <div class="toast-stack" id="toast-stack"></div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore-compat.js"></script>
@@ -2019,6 +2017,7 @@
 <script src="js/reports-financial.js"></script>
 <script src="js/utility.js"></script>
 <script src="js/tools.js"></script>
+<script src="js/export.js"></script>
 <script src="js/auth.js"></script>
 </body>
 </html>
