@@ -144,8 +144,15 @@ async function resolveCompanyAndShowApp(user) {
 function evaluateCompanyStatus() {
     const company = getCompanyDoc();
     if (!company || Object.keys(company).length === 0) return { ok: false, reason: 'notfound' };
-    if (company.status === 'active') return { ok: true };
     if (company.status === 'suspended') return { ok: false, reason: 'suspended' };
+
+    if (company.status === 'active') {
+        if (!company.activeUntil) return { ok: true }; // legacy/no-expiry active company
+        const end = new Date(company.activeUntil);
+        const today = new Date();
+        if (today > end) return { ok: false, reason: 'subscriptionExpired' };
+        return { ok: true, daysLeft: Math.ceil((end - today) / (1000 * 60 * 60 * 24)), trialEnd: end, isPaid: true };
+    }
 
     // status === 'trial'
     const start = new Date(company.signupDate);
@@ -177,9 +184,11 @@ function evaluateAndGateAccess() {
             navigateTo('page-dashboard');
         }
         if (status.daysLeft !== undefined && status.daysLeft <= 5) {
-            showToast(`Your trial ends in ${status.daysLeft} day${status.daysLeft === 1 ? '' : 's'}.`, 'warning', 5000);
+            const noun = status.isPaid ? 'subscription' : 'trial';
+            showToast(`Your ${noun} ends in ${status.daysLeft} day${status.daysLeft === 1 ? '' : 's'}.`, 'warning', 5000);
         }
         updateTrialBanner(status);
+        updateDemoTag(status);
     } else {
         $('login-screen').classList.add('hidden');
         $('app-root').classList.add('hidden');
@@ -190,29 +199,84 @@ function evaluateAndGateAccess() {
 
 function updateTrialBanner(status) {
     const banner = $('trial-banner');
-    if (status.daysLeft === undefined) {
-        // Paid/active company — no need to nag them.
+
+    // Only nag in the final stretch — 5 days or fewer remaining — for both
+    // demo trials and paid subscriptions. Otherwise, stay out of the way.
+    if (status.daysLeft === undefined || status.daysLeft > 5) {
         banner.classList.add('hidden');
         return;
     }
 
     banner.classList.remove('hidden');
-    banner.classList.toggle('is-urgent', status.daysLeft <= 5);
-    $('trial-banner-badge').textContent = 'DEMO';
+    banner.classList.toggle('is-urgent', status.daysLeft <= 2);
 
     const endDateLabel = status.trialEnd.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
-    $('trial-banner-text').textContent =
-        `This is a demo account — it expires on ${endDateLabel} (${status.daysLeft} day${status.daysLeft === 1 ? '' : 's'} left). After that, the software will stop working until you subscribe.`;
+
+    if (status.isPaid) {
+        $('trial-banner-badge').textContent = 'SUBSCRIPTION';
+        $('trial-banner-text').textContent =
+            `Your subscription ends in ${status.daysLeft} day${status.daysLeft === 1 ? '' : 's'} (${endDateLabel}). Renew soon to avoid any interruption.`;
+    } else {
+        $('trial-banner-badge').textContent = 'DEMO';
+        $('trial-banner-text').textContent =
+            `Your demo ends in ${status.daysLeft} day${status.daysLeft === 1 ? '' : 's'} (${endDateLabel}). After that, the software will stop working until you subscribe.`;
+    }
+}
+
+// A small, always-visible "Demo Account" label under the company name in the
+// top bar — present for the whole trial, gone the moment it's activated.
+function updateDemoTag(status) {
+    const tag = $('demo-account-tag');
+    if (!tag) return;
+    const isDemo = status.ok && !status.isPaid && status.daysLeft !== undefined;
+    tag.classList.toggle('hidden', !isDemo);
 }
 
 function showRenewContact() {
     showToast(`To activate your subscription, contact ${VENDOR_CONTACT.name}: ${VENDOR_CONTACT.phone} / ${VENDOR_CONTACT.email}`, 'info', 8000);
 }
 
+// Always-visible status readout on the Settings page — unlike the banner,
+// this doesn't wait until 5 days are left; it's a permanent reference.
+function renderAccountStatusCard() {
+    const label = $('account-status-label');
+    if (!label) return; // Settings page not in the DOM yet on first load — fine, it's called again when opened
+
+    const status = evaluateCompanyStatus();
+    const company = getCompanyDoc();
+
+    if (company.status === 'suspended') {
+        label.textContent = 'Suspended';
+        $('account-status-days-label').textContent = ' ';
+        $('account-status-days-value').textContent = '—';
+        return;
+    }
+
+    if (status.daysLeft === undefined) {
+        // Active with no expiry set (legacy) or something unusual
+        label.textContent = company.status === 'active' ? 'Active' : 'Unknown';
+        $('account-status-days-label').textContent = ' ';
+        $('account-status-days-value').textContent = '—';
+        return;
+    }
+
+    const daysLeft = Math.max(status.daysLeft, 0);
+    if (status.isPaid) {
+        label.textContent = 'Active (paid)';
+        $('account-status-days-label').textContent = 'Days remaining';
+        $('account-status-days-value').textContent = `${daysLeft} day${daysLeft === 1 ? '' : 's'}`;
+    } else {
+        label.textContent = 'Demo Account';
+        $('account-status-days-label').textContent = 'Days remaining';
+        $('account-status-days-value').textContent = `${daysLeft} day${daysLeft === 1 ? '' : 's'}`;
+    }
+}
+
 function blockedMessageFor(reason) {
     const contact = `Contact ${VENDOR_CONTACT.name}: ${VENDOR_CONTACT.phone} / ${VENDOR_CONTACT.email}`;
     if (reason === 'suspended') return `Your account has been suspended. ${contact} to reactivate it.`;
     if (reason === 'trialExpired') return `Your demo period has ended. ${contact} to activate your subscription.`;
+    if (reason === 'subscriptionExpired') return `Your subscription period has ended. ${contact} to renew it.`;
     return `We couldn't find your company's account. ${contact} for support.`;
 }
 

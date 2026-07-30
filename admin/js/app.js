@@ -25,6 +25,9 @@ function setBtnLoading(btn, isLoading) {
 
 // ==================== TRIAL / STATUS CALCULATIONS ====================
 function getTrialEndDate(company) {
+    if (company.status === 'active' && company.activeUntil) {
+        return new Date(company.activeUntil);
+    }
     const start = new Date(company.signupDate);
     const days = parseInt(company.trialDays, 10) || 30;
     const end = new Date(start);
@@ -41,8 +44,13 @@ function getDaysLeft(company) {
 }
 
 function getStatusDisplay(company) {
-    if (company.status === 'active') return { label: 'Active', cls: 'is-active' };
     if (company.status === 'suspended') return { label: 'Suspended', cls: 'is-suspended' };
+    if (company.status === 'active') {
+        if (!company.activeUntil) return { label: 'Active', cls: 'is-active' };
+        const daysLeft = getDaysLeft(company);
+        if (daysLeft < 0) return { label: 'Subscription expired', cls: 'is-expired', daysLeft };
+        return { label: `Active — ${daysLeft}d left`, cls: 'is-active', daysLeft };
+    }
     const daysLeft = getDaysLeft(company);
     if (daysLeft < 0) return { label: 'Trial expired', cls: 'is-expired', daysLeft };
     return { label: `Trial — ${daysLeft}d left`, cls: 'is-trial', daysLeft };
@@ -116,11 +124,12 @@ function renderCompanyList(search = '') {
 
 function renderStatusActionButtons(c) {
     if (c.status === 'active') {
-        return `<button class="btn-danger-text" onclick="suspendCompany('${c.id}')">Suspend</button>`;
+        return `<button class="btn-outline-text" onclick="openDurationModal('${c.id}','renew')">Renew</button>
+                <button class="btn-danger-text" onclick="suspendCompany('${c.id}')">Suspend</button>`;
     }
-    let html = `<button class="btn-outline-text" onclick="activateCompany('${c.id}')">Activate</button>`;
+    let html = `<button class="btn-outline-text" onclick="openDurationModal('${c.id}','activate')">Activate</button>`;
     if (c.status !== 'suspended') {
-        html += `<button class="btn-outline-text" onclick="extendTrial('${c.id}')">+30d</button>`;
+        html += `<button class="btn-outline-text" onclick="extendTrial('${c.id}')">+30d Trial</button>`;
     }
     return html;
 }
@@ -134,7 +143,7 @@ function renderSummary(companies) {
 
 function renderExpiringBanner(companies) {
     const soon = companies
-        .filter(c => c.status === 'trial')
+        .filter(c => c.status === 'trial' || (c.status === 'active' && c.activeUntil))
         .map(c => ({ c, daysLeft: getDaysLeft(c) }))
         .filter(x => x.daysLeft <= 5);
 
@@ -152,13 +161,60 @@ function renderExpiringBanner(companies) {
 }
 
 // ==================== STATUS ACTIONS ====================
-async function activateCompany(id) {
+// ==================== ACTIVATE / RENEW (with a real duration) ====================
+let durationModalCompanyId = null;
+let durationModalMode = null; // 'activate' | 'renew'
+
+function openDurationModal(id, mode) {
+    const c = companiesCache.find(x => x.id === id);
+    if (!c) return;
+    durationModalCompanyId = id;
+    durationModalMode = mode;
+    $('duration-modal-title').textContent = mode === 'renew' ? `Renew ${c.companyName}` : `Activate ${c.companyName}`;
+    $('duration-days').value = 30;
+    $('duration-modal').classList.remove('hidden');
+    setTimeout(() => $('duration-days')?.focus(), 80);
+}
+
+function closeDurationModal() { $('duration-modal').classList.add('hidden'); }
+
+function setDurationPreset(days) { $('duration-days').value = days; }
+
+async function confirmDuration() {
+    const days = parseInt($('duration-days').value, 10);
+    if (!days || days <= 0) { showToast('Enter a valid number of days.', 'warning'); return; }
+
+    const c = companiesCache.find(x => x.id === durationModalCompanyId);
+    if (!c) return;
+    const btn = $('duration-confirm-btn');
+    setBtnLoading(btn, true);
+
     try {
-        await fbDb.collection('companies').doc(id).update({ status: 'active' });
-        showToast('Company activated.', 'success');
+        // Renewing extends from whichever is later — their current expiry (if
+        // still in the future) or today (if it already lapsed) — so renewing
+        // early stacks on top, and renewing after a lapse starts fresh from now.
+        const base = (durationModalMode === 'renew' && c.activeUntil && new Date(c.activeUntil) > new Date())
+            ? new Date(c.activeUntil)
+            : new Date();
+        base.setDate(base.getDate() + days);
+
+        await fbDb.collection('companies').doc(c.id).update({
+            status: 'active',
+            activeUntil: base.toISOString().slice(0, 10)
+        });
+
+        showToast(
+            durationModalMode === 'renew'
+                ? `${c.companyName} renewed — ${days} more days added.`
+                : `${c.companyName} activated for ${days} days.`,
+            'success'
+        );
+        closeDurationModal();
     } catch (e) {
         console.error(e);
-        showToast('Could not activate — please try again.', 'error');
+        showToast('Could not update — please try again.', 'error');
+    } finally {
+        setBtnLoading(btn, false);
     }
 }
 

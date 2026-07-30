@@ -105,6 +105,14 @@ button { font-family: inherit; }
 }
 
 .brand { display: flex; align-items: center; gap: 10px; margin-right: auto; }
+.brand-text-group { display: flex; flex-direction: column; line-height: 1.15; }
+.demo-account-tag {
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: var(--amber);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
 .brand-mark {
     width: 32px; height: 32px;
     background: linear-gradient(155deg, var(--garnet), var(--garnet-dark));

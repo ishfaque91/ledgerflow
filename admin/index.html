@@ -99,7 +99,7 @@
             <div class="table-scroll">
                 <table class="data-table">
                     <thead>
-                        <tr><th>Company</th><th>Contact</th><th>Status</th><th>Signup Date</th><th>Trial Ends</th><th></th></tr>
+                        <tr><th>Company</th><th>Contact</th><th>Status</th><th>Signup Date</th><th>Expires</th><th></th></tr>
                     </thead>
                     <tbody id="sap-table-body"></tbody>
                 </table>
@@ -107,6 +107,38 @@
         </div>
 
     </main>
+
+    <!-- ============ DURATION PICKER (Activate / Renew) ============ -->
+    <div class="modal-backdrop hidden" id="duration-modal">
+        <div class="modal">
+            <div class="modal-head">
+                <h2 id="duration-modal-title">Activate Company</h2>
+                <button class="icon-btn" onclick="closeDurationModal()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="field">
+                    <label>Duration</label>
+                    <div class="row-actions" style="margin-bottom:0.6rem;">
+                        <button type="button" class="btn-outline-text" onclick="setDurationPreset(30)">1 month</button>
+                        <button type="button" class="btn-outline-text" onclick="setDurationPreset(90)">3 months</button>
+                        <button type="button" class="btn-outline-text" onclick="setDurationPreset(180)">6 months</button>
+                        <button type="button" class="btn-outline-text" onclick="setDurationPreset(365)">12 months</button>
+                    </div>
+                    <input type="text" id="duration-days" inputmode="numeric" placeholder="30">
+                    <span class="hint">Number of days from today (or from their current expiry, if renewing early).</span>
+                </div>
+            </div>
+            <div class="modal-foot">
+                <button class="btn btn-ghost" onclick="closeDurationModal()">Cancel</button>
+                <button class="btn btn-primary" id="duration-confirm-btn" onclick="confirmDuration()">
+                    <span class="btn-label">Confirm</span>
+                    <span class="btn-spinner hidden"></span>
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- ============ COMPANY FORM ============ -->
     <div class="modal-backdrop hidden" id="company-modal">

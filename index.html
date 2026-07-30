@@ -103,7 +103,10 @@
     <div class="brand">
         <img id="brand-logo-img" class="brand-logo-img hidden" alt="Company logo">
         <span class="brand-mark" id="brand-logo-fallback">L</span>
-        <span class="brand-name" id="brand-name-text">LedgerFlow</span>
+        <div class="brand-text-group">
+            <span class="brand-name" id="brand-name-text">LedgerFlow</span>
+            <span class="demo-account-tag hidden" id="demo-account-tag">Demo Account</span>
+        </div>
     </div>
     <div class="topbar-right">
         <span class="user-chip" id="active-user-chip">—</span>
@@ -1897,6 +1900,18 @@
                 <div>
                     <h1>Settings</h1>
                     <p class="page-sub">This is what makes each company's copy of the software its own.</p>
+                </div>
+            </div>
+
+            <div class="card statement-section" id="account-status-card" style="margin-bottom: 20px;">
+                <h3>Account Status</h3>
+                <div class="statement-row">
+                    <span>Status</span>
+                    <span id="account-status-label">—</span>
+                </div>
+                <div class="statement-row">
+                    <span id="account-status-days-label">Days remaining</span>
+                    <span id="account-status-days-value">—</span>
                 </div>
             </div>
 

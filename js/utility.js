@@ -74,6 +74,7 @@ function clearLogo() {
 
 // ==================== SETTINGS ====================
 function initSettingsPage() {
+    renderAccountStatusCard();
     const settings = lfGetSettings();
 
     $('settings-company-name').value = settings.companyName;
