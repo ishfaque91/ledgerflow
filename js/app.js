@@ -4,6 +4,17 @@
  * resolved after login — there's no data to show before that.
  */
 
+// Every nav-link and directory tile is written as <a href="#" onclick="...">.
+// Without this, clicking one ALSO triggers the browser's own default
+// "navigate to '#'" behavior alongside our onclick handler — which,
+// combined with the history.pushState() calls below, was fighting our own
+// navigation and randomly snapping back to Dashboard. This one delegated
+// listener stops that, for every such link across the whole app.
+document.addEventListener('click', (e) => {
+    const anchor = e.target.closest('a[href="#"]');
+    if (anchor) e.preventDefault();
+});
+
 // ==================== NAVIGATION ====================
 let isHandlingPopstate = false;
 
