@@ -287,6 +287,7 @@ function showLoginScreen() {
     $('login-screen').classList.remove('hidden');
     $('login-email').value = '';
     $('login-password').value = '';
+    setBtnLoading($('login-submit-btn'), false);
     setTimeout(() => $('login-email')?.focus(), 50);
 }
 
