@@ -5,6 +5,8 @@
  */
 
 // ==================== NAVIGATION ====================
+let isHandlingPopstate = false;
+
 function navigateTo(pageId, linkEl) {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('is-active'));
     const target = $(pageId);
@@ -25,9 +27,46 @@ function navigateTo(pageId, linkEl) {
 
     if (pageId === 'page-dashboard') renderDashboard();
 
+    // Record this in the browser's own history, so the phone/browser back
+    // button moves between LedgerFlow's own pages instead of leaving the
+    // site entirely. Skip this when we're the ones RESPONDING to a
+    // back/forward press — otherwise we'd re-push and get stuck.
+    if (!isHandlingPopstate) {
+        if (pageId === 'page-dashboard') {
+            history.replaceState({ page: pageId }, '', '#' + pageId);
+        } else {
+            history.pushState({ page: pageId }, '', '#' + pageId);
+        }
+    }
+    isHandlingPopstate = false;
+
     if (window.innerWidth <= 900) toggleSidebar(false);
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
+
+window.addEventListener('popstate', (event) => {
+    // Only handle this once the app is actually showing (ignore stray
+    // popstate events that can fire before login resolves).
+    if ($('app-root').classList.contains('hidden')) return;
+
+    if (event.state && event.state.page) {
+        isHandlingPopstate = true;
+        navigateTo(event.state.page);
+        if (event.state.page === 'page-dashboard') {
+            // We've hit the Dashboard boundary — re-establish it as the
+            // current history entry so pressing back again refreshes
+            // Dashboard instead of exiting the site.
+            history.replaceState({ page: 'page-dashboard' }, '', '#page-dashboard');
+            renderDashboard();
+        }
+    } else {
+        // No app page in this history entry at all — we've gone back past
+        // everything LedgerFlow ever pushed. Refresh Dashboard rather than
+        // letting the browser leave the site.
+        history.replaceState({ page: 'page-dashboard' }, '', '#page-dashboard');
+        navigateTo('page-dashboard');
+    }
+});
 
 function renderDashboard() {
     $('dash-accounts-count').textContent = lfGetAll(LF_KEYS.ACCOUNTS).length;

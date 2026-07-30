@@ -44,22 +44,85 @@ function extractReportRows(containerIds) {
     return rows;
 }
 
-function exportReportToPDF(containerIds, title) {
+// Which date-filter fields belong to each report, so exports can show
+// exactly what range was actually used to generate what's on screen.
+const REPORT_DATE_FIELDS = {
+    'page-account-ledger': { from: 'al-date-from', to: 'al-date-to' },
+    'page-load-ledger': { from: 'll-date-from', to: 'll-date-to' },
+    'page-item-ledger': { from: 'il-date-from', to: 'il-date-to' },
+    'page-cash-book': { from: 'cb-date-from', to: 'cb-date-to' },
+    'page-sale-report': { from: 'Sale-report-date-from', to: 'Sale-report-date-to' },
+    'page-purchase-report': { from: 'Purchase-report-date-from', to: 'Purchase-report-date-to' },
+    'page-trial-balance': { asOf: 'tb-as-of' },
+    'page-balance-sheet': { asOf: 'bs-as-of' },
+    'page-profit-on-sale': { from: 'pos-date-from', to: 'pos-date-to' },
+    'page-profit-loss': { from: 'pl-date-from', to: 'pl-date-to' }
+};
+
+function formatDateNice(dateStr) {
+    if (!dateStr) return '';
+    return new Date(dateStr).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+// Builds the letterhead lines shown at the top of every export: company
+// name, address, phone, which report this is, and the exact date range
+// (or "as of" date) that was actually used to generate it.
+function getReportHeaderLines(pageId, title) {
+    const settings = (typeof lfGetSettings === 'function') ? lfGetSettings() : {};
+    const lines = [];
+
+    lines.push(settings.companyName || 'Company');
+    const addressParts = [settings.companyAddress, settings.companyCity].filter(Boolean);
+    if (addressParts.length) lines.push(addressParts.join(', '));
+    if (settings.companyPhone) lines.push(`Phone: +92 ${settings.companyPhone}`);
+
+    lines.push(''); // spacer
+    lines.push(title);
+
+    const dateConfig = REPORT_DATE_FIELDS[pageId];
+    if (dateConfig) {
+        if (dateConfig.asOf) {
+            const asOf = $(dateConfig.asOf)?.value;
+            if (asOf) lines.push(`As of ${formatDateNice(asOf)}`);
+        } else {
+            const from = $(dateConfig.from)?.value;
+            const to = $(dateConfig.to)?.value;
+            if (from || to) {
+                lines.push(`${from ? 'From ' + formatDateNice(from) : 'From the beginning'} to ${to ? formatDateNice(to) : 'today'}`);
+            }
+        }
+    }
+
+    lines.push(`Generated ${new Date().toLocaleString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}`);
+    return lines;
+}
+
+function exportReportToPDF(containerIds, title, pageId) {
     const rows = extractReportRows(containerIds);
     if (!rows.length) { showToast('Nothing to export yet.', 'warning'); return; }
 
+    const headerLines = getReportHeaderLines(pageId, title);
     const { jsPDF } = window.jspdf;
     const wide = rows[0].length > 5;
     const doc = new jsPDF({ orientation: wide ? 'landscape' : 'portrait' });
 
-    doc.setFontSize(14);
-    doc.text(title, 14, 15);
+    let y = 15;
+    doc.setFontSize(13);
+    doc.setFont(undefined, 'bold');
+    doc.text(headerLines[0], 14, y);
+    doc.setFont(undefined, 'normal');
     doc.setFontSize(9);
-    doc.text(new Date().toLocaleDateString('en-GB'), 14, 21);
+    for (let i = 1; i < headerLines.length; i++) {
+        if (headerLines[i] === '') continue;
+        y += 5;
+        if (headerLines[i] === title) { doc.setFontSize(11); doc.setFont(undefined, 'bold'); }
+        doc.text(headerLines[i], 14, y);
+        if (headerLines[i] === title) { doc.setFontSize(9); doc.setFont(undefined, 'normal'); }
+    }
 
     doc.autoTable({
         body: rows,
-        startY: 26,
+        startY: y + 6,
         styles: { fontSize: 8, cellPadding: 3 },
         headStyles: { fillColor: [13, 125, 140] }
     });
@@ -68,11 +131,14 @@ function exportReportToPDF(containerIds, title) {
     showToast('PDF downloaded.', 'success');
 }
 
-function exportReportToExcel(containerIds, title) {
+function exportReportToExcel(containerIds, title, pageId) {
     const rows = extractReportRows(containerIds);
     if (!rows.length) { showToast('Nothing to export yet.', 'warning'); return; }
 
-    const ws = XLSX.utils.aoa_to_sheet(rows);
+    const headerLines = getReportHeaderLines(pageId, title).filter(l => l !== '');
+    const sheetRows = headerLines.map(l => [l]).concat([[]], rows);
+
+    const ws = XLSX.utils.aoa_to_sheet(sheetRows);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Report');
     XLSX.writeFile(wb, `${title.replace(/[^a-z0-9]+/gi, '_')}.xlsx`);

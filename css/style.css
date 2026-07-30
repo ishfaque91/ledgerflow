@@ -804,6 +804,29 @@ button { font-family: inherit; }
     .card { box-shadow: none !important; border: 1px solid #ccc !important; }
 }
 
+/* ==================== INITIAL LOADING SPLASH ==================== */
+.app-loading-screen {
+    position: fixed; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--paper);
+    z-index: 999;
+}
+.app-loading-mark {
+    width: 56px; height: 56px;
+    border-radius: 16px;
+    display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(155deg, var(--garnet), var(--garnet-dark));
+    color: white;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 800;
+    font-size: 1.6rem;
+    animation: appLoadingPulse 1.1s ease-in-out infinite;
+}
+@keyframes appLoadingPulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(0.94); }
+}
+
 /* ==================== LOGIN SCREEN ==================== */
 .login-screen {
     position: fixed; inset: 0;

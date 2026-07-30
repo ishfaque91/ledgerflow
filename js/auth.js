@@ -196,6 +196,7 @@ const VENDOR_CONTACT = {
 
 function evaluateAndGateAccess() {
     const status = evaluateCompanyStatus();
+    $('app-loading-screen')?.classList.add('hidden');
 
     if (status.ok) {
         $('login-screen').classList.add('hidden');
@@ -329,6 +330,7 @@ function showSignupForm() {
 }
 
 function showLoginScreen() {
+    $('app-loading-screen')?.classList.add('hidden');
     $('app-root').classList.add('hidden');
     $('account-blocked-screen').classList.add('hidden');
     $('login-screen').classList.remove('hidden');
