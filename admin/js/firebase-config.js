@@ -17,4 +17,4 @@ firebase.initializeApp(firebaseConfig);
 
 const fbAuth = firebase.auth();
 const fbDb = firebase.firestore();
-fbDb.settings({ ignoreUndefinedProperties: true });
+fbDb.settings({ ignoreUndefinedProperties: true, experimentalAutoDetectLongPolling: true });
