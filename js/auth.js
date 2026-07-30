@@ -43,13 +43,24 @@ async function handleSignup() {
     setBtnLoading(btn, true);
     signupInProgress = true; // tell the auth-state listener to stand down until we're fully done
 
+    let cred = null;
     try {
-        const cred = await fbAuth.createUserWithEmailAndPassword(email, password);
+        cred = await fbAuth.createUserWithEmailAndPassword(email, password);
         const uid = cred.user.uid;
 
+        // Reserve the company's document ID up front, without writing anything
+        // yet. .doc() with no argument only generates an ID locally — no
+        // network call — so we can reference it before the document exists.
         const companyDocRef = fbDb.collection('companies').doc();
         const companyId = companyDocRef.id;
         const today = new Date().toISOString().slice(0, 10);
+
+        // ORDER MATTERS. users/{uid} is the document Security Rules read to
+        // decide whether this login is allowed to touch companies/{companyId}.
+        // Writing the company first meant the rules were evaluated against a
+        // mapping that didn't exist yet, so the very first write of every
+        // signup was denied. The mapping has to land first.
+        await fbDb.collection('users').doc(uid).set({ companyId, email, fullName, role: 'owner' });
 
         await companyDocRef.set({
             companyName, status: 'trial', signupDate: today, trialDays: 30,
@@ -57,8 +68,6 @@ async function handleSignup() {
             settings: { companyName, currencyLabel: 'Rs.', theme: 'light' },
             createdAt: new Date().toISOString()
         });
-
-        await fbDb.collection('users').doc(uid).set({ companyId, email, fullName, role: 'owner' });
 
         await companyDocRef.collection('users').add({
             fullName, username: email, status: 'Active', linkedAuthUid: uid, role: 'owner',
@@ -69,9 +78,25 @@ async function handleSignup() {
 
         // Everything now genuinely exists — safe to resolve and show the app ourselves.
         signupInProgress = false;
+        setBtnLoading(btn, false);
         await resolveCompanyAndShowApp(cred.user);
     } catch (err) {
-        console.error('[Auth] Signup failed:', err);
+        console.error('[Auth] Signup failed:', err.code || '(no code)', err);
+
+        // The Auth account is created before any of the Firestore writes, so a
+        // failure here would otherwise leave a login with no company behind it:
+        // retrying gives "email already in use", and logging in gives "not
+        // linked to any company". That email would be unusable forever. Undo
+        // the half-made account so the person can simply try again.
+        if (cred && cred.user) {
+            try {
+                await cred.user.delete();
+            } catch (cleanupErr) {
+                console.error('[Auth] Could not roll back the half-created account:', cleanupErr);
+                await fbAuth.signOut().catch(() => {});
+            }
+        }
+
         showToast(mapFirebaseError(err), 'error');
         setBtnLoading(btn, false);
     } finally {
@@ -111,7 +136,12 @@ async function resolveCompanyAndShowApp(user) {
     try {
         const mapSnap = await fbDb.collection('users').doc(user.uid).get();
         if (!mapSnap.exists) {
-            showToast("This login isn't linked to any company. Contact support.", 'error');
+            // Usually an account left behind by a signup that failed part-way
+            // before the rollback in handleSignup() existed. The login is real
+            // but has no company, so it can never get in — it has to be
+            // removed from Firebase Console > Authentication > Users, after
+            // which that email is free to sign up again.
+            showToast("This login was never finished setting up and has no company. Contact support to have it removed so you can sign up again.", 'error', 7000);
             await fbAuth.signOut();
             showLoginScreen();
             return;
@@ -314,9 +344,22 @@ function mapFirebaseError(err) {
         'auth/wrong-password': 'Incorrect email or password.',
         'auth/invalid-credential': 'Incorrect email or password.',
         'auth/too-many-requests': 'Too many attempts — please wait a moment and try again.',
-        'auth/network-request-failed': "Couldn't reach the server — check your internet connection."
+        'auth/network-request-failed': "Couldn't reach the server — check your internet connection.",
+
+        // Setup problems. These are the ones that used to fall through to the
+        // generic message, which made a broken Firebase project look identical
+        // to a mistyped password.
+        'auth/operation-not-allowed': 'Sign-up is switched off for this project. Enable Email/Password in Firebase Console > Authentication > Sign-in method.',
+        'auth/admin-restricted-operation': 'New sign-ups are currently blocked in Firebase Console (Authentication > Settings > User actions).',
+        'auth/unauthorized-domain': 'This web address is not on the Firebase authorised domains list. Add it in Firebase Console > Authentication > Settings.',
+        'auth/operation-not-supported-in-this-environment': 'Open the app over http:// or https:// — sign-up cannot work from a file:// page opened directly from a folder.',
+
+        // Firestore rejections (thrown by the profile/company writes, not Auth).
+        'permission-denied': 'Your account was created but your company record was blocked by the database rules. Nothing was saved — please contact support.',
+        'unavailable': "Couldn't reach the database — check your internet connection and try again."
     };
-    return map[code] || 'Something went wrong. Please try again.';
+    if (map[code]) return map[code];
+    return `Something went wrong. Please try again.${code ? ` (${code})` : ''}`;
 }
 
 // ==================== SCREEN SWITCHING (Login <-> Sign Up) ====================
