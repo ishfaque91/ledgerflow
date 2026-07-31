@@ -102,8 +102,12 @@ function renderInvoiceList(type, searchTerm = '') {
 
 // ==================== FORM: OPEN / CLOSE ====================
 function openInvoiceForm(type, editId = null) {
-    currentInvoiceType = type;
     const config = INVOICE_CONFIG[type];
+    if (!hasRight('DATA ENTRY', config.title, 'Edit')) {
+        showToast(`You don't have permission to ${editId ? 'edit' : 'add'} ${config.title} entries.`, 'warning');
+        return;
+    }
+    currentInvoiceType = type;
     const form = $('invoice-form');
     form.reset();
     $('inv-id').value = '';

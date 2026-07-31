@@ -51,6 +51,10 @@ function renderItemList(searchTerm = '') {
 }
 
 function openItemForm(id = null) {
+    if (!hasRight('MANAGEMENT', 'Add/Edit Items', 'Edit')) {
+        showToast(`You don't have permission to ${id ? 'edit' : 'add'} items.`, 'warning');
+        return;
+    }
     const modal = $('item-modal');
     const form = $('item-form');
     form.reset();

@@ -52,6 +52,10 @@ function renderUserList(searchTerm = '') {
 }
 
 function openUserForm(id = null) {
+    if (!hasRight('MANAGEMENT', 'Add/Edit Users', id ? 'Edit' : 'Add')) {
+        showToast(`You don't have permission to ${id ? 'edit' : 'add'} users.`, 'warning');
+        return;
+    }
     const modal = $('user-modal');
     const form = $('user-form');
     form.reset();

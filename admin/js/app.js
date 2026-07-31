@@ -339,6 +339,7 @@ function handleLogout() {
 }
 
 function showLoginScreen() {
+    $('app-loading-screen')?.classList.add('hidden');
     $('app-root').classList.add('hidden');
     $('login-screen').classList.remove('hidden');
     $('login-email').value = '';
@@ -348,6 +349,7 @@ function showLoginScreen() {
 }
 
 async function showApp(user) {
+    $('app-loading-screen')?.classList.add('hidden');
     $('login-screen').classList.add('hidden');
     $('app-root').classList.remove('hidden');
     $('active-admin-chip').textContent = user.email;

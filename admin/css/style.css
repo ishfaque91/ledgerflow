@@ -122,6 +122,30 @@ button { font-family: inherit; }
 .brand-name { font-family: 'Space Grotesk', sans-serif; font-weight: 800; font-size: 1.15rem; color: var(--ink); }
 .lf-mark-icon { width: 60%; height: 60%; color: white; flex-shrink: 0; }
 
+/* ==================== INITIAL LOADING SPLASH ====================
+   Shown first while we check whether there's an active Super Admin
+   session, so the login form never flashes on screen for someone who's
+   already logged in and just refreshed the page. */
+.app-loading-screen {
+    position: fixed; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--paper);
+    z-index: 999;
+}
+.app-loading-mark {
+    width: 56px; height: 56px;
+    border-radius: 16px;
+    display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(155deg, var(--garnet), var(--garnet-dark));
+    color: white;
+    animation: appLoadingPulse 1.1s ease-in-out infinite;
+}
+.app-loading-mark .lf-mark-icon { width: 56%; height: 56%; }
+@keyframes appLoadingPulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(0.94); }
+}
+
 .topbar-right { display: flex; align-items: center; gap: 10px; }
 .user-chip {
     font-weight: 600;

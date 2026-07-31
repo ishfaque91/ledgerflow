@@ -91,6 +91,10 @@ function renderAccountList(searchTerm = '') {
 
 // ==================== FORM: OPEN / CLOSE ====================
 function openAccountForm(id = null) {
+    if (!hasRight('MANAGEMENT', 'Add/Edit Accounts', 'Edit')) {
+        showToast(`You don't have permission to ${id ? 'edit' : 'add'} accounts.`, 'warning');
+        return;
+    }
     const modal = $('account-modal');
     const form = $('account-form');
     form.reset();

@@ -131,8 +131,12 @@ async function deleteVoucher(id) {
 
 // ==================== BANK RECEIPT / BANK PAYMENT (shared form) ====================
 function openBankVoucherForm(type, editId = null) {
-    currentBankVoucherType = type;
     const config = BANK_VOUCHER_CONFIG[type];
+    if (!hasRight('VOUCHERS', config.title, 'Edit')) {
+        showToast(`You don't have permission to ${editId ? 'edit' : 'add'} ${config.title} entries.`, 'warning');
+        return;
+    }
+    currentBankVoucherType = type;
     const form = $('bankvoucher-form');
     form.reset();
     $('bv-id').value = '';
@@ -258,6 +262,10 @@ async function saveBankVoucher() {
 
 // ==================== PETTY CASH ====================
 function openPettyCashForm(editId = null) {
+    if (!hasRight('VOUCHERS', 'Petty Cash', 'Edit')) {
+        showToast(`You don't have permission to ${editId ? 'edit' : 'add'} Petty Cash entries.`, 'warning');
+        return;
+    }
     const form = $('pettycash-form');
     form.reset();
     $('pc-id').value = '';
@@ -412,6 +420,10 @@ async function savePettyCash() {
 
 // ==================== JOURNAL VOUCHER ====================
 function openJournalForm(editId = null) {
+    if (!hasRight('VOUCHERS', 'Journal Voucher', 'Edit')) {
+        showToast(`You don't have permission to ${editId ? 'edit' : 'add'} Journal Vouchers.`, 'warning');
+        return;
+    }
     const form = $('journal-form');
     form.reset();
     $('jv-id').value = '';
