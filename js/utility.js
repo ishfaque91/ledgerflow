@@ -183,11 +183,11 @@ function renderBackupSummary() {
 function exportBackup() {
     const backup = { _meta: { app: 'LedgerFlow', exportedAt: new Date().toISOString() } };
 
-    Object.values(LF_KEYS).forEach(storageKey => {
-        const raw = localStorage.getItem(storageKey);
-        if (raw !== null) {
-            try { backup[storageKey] = JSON.parse(raw); } catch (e) { /* skip unreadable key */ }
-        }
+    // The real data lives in Firestore (mirrored into the in-memory cache
+    // lfGetAll reads from) — this app has never used localStorage for
+    // records, so reading from it here only ever produced an empty backup.
+    Object.values(LF_KEYS).forEach(key => {
+        backup[key] = lfGetAll(key);
     });
 
     const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
@@ -214,24 +214,37 @@ function handleRestoreFile(input) {
 
     const reader = new FileReader();
     reader.onload = (event) => {
-        try {
-            const data = JSON.parse(event.target.result);
-            if (!data || typeof data !== 'object') throw new Error('Not an object');
+        (async () => {
+            try {
+                const data = JSON.parse(event.target.result);
+                if (!data || typeof data !== 'object') throw new Error('Not an object');
 
-            Object.values(LF_KEYS).forEach(storageKey => {
-                if (data[storageKey] !== undefined) {
-                    localStorage.setItem(storageKey, JSON.stringify(data[storageKey]));
+                showToast('Restoring — this can take a moment, please stay on this page…', 'info', 6000);
+
+                // A true replace: wipe each collection's current Firestore
+                // documents, then write back exactly what the backup file
+                // has — under the SAME ids, so cross-references between
+                // invoices/vouchers and their ledger entries (which point at
+                // each other by id) stay intact.
+                for (const key of Object.values(LF_KEYS)) {
+                    const existing = lfGetAll(key);
+                    await Promise.all(existing.map(record => lfDelete(key, record.id)));
+
+                    const incoming = Array.isArray(data[key]) ? data[key] : [];
+                    await Promise.all(
+                        incoming.filter(record => record && record.id).map(record => lfUpsert(key, { ...record }))
+                    );
                 }
-            });
 
-            showToast('Backup restored — reloading…', 'success');
-            setTimeout(() => location.reload(), 900);
-        } catch (err) {
-            console.error('[Backup] Restore failed:', err);
-            showToast("That file doesn't look like a valid LedgerFlow backup.", 'error');
-        } finally {
-            input.value = '';
-        }
+                showToast('Backup restored — reloading…', 'success');
+                setTimeout(() => location.reload(), 900);
+            } catch (err) {
+                console.error('[Backup] Restore failed:', err);
+                showToast("That file doesn't look like a valid LedgerFlow backup, or the restore didn't fully complete.", 'error', 6000);
+            } finally {
+                input.value = '';
+            }
+        })();
     };
     reader.readAsText(file);
 }

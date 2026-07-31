@@ -8,6 +8,17 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
+
+<!-- ==================== PWA ==================== -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#5B4FE9">
+<link rel="icon" type="image/png" sizes="48x48" href="icons/favicon-48.png">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="LedgerFlow">
+<meta name="mobile-web-app-capable" content="yes">
 </head>
 <body>
 
@@ -2057,5 +2068,12 @@
 <script src="js/tools.js"></script>
 <script src="js/export.js"></script>
 <script src="js/auth.js"></script>
+<script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('sw.js').catch((err) => console.error('[PWA] Service worker registration failed:', err));
+        });
+    }
+</script>
 </body>
 </html>

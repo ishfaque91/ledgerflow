@@ -375,7 +375,15 @@ async function saveInvoice() {
     const hasLoad = $('inv-has-load').checked;
     const loadAmount = hasLoad ? parseAmount($('inv-load-amount').value) : 0;
     const loadDiscount = hasLoad ? (parseFloat($('inv-load-discount').value) || 0) : 0;
-    const loadQty = hasLoad ? parseAmount($('inv-load-qty').value) : 0;
+    // Qty normally auto-fills from Amount + Discount as you type (see
+    // onLoadFieldInput), but that only fires once you touch a second field —
+    // typing Amount alone and saving immediately left it blank, posting the
+    // money without ever recording the load quantity. Derive it here too so
+    // saving is never dependent on which fields were actually touched.
+    let loadQty = hasLoad ? parseAmount($('inv-load-qty').value) : 0;
+    if (hasLoad && loadQty <= 0 && loadAmount > 0) {
+        loadQty = loadAmount * (1 + loadDiscount / 100);
+    }
     const items = getItemRows();
     const saveBtn = $('invoice-save-btn');
 
@@ -455,6 +463,7 @@ async function saveInvoice() {
             hasLoad, loadAmount, loadDiscount, loadQty,
             items, itemsTotal, loadTotal, grandTotal,
             paymentMode, paymentAccountId, paymentAmount, balanceAmount,
+            createdAt: id ? undefined : new Date().toISOString(),
             enteredBy: id ? undefined : getCurrentUserDisplayName(),
             lastEditedBy: getCurrentUserDisplayName()
         });

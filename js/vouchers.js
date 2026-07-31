@@ -236,6 +236,7 @@ async function saveBankVoucher() {
             bankAccountId, bankName: bankAcc ? bankAcc.title : '',
             partyAccountId, partyName: partyAcc ? partyAcc.title : '',
             amount, chequeNo, chequeDate, narration,
+            createdAt: id ? undefined : new Date().toISOString(),
             enteredBy: id ? undefined : getCurrentUserDisplayName(),
             lastEditedBy: getCurrentUserDisplayName()
         });
@@ -385,6 +386,7 @@ async function savePettyCash() {
             id: voucherId, type: 'PettyCash', number, date,
             cashAccountId, cashAccountName: cashAcc ? cashAcc.title : '',
             lines, total,
+            createdAt: id ? undefined : new Date().toISOString(),
             enteredBy: id ? undefined : getCurrentUserDisplayName(),
             lastEditedBy: getCurrentUserDisplayName()
         });
@@ -546,6 +548,7 @@ async function saveJournal() {
         await lfUpsert(LF_KEYS.VOUCHERS, {
             id: voucherId, type: 'Journal', number, date, narration,
             lines, totalDr, totalCr,
+            createdAt: id ? undefined : new Date().toISOString(),
             enteredBy: id ? undefined : getCurrentUserDisplayName(),
             lastEditedBy: getCurrentUserDisplayName()
         });
