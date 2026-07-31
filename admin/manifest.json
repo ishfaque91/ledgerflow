@@ -2,7 +2,6 @@
     "name": "LedgerFlow — Super Admin",
     "short_name": "LF Admin",
     "description": "Manage every company using LedgerFlow — trials, subscriptions, and access.",
-    "id": "https://ishfaque91.github.io/ledgerflow/admin/",
     "start_url": "./index.html",
     "scope": "./",
     "display": "standalone",
