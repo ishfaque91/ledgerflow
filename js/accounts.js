@@ -163,8 +163,15 @@ async function saveAccount() {
     const openingAmount = parseAmount($('acc-opening').value);
     const saveBtn = $('account-save-btn');
 
+    if (!hasRight('MANAGEMENT', 'Add/Edit Accounts', 'Edit')) {
+        showToast("You don't have permission to save accounts.", 'warning');
+        return;
+    }
     if (!type) { showToast('Please choose an A/c Type.', 'warning'); $('acc-type').focus(); return; }
     if (!title) { showToast('Please enter the A/c Title.', 'warning'); $('acc-title').focus(); return; }
+
+    const duplicate = lfGetAll(LF_KEYS.ACCOUNTS).find(a => a.title.trim().toLowerCase() === title.toLowerCase() && a.id !== id);
+    if (duplicate) { showToast('An account with this exact title already exists.', 'error'); $('acc-title').focus(); return; }
 
     if (mobileDigits && !isValidPakMobile(mobileDigits)) {
         showToast('Mobile number should be 10 digits after +92, starting with 3 — e.g. 333 2392852.', 'warning');
@@ -172,6 +179,7 @@ async function saveAccount() {
         return;
     }
     if (email && !isValidEmail(email)) { showToast('Please enter a valid email address.', 'warning'); $('acc-email').focus(); return; }
+    if (openingAmount < 0) { showToast('Opening balance can\'t be negative — use the Debit/Credit toggle to set which side it belongs on.', 'warning'); return; }
 
     setBtnLoading(saveBtn, true);
 
@@ -199,6 +207,20 @@ async function saveAccount() {
 async function deleteAccount(id) {
     const acc = lfFindById(LF_KEYS.ACCOUNTS, id);
     if (!acc) return;
+    if (!hasRight('MANAGEMENT', 'Add/Edit Accounts', 'Delete')) {
+        showToast("You don't have permission to delete accounts.", 'warning');
+        return;
+    }
+    // Deleting an account that already has ledger history would silently
+    // drop its side of every past transaction from Trial Balance/Balance
+    // Sheet while the other side stays — the books stop balancing with no
+    // warning. Block it instead; accounts with history get deactivated in
+    // spirit (stop using them), not deleted.
+    const usageCount = lfGetAll(LF_KEYS.ACCOUNT_LEDGER).filter(e => e.accountId === id).length;
+    if (usageCount > 0) {
+        showToast(`Can't delete "${acc.title}" — it has ${usageCount} ledger ${usageCount === 1 ? 'entry' : 'entries'} from past transactions. Deleting it would break your reports. Simply stop using it instead.`, 'error', 7000);
+        return;
+    }
     if (!confirm(`Delete "${acc.title}"? This cannot be undone.`)) return;
     try {
         await lfDelete(LF_KEYS.ACCOUNTS, id);

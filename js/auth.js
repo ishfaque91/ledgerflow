@@ -160,8 +160,8 @@ async function resolveCompanyAndShowApp(user) {
 
         watchCollection(LF_KEYS.ACCOUNTS, () => renderAccountList());
         watchCollection(LF_KEYS.ITEMS, () => renderItemList());
-        watchCollection(LF_KEYS.USERS, () => { renderUserList(); populateRightsUserPicker(); });
-        watchCollection(LF_KEYS.RIGHTS, () => renderRightsTable());
+        watchCollection(LF_KEYS.USERS, () => { renderUserList(); populateRightsUserPicker(); applyNavRightsVisibility(); });
+        watchCollection(LF_KEYS.RIGHTS, () => { renderRightsTable(); applyNavRightsVisibility(); });
         watchCollection(LF_KEYS.INVOICES, () => Object.keys(INVOICE_CONFIG).forEach(t => renderInvoiceList(t)));
         watchCollection(LF_KEYS.VOUCHERS, () => ['BankReceipt', 'BankPayment', 'PettyCash', 'Journal'].forEach(t => renderVoucherList(t)));
         watchCollection(LF_KEYS.EDIT_LOG, () => renderEditLog());

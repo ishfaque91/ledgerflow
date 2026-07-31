@@ -189,3 +189,100 @@ function saveRights() {
 
     showToast('User rights saved.', 'success');
 }
+
+// ==================== ENFORCEMENT ====================
+// Everything above this point only ever wrote permissions to Firestore —
+// nothing in the app actually read them back, so configuring "View only"
+// for someone had no real effect. This section is what actually enforces
+// it: gating sidebar visibility, page navigation, and the underlying
+// save/delete actions themselves.
+//
+// Maps each navigable page to the Rights screen that gates it. A page not
+// listed here (Dashboard, and the Accounts/Users list pages) is always
+// reachable — Accounts and Users have no "View" permission in
+// RIGHTS_SCHEMA by design (only Edit/Delete/Add), since picking an account
+// or user is needed throughout the app; only the edit/delete actions on
+// those two screens are gated, not browsing the list itself.
+const PAGE_RIGHTS_MAP = {
+    'page-purchase': ['DATA ENTRY', 'Purchase'],
+    'page-purchase-return': ['DATA ENTRY', 'Purchase Return'],
+    'page-sale': ['DATA ENTRY', 'Sale'],
+    'page-sale-return': ['DATA ENTRY', 'Sale Return'],
+    'page-bank-receipt': ['VOUCHERS', 'Bank Receipt'],
+    'page-bank-payment': ['VOUCHERS', 'Bank Payment'],
+    'page-petty-cash': ['VOUCHERS', 'Petty Cash'],
+    'page-journal': ['VOUCHERS', 'Journal Voucher'],
+    'page-search-account': ['TOOLS', 'Search Account'],
+    'page-search-item': ['TOOLS', 'Search Item'],
+    'page-edit-log': ['TOOLS', 'Edit Log'],
+    'page-chart-of-accounts': ['REPORTS', 'Chart of Accounts'],
+    'page-account-balances': ['REPORTS', 'Account Balances'],
+    'page-account-ledger': ['REPORTS', 'Account Ledger'],
+    'page-load-ledger': ['REPORTS', 'Load Ledger'],
+    'page-item-ledger': ['REPORTS', 'Item Ledger'],
+    'page-stock-report': ['REPORTS', 'Stock Report'],
+    'page-cash-book': ['REPORTS', 'Cash Book'],
+    'page-sale-report': ['REPORTS', 'Sale Invoices Report'],
+    'page-purchase-report': ['REPORTS', 'Purchase Invoices Report'],
+    'page-trial-balance': ['REPORTS', 'Trial Balance'],
+    'page-balance-sheet': ['REPORTS', 'Balance Sheet'],
+    'page-profit-on-sale': ['REPORTS', 'Profit on Sale'],
+    'page-profit-loss': ['REPORTS', 'Profit & Loss'],
+    'page-items': ['MANAGEMENT', 'Add/Edit Items'],
+    'page-rights': ['MANAGEMENT', 'User Rights'],
+    'page-backup': ['UTILITY', 'Backup'],
+    'page-change-password': ['UTILITY', 'Change Password'],
+    'page-settings': ['UTILITY', 'Settings']
+};
+
+function getCurrentUserRecord() {
+    const authUser = (typeof fbAuth !== 'undefined') ? fbAuth.currentUser : null;
+    if (!authUser) return null;
+    return lfGetAll(LF_KEYS.USERS).find(u => u.linkedAuthUid === authUser.uid) || null;
+}
+
+// The owner always has full access — Rights only ever restricts staff.
+// Also true if the user record hasn't resolved yet (e.g. rights checked a
+// moment before the USERS listener's first snapshot arrives), so nothing
+// briefly blocks itself during load.
+function isCurrentUserOwner() {
+    const user = getCurrentUserRecord();
+    return !user || user.role === 'owner';
+}
+
+// The permission check every gated action goes through. A staff user who
+// has NEVER been explicitly configured on the Rights screen (no saved
+// record at all) keeps full access — exactly today's behavior — so turning
+// this on doesn't change what anyone can already do. Access only actually
+// narrows once their owner explicitly saves a Rights configuration for
+// them; from that point on, only what's checked there is allowed.
+function hasRight(groupName, screenName, perm) {
+    if (isCurrentUserOwner()) return true;
+    const user = getCurrentUserRecord();
+    if (!user) return true;
+    const record = lfGetAll(LF_KEYS.RIGHTS).find(r => r.userId === user.id);
+    if (!record) return true;
+    return !!(record.permissions && record.permissions[`${groupName}|${screenName}|${perm}`]);
+}
+
+function hasPageViewRight(pageId) {
+    const mapped = PAGE_RIGHTS_MAP[pageId];
+    if (!mapped) return true;
+    return hasRight(mapped[0], mapped[1], 'View');
+}
+
+// Hides sidebar links (and collapses a whole group if every link inside it
+// is hidden) the current user doesn't have View rights for. Re-run after
+// login and whenever the USERS or RIGHTS collections change live, so a
+// permission change while someone's using the app takes effect immediately.
+function applyNavRightsVisibility() {
+    document.querySelectorAll('.sidebar .nav-link[data-page]').forEach(link => {
+        link.classList.toggle('hidden', !hasPageViewRight(link.dataset.page));
+    });
+    document.querySelectorAll('.sidebar .nav-group').forEach(group => {
+        const links = group.querySelectorAll('.nav-link[data-page]');
+        if (links.length === 0) return;
+        const anyVisible = [...links].some(l => !l.classList.contains('hidden'));
+        group.classList.toggle('hidden', !anyVisible);
+    });
+}

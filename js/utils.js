@@ -5,6 +5,17 @@
 // Shortcut for document.getElementById
 function $(id) { return document.getElementById(id); }
 
+// Whether a given .page section is the one currently on screen — used to
+// skip expensive report recomputation triggered by a live Firestore
+// listener when nobody's actually looking at that report right now. Safe
+// to use as an early-return guard: whenever a page is genuinely opened
+// (navigateTo + the report's own filter/submit flow), that happens after
+// the page is already marked active, so a real render is never skipped.
+function isPageActive(pageId) {
+    const el = $(pageId);
+    return !!el && el.classList.contains('is-active');
+}
+
 // ==================== ID GENERATION ====================
 function generateId(prefix = '') {
     const timestamp = Date.now().toString(36);

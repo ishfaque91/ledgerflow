@@ -92,6 +92,7 @@ function initTrialBalancePage() {
 }
 
 function renderTrialBalance() {
+    if (!isPageActive('page-trial-balance')) return;
     const asOf = $('tb-as-of').value;
     const accounts = lfGetAll(LF_KEYS.ACCOUNTS).sort((a, b) => a.type.localeCompare(b.type) || a.title.localeCompare(b.title));
 
@@ -142,6 +143,7 @@ function statementRowHtml(title, amount) {
 }
 
 function renderBalanceSheet() {
+    if (!isPageActive('page-balance-sheet')) return;
     const asOf = $('bs-as-of').value;
     const accounts = lfGetAll(LF_KEYS.ACCOUNTS);
 
@@ -220,6 +222,7 @@ function renderProfitOnSale() {
 function initProfitLossPage() { renderProfitAndLoss(); }
 
 function renderProfitAndLoss() {
+    if (!isPageActive('page-profit-loss')) return;
     const dateFrom = $('pl-date-from').value;
     const dateTo = $('pl-date-to').value;
 

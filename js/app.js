@@ -29,6 +29,17 @@ document.addEventListener('click', (e) => {
 let isHandlingPopstate = false;
 
 function navigateTo(pageId, linkEl) {
+    // Enforce User Rights even if someone reaches a gated page a way other
+    // than clicking its (already-hidden) sidebar link — typing a hash
+    // directly, the browser back/forward buttons, or a Dashboard shortcut
+    // tile. hasPageViewRight is defined in rights.js.
+    if (typeof hasPageViewRight === 'function' && !hasPageViewRight(pageId)) {
+        isHandlingPopstate = false;
+        showToast("You don't have permission to view this page.", 'warning');
+        if (pageId !== 'page-dashboard') navigateTo('page-dashboard');
+        return;
+    }
+
     document.querySelectorAll('.page').forEach(p => p.classList.remove('is-active'));
     const target = $(pageId);
     if (target) target.classList.add('is-active');

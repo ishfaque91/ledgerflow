@@ -67,6 +67,7 @@ function initAccountBalancesPage() {
 }
 
 function renderAccountBalances() {
+    if (!isPageActive('page-account-balances')) return;
     const term = ($('bal-search')?.value || '').trim().toLowerCase();
     const typeFilter = $('bal-type-filter')?.value || '';
     const hideZero = $('bal-hide-zero')?.checked;
@@ -320,6 +321,7 @@ function renderItemLedgerReport() {
 function initStockReportPage() { renderStockReport(); }
 
 function renderStockReport() {
+    if (!isPageActive('page-stock-report')) return;
     const term = ($('stock-search')?.value || '').trim().toLowerCase();
     let items = lfGetAll(LF_KEYS.ITEMS);
     if (term) items = items.filter(i => (i.name || '').toLowerCase().includes(term));

@@ -195,6 +195,10 @@ function onBankVoucherPartyChange() {
 async function saveBankVoucher() {
     const type = $('bv-type').value;
     const config = BANK_VOUCHER_CONFIG[type];
+    if (!hasRight('VOUCHERS', config.title, 'Edit')) {
+        showToast("You don't have permission to save this.", 'warning');
+        return;
+    }
     const id = $('bv-id').value;
     const date = $('bv-date').value;
     const bankAccountId = $('bv-bank-account').value;
@@ -352,6 +356,10 @@ function recalcPettyCashTotal() {
 }
 
 async function savePettyCash() {
+    if (!hasRight('VOUCHERS', 'Petty Cash', 'Edit')) {
+        showToast("You don't have permission to save this.", 'warning');
+        return;
+    }
     const id = $('pc-id').value;
     const date = $('pc-date').value;
     const cashAccountId = $('pc-cash-account').value;
@@ -517,6 +525,10 @@ function recalcJournalTotals() {
 }
 
 async function saveJournal() {
+    if (!hasRight('VOUCHERS', 'Journal Voucher', 'Edit')) {
+        showToast("You don't have permission to save this.", 'warning');
+        return;
+    }
     const id = $('jv-id').value;
     const date = $('jv-date').value;
     const narration = sanitizeInput($('jv-narration').value);

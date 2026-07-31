@@ -145,7 +145,7 @@ button { font-family: inherit; }
 .topbar-right { display: flex; align-items: center; gap: 10px; }
 
 .icon-btn {
-    width: 38px; height: 38px;
+    width: 40px; height: 40px;
     display: flex; align-items: center; justify-content: center;
     background: transparent;
     border: 1px solid transparent;
@@ -666,12 +666,13 @@ button { font-family: inherit; }
 }
 .item-row .row-amount { text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
 .item-row-remove {
-    width: 26px; height: 26px;
+    width: 34px; height: 34px;
     border: none; background: transparent;
     color: var(--garnet);
     cursor: pointer;
     border-radius: 6px;
     display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
 }
 .item-row-remove:hover { background: var(--garnet-tint); }
 .item-rows-empty { padding: 1rem; text-align: center; color: var(--ink-faint); font-size: 0.85rem; }
@@ -704,6 +705,23 @@ button { font-family: inherit; }
 .jv-line-head { background: var(--paper); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-faint); font-weight: 700; }
 .jv-line select, .jv-line input {
     border: 1px solid var(--border-strong); border-radius: 6px; padding: 0.4rem 0.5rem; font-size: 0.86rem; width: 100%;
+}
+
+/* Line-item rows (Purchase/Sale items, Petty Cash, Journal Voucher) inside
+   modals stay as a grid on phones rather than stacking — a header row sits
+   above every one of these, so switching to single-column would separate
+   each field from its label. Instead, narrow the columns and tighten
+   spacing so everything still fits without horizontal overflow. */
+@media (max-width: 480px) {
+    .item-row, .item-row-head { grid-template-columns: 1.7fr 0.7fr 0.9fr 0.9fr; gap: 5px; padding: 8px 6px; }
+    .pc-line, .pc-line-head { grid-template-columns: 1.2fr 0.9fr 1.2fr 34px; gap: 5px; padding: 8px 6px; }
+    .jv-line, .jv-line-head { grid-template-columns: 1.5fr 0.85fr 0.85fr 34px; gap: 5px; padding: 8px 6px; }
+    .item-row select, .item-row input,
+    .pc-line select, .pc-line input,
+    .jv-line select, .jv-line input {
+        padding: 0.35rem 0.4rem;
+        font-size: 0.8rem;
+    }
 }
 
 /* ==================== INVOICE FORM EXTRAS (cont'd) ==================== */
@@ -1020,6 +1038,13 @@ button { font-family: inherit; }
 
 @media (max-width: 900px) {
     .dash-directory-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 480px) {
+    /* Each .dash-directory-card is already full-width by the 900px rule
+       above, but the shortcut tiles inside it stayed 2-up — cramped for
+       labels like "Purchase Invoices Report" at phone width. */
+    .dash-directory-list { grid-template-columns: 1fr; }
 }
 
 /* ==================== EMPTY / PLACEHOLDER ==================== */

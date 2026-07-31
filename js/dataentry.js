@@ -366,6 +366,10 @@ function updateBalancePreview(grandTotal) {
 // ==================== SAVE ====================
 async function saveInvoice() {
     const config = INVOICE_CONFIG[currentInvoiceType];
+    if (!hasRight('DATA ENTRY', config.title, 'Edit')) {
+        showToast("You don't have permission to save this.", 'warning');
+        return;
+    }
     const id = $('inv-id').value;
     const date = $('inv-date').value;
     const refNumber = sanitizeInput($('inv-ref-number').value);

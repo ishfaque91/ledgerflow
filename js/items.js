@@ -92,7 +92,19 @@ async function saveItem() {
     const hsn = sanitizeInput($('item-hsn').value);
     const saveBtn = $('item-save-btn');
 
+    if (!hasRight('MANAGEMENT', 'Add/Edit Items', 'Edit')) {
+        showToast("You don't have permission to save items.", 'warning');
+        return;
+    }
     if (!name) { showToast('Please enter the item name.', 'warning'); $('item-name').focus(); return; }
+
+    const duplicate = lfGetAll(LF_KEYS.ITEMS).find(i => i.name.trim().toLowerCase() === name.toLowerCase() && i.id !== id);
+    if (duplicate) { showToast('An item with this exact name already exists.', 'error'); $('item-name').focus(); return; }
+
+    if (purchasePrice < 0 || salePrice < 0 || tax < 0) {
+        showToast('Prices and tax can\'t be negative.', 'warning');
+        return;
+    }
 
     setBtnLoading(saveBtn, true);
 
@@ -112,6 +124,17 @@ async function saveItem() {
 function deleteItem(id) {
     const item = lfFindById(LF_KEYS.ITEMS, id);
     if (!item) return;
+    if (!hasRight('MANAGEMENT', 'Add/Edit Items', 'Edit')) {
+        showToast("You don't have permission to delete items.", 'warning');
+        return;
+    }
+    // Same reasoning as deleteAccount(): an item with stock history would
+    // silently disappear from Stock Report / Item Ledger totals if deleted.
+    const usageCount = lfGetAll(LF_KEYS.ITEM_LEDGER).filter(e => e.itemId === id).length;
+    if (usageCount > 0) {
+        showToast(`Can't delete "${item.name}" — it has ${usageCount} stock ${usageCount === 1 ? 'entry' : 'entries'} from past transactions. Deleting it would break your stock reports.`, 'error', 7000);
+        return;
+    }
     if (!confirm(`Delete "${item.name}"? This cannot be undone.`)) return;
     lfDelete(LF_KEYS.ITEMS, id);
     showToast('Item deleted.', 'success');

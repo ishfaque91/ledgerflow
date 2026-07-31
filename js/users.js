@@ -105,6 +105,10 @@ async function saveUser() {
     const password = $('user-password').value;
     const saveBtn = $('user-save-btn');
 
+    if (!hasRight('MANAGEMENT', 'Add/Edit Users', id ? 'Edit' : 'Add')) {
+        showToast(`You don't have permission to ${id ? 'edit' : 'add'} users.`, 'warning');
+        return;
+    }
     if (!fullName) { showToast('Please enter the full name.', 'warning'); $('user-fullname').focus(); return; }
     if (!email || !isValidEmail(email)) { showToast('Please enter a valid email.', 'warning'); $('user-username').focus(); return; }
 
@@ -150,6 +154,11 @@ async function saveUser() {
 async function deleteUser(id) {
     const user = lfFindById(LF_KEYS.USERS, id);
     if (!user) return;
+
+    if (!hasRight('MANAGEMENT', 'Add/Edit Users', 'Delete')) {
+        showToast("You don't have permission to delete users.", 'warning');
+        return;
+    }
 
     if (fbAuth.currentUser && user.linkedAuthUid === fbAuth.currentUser.uid) {
         showToast("You can't remove your own account from here.", 'warning');
