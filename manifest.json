@@ -2,7 +2,7 @@
     "name": "LedgerFlow — Business Accounting",
     "short_name": "LedgerFlow",
     "description": "Accounting, invoicing, vouchers, and ledger reports for your business.",
-    "id": "/",
+    "id": "https://ishfaque91.github.io/ledgerflow/",
     "start_url": "./index.html",
     "scope": "./",
     "display": "standalone",
