@@ -22,11 +22,6 @@ const RIGHTS_SCHEMA = {
         { name: 'Petty Cash', perms: ['View', 'Edit'] },
         { name: 'Journal Voucher', perms: ['View', 'Edit'] }
     ],
-    'TOOLS': [
-        { name: 'Search Account', perms: ['View'] },
-        { name: 'Search Item', perms: ['View'] },
-        { name: 'Edit Log', perms: ['View'] }
-    ],
     'REPORTS': [
         { name: 'Chart of Accounts', perms: ['View'] },
         { name: 'Account Balances', perms: ['View'] },
@@ -44,11 +39,12 @@ const RIGHTS_SCHEMA = {
     ],
     'MANAGEMENT': [
         { name: 'Add/Edit Items', perms: ['View', 'Edit'] },
-        { name: 'Add/Edit Accounts', perms: ['Edit', 'Delete'] },
-        { name: 'Add/Edit Users', perms: ['Add', 'Edit', 'Delete'] },
-        { name: 'User Rights', perms: ['View'] }
+        { name: 'Add/Edit Accounts', perms: ['Edit', 'Delete'] }
     ],
     'UTILITY': [
+        { name: 'Add/Edit Users', perms: ['Add', 'Edit', 'Delete'] },
+        { name: 'User Rights', perms: ['View'] },
+        { name: 'Edit Log', perms: ['View'] },
         { name: 'Backup', perms: ['View'] },
         { name: 'Change Password', perms: ['View'] },
         { name: 'Settings', perms: ['View'] }
@@ -212,9 +208,7 @@ const PAGE_RIGHTS_MAP = {
     'page-bank-payment': ['VOUCHERS', 'Bank Payment'],
     'page-petty-cash': ['VOUCHERS', 'Petty Cash'],
     'page-journal': ['VOUCHERS', 'Journal Voucher'],
-    'page-search-account': ['TOOLS', 'Search Account'],
-    'page-search-item': ['TOOLS', 'Search Item'],
-    'page-edit-log': ['TOOLS', 'Edit Log'],
+    'page-edit-log': ['UTILITY', 'Edit Log'],
     'page-chart-of-accounts': ['REPORTS', 'Chart of Accounts'],
     'page-account-balances': ['REPORTS', 'Account Balances'],
     'page-account-ledger': ['REPORTS', 'Account Ledger'],
@@ -229,7 +223,7 @@ const PAGE_RIGHTS_MAP = {
     'page-profit-on-sale': ['REPORTS', 'Profit on Sale'],
     'page-profit-loss': ['REPORTS', 'Profit & Loss'],
     'page-items': ['MANAGEMENT', 'Add/Edit Items'],
-    'page-rights': ['MANAGEMENT', 'User Rights'],
+    'page-rights': ['UTILITY', 'User Rights'],
     'page-backup': ['UTILITY', 'Backup'],
     'page-change-password': ['UTILITY', 'Change Password'],
     'page-settings': ['UTILITY', 'Settings']
@@ -284,5 +278,22 @@ function applyNavRightsVisibility() {
         if (links.length === 0) return;
         const anyVisible = [...links].some(l => !l.classList.contains('hidden'));
         group.classList.toggle('hidden', !anyVisible);
+    });
+
+    // The Dashboard's hub pages list the same destinations as the sidebar, so
+    // they need the same filtering — otherwise a restricted user still sees
+    // every option there and only finds out it's blocked after clicking.
+    document.querySelectorAll('.dash-directory-list a[data-page]').forEach(link => {
+        link.classList.toggle('hidden', !hasPageViewRight(link.dataset.page));
+    });
+
+    // A Dashboard tab whose hub page has nothing left to show is just a dead
+    // end, so hide the tab too.
+    document.querySelectorAll('.dash-tab[data-hub]').forEach(tab => {
+        const hub = document.getElementById(tab.dataset.hub);
+        if (!hub) return;
+        const links = hub.querySelectorAll('.dash-directory-list a[data-page]');
+        const anyVisible = [...links].some(l => !l.classList.contains('hidden'));
+        tab.classList.toggle('hidden', links.length > 0 && !anyVisible);
     });
 }

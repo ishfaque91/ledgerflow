@@ -60,15 +60,30 @@ function computeIncomeExpense(dateFrom, dateTo) {
     const incomeRows = [];
     const expenseRows = [];
 
+    // An Income/Expense account's opening balance is real money that
+    // predates the first ledger entry. It was previously ignored here
+    // entirely, so it appeared in the Trial Balance (which reads opening
+    // balances via computeAccountBalanceAsOf) but vanished from the Balance
+    // Sheet — Income/Expense accounts don't sit on the Balance Sheet
+    // directly, and Retained Earnings is built from this function, so the
+    // sheet came out short by exactly those openings and stopped balancing.
+    // Only counted for an open-ended range: when an explicit dateFrom is
+    // given, the opening predates the window and correctly stays out.
+    const openingFor = (acc, drIsPositive) => {
+        if (dateFrom) return 0;
+        const signed = (acc.openingSide === 'Cr' ? -1 : 1) * (acc.openingAmount || 0);
+        return drIsPositive ? signed : -signed;
+    };
+
     accounts.filter(a => a.type === 'Income').forEach(a => {
         const net = entries.filter(e => e.accountId === a.id)
-            .reduce((s, e) => s + (e.side === 'Cr' ? e.amount : -e.amount), 0);
+            .reduce((s, e) => s + (e.side === 'Cr' ? e.amount : -e.amount), openingFor(a, false));
         if (net !== 0) incomeRows.push({ title: a.title, amount: net });
     });
 
     accounts.filter(a => a.type === 'Expense').forEach(a => {
         const net = entries.filter(e => e.accountId === a.id)
-            .reduce((s, e) => s + (e.side === 'Dr' ? e.amount : -e.amount), 0);
+            .reduce((s, e) => s + (e.side === 'Dr' ? e.amount : -e.amount), openingFor(a, true));
         if (net !== 0) expenseRows.push({ title: a.title, amount: net });
     });
 
@@ -93,6 +108,7 @@ function initTrialBalancePage() {
 
 function renderTrialBalance() {
     if (!isPageActive('page-trial-balance')) return;
+    updateReportHeader('page-trial-balance');
     const asOf = $('tb-as-of').value;
     const accounts = lfGetAll(LF_KEYS.ACCOUNTS).sort((a, b) => a.type.localeCompare(b.type) || a.title.localeCompare(b.title));
 
@@ -123,11 +139,27 @@ function renderTrialBalance() {
             <td class="num"><strong>${formatCurrency(totalCr)}</strong></td>
         </tr>`;
     if (diff !== 0) {
+        // Sales and purchases post only their receivable/payable and cash
+        // legs to the ledger — the revenue and cost side is held on the
+        // invoice records themselves and surfaces through Profit on Sale /
+        // P&L instead. So the Trial Balance is expected to be "out" by
+        // exactly the trading profit; when it is, say so, rather than
+        // showing a bare red number that reads like corrupted data.
+        const tradingProfit = Math.round(computeTradingProfit('', asOf).totalProfit * 100) / 100;
+        const explainedByTrading = Math.abs(diff - tradingProfit) < 0.01;
         footHtml += `
         <tr>
             <td colspan="2">Difference</td>
-            <td class="num" colspan="2" style="color:var(--garnet); font-weight:700;">${formatCurrency(Math.abs(diff))} ${diff > 0 ? '(Debit heavy)' : '(Credit heavy)'}</td>
+            <td class="num" colspan="2" style="color:${explainedByTrading ? 'var(--ink-soft)' : 'var(--garnet)'}; font-weight:700;">${formatCurrency(Math.abs(diff))} ${diff > 0 ? '(Debit heavy)' : '(Credit heavy)'}</td>
         </tr>`;
+        if (explainedByTrading) {
+            footHtml += `
+        <tr>
+            <td colspan="4" style="color:var(--ink-faint); font-size:0.82rem; font-weight:500;">
+                This matches your trading profit of ${formatCurrency(tradingProfit)} — expected, because sales and purchases record their profit on the invoice itself rather than as a ledger entry. See Profit &amp; Loss for the full picture.
+            </td>
+        </tr>`;
+        }
     }
     $('tb-table-foot').innerHTML = footHtml;
 }
@@ -144,6 +176,7 @@ function statementRowHtml(title, amount) {
 
 function renderBalanceSheet() {
     if (!isPageActive('page-balance-sheet')) return;
+    updateReportHeader('page-balance-sheet');
     const asOf = $('bs-as-of').value;
     const accounts = lfGetAll(LF_KEYS.ACCOUNTS);
 
@@ -203,6 +236,8 @@ function renderBalanceSheet() {
 function initProfitOnSalePage() { renderProfitOnSale(); }
 
 function renderProfitOnSale() {
+    if (!isPageActive('page-profit-on-sale')) return;
+    updateReportHeader('page-profit-on-sale');
     const dateFrom = $('pos-date-from').value;
     const dateTo = $('pos-date-to').value;
     const t = computeTradingProfit(dateFrom, dateTo);
@@ -223,6 +258,7 @@ function initProfitLossPage() { renderProfitAndLoss(); }
 
 function renderProfitAndLoss() {
     if (!isPageActive('page-profit-loss')) return;
+    updateReportHeader('page-profit-loss');
     const dateFrom = $('pl-date-from').value;
     const dateTo = $('pl-date-to').value;
 

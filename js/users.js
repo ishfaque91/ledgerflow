@@ -52,7 +52,7 @@ function renderUserList(searchTerm = '') {
 }
 
 function openUserForm(id = null) {
-    if (!hasRight('MANAGEMENT', 'Add/Edit Users', id ? 'Edit' : 'Add')) {
+    if (!hasRight('UTILITY', 'Add/Edit Users', id ? 'Edit' : 'Add')) {
         showToast(`You don't have permission to ${id ? 'edit' : 'add'} users.`, 'warning');
         return;
     }
@@ -109,7 +109,7 @@ async function saveUser() {
     const password = $('user-password').value;
     const saveBtn = $('user-save-btn');
 
-    if (!hasRight('MANAGEMENT', 'Add/Edit Users', id ? 'Edit' : 'Add')) {
+    if (!hasRight('UTILITY', 'Add/Edit Users', id ? 'Edit' : 'Add')) {
         showToast(`You don't have permission to ${id ? 'edit' : 'add'} users.`, 'warning');
         return;
     }
@@ -159,7 +159,7 @@ async function deleteUser(id) {
     const user = lfFindById(LF_KEYS.USERS, id);
     if (!user) return;
 
-    if (!hasRight('MANAGEMENT', 'Add/Edit Users', 'Delete')) {
+    if (!hasRight('UTILITY', 'Add/Edit Users', 'Delete')) {
         showToast("You don't have permission to delete users.", 'warning');
         return;
     }

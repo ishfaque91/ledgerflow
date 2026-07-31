@@ -821,12 +821,36 @@ button { font-family: inherit; }
     .export-toolbar, .toolbar-row .search-field, #menu-toggle {
         display: none !important;
     }
+    /* The report-doc-header already carries the report name, so the on-page
+       heading and its descriptive blurb would just be duplication on paper.
+       The filter controls aren't useful printed either — the header states
+       the range that was actually used. */
+    .page-head, .page-sub, .report-toolbar { display: none !important; }
     .app-shell { display: block !important; }
     .main-content { padding: 0 !important; max-width: none !important; }
     .page { display: none !important; }
     .page.is-active { display: block !important; }
     body { background: white !important; }
     .card { box-shadow: none !important; border: 1px solid #ccc !important; }
+
+    .report-doc-header {
+        border: none !important;
+        border-bottom: 2px solid #333 !important;
+        border-radius: 0 !important;
+        padding: 0 0 10px !important;
+        margin-bottom: 14px !important;
+    }
+    .rdh-company { font-size: 16pt !important; color: #000 !important; }
+    .rdh-title { font-size: 14pt !important; color: #000 !important; }
+    .rdh-subject { font-size: 11pt !important; color: #000 !important; }
+    .rdh-meta { color: #333 !important; }
+
+    /* Keep statement-style reports (Balance Sheet, P&L) side by side on
+       paper instead of collapsing to one very long column. */
+    .statement-grid { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 12px !important; }
+    .data-table { font-size: 9pt !important; }
+    .data-table thead { display: table-header-group; }
+    tr, .statement-row { page-break-inside: avoid; }
 }
 
 /* ==================== INITIAL LOADING SPLASH ==================== */
@@ -895,6 +919,49 @@ button { font-family: inherit; }
 .logo-upload-row { display: flex; align-items: center; gap: 12px; }
 .logo-preview, .logo-preview-fallback { width: 48px; height: 48px; border-radius: 12px; object-fit: cover; }
 .logo-preview-fallback { display: flex; align-items: center; justify-content: center; font-family: 'Space Grotesk', sans-serif; font-weight: 800; }
+
+/* ==================== REPORT DOCUMENT HEADER ====================
+   The letterhead shown at the top of every report — company details, the
+   report's own name, what it's about, and the date range. Deliberately the
+   same information the PDF/Excel exports carry, so screen, print and
+   download all agree. */
+.report-doc-header {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.1rem 1.3rem;
+    margin-bottom: 16px;
+    text-align: center;
+}
+.rdh-company {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 1.25rem;
+    color: var(--ink);
+    line-height: 1.25;
+}
+.rdh-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 1.5rem;
+    color: var(--teal-dark);
+    margin-top: 0.5rem;
+    line-height: 1.2;
+}
+.rdh-subject {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 1.2rem;
+    color: var(--ink);
+    margin-top: 0.3rem;
+}
+.rdh-meta { font-size: 0.82rem; color: var(--ink-faint); margin-top: 0.15rem; }
+
+@media (max-width: 600px) {
+    .report-doc-header { padding: 0.9rem 1rem; }
+    .rdh-company { font-size: 1.1rem; }
+    .rdh-title { font-size: 1.25rem; }
+}
 
 /* ==================== REPORTS ==================== */
 .report-toolbar {
@@ -981,6 +1048,61 @@ button { font-family: inherit; }
 
 @media (max-width: 900px) {
     .dash-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ==================== DASHBOARD TABS ====================
+   The dashboard is now a launcher: one tab per area, each opening its own
+   page that lists that area's options. */
+.dash-tab-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 14px;
+}
+.dash-tab {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 1.3rem 1.4rem;
+    text-decoration: none;
+    color: inherit;
+    transition: transform .15s var(--ease), box-shadow .15s var(--ease), border-color .15s var(--ease);
+}
+.dash-tab:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lift);
+    border-color: var(--teal);
+}
+.dash-tab-icon {
+    display: flex;
+    width: 42px; height: 42px;
+    align-items: center; justify-content: center;
+    border-radius: var(--radius-md);
+    background: var(--teal-tint);
+    color: var(--teal-dark);
+    margin-bottom: 4px;
+}
+.dash-tab-icon svg { width: 22px; height: 22px; }
+.dash-tab-name {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 1.15rem;
+    color: var(--ink);
+}
+.dash-tab-desc { font-size: 0.85rem; color: var(--ink-faint); line-height: 1.45; }
+.dash-tab-count {
+    margin-top: 4px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--teal-dark);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+/* A hub page's option grid can breathe more than the old cramped dashboard
+   cards, since it's the only thing on the page. */
+.dash-hub-card { padding: 1.3rem 1.4rem; }
+.dash-hub-card .dash-directory-list {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
 }
 
 .dash-directory-grid {

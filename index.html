@@ -213,21 +213,6 @@
             <div class="nav-group">
                 <button class="nav-group-header" onclick="toggleGroup(this)">
                     <span class="nav-group-icon">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                    </span>
-                    <span>Tools</span>
-                    <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-                </button>
-                <div class="nav-group-body">
-                    <a href="#" class="nav-link" data-page="page-search-account" onclick="navigateTo('page-search-account',this); initSearchAccountPage();">Search Account</a>
-                    <a href="#" class="nav-link" data-page="page-search-item" onclick="navigateTo('page-search-item',this); initSearchItemPage();">Search Item</a>
-                    <a href="#" class="nav-link" data-page="page-edit-log" onclick="navigateTo('page-edit-log',this); initEditLogPage();">Edit Log</a>
-                </div>
-            </div>
-
-            <div class="nav-group">
-                <button class="nav-group-header" onclick="toggleGroup(this)">
-                    <span class="nav-group-icon">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                     </span>
                     <span>Reports</span>
@@ -261,8 +246,6 @@
                 <div class="nav-group-body">
                     <a href="#" class="nav-link" data-page="page-accounts" onclick="navigateTo('page-accounts',this);">Add/Edit Accounts</a>
                     <a href="#" class="nav-link" data-page="page-items" onclick="navigateTo('page-items',this);">Add/Edit Items</a>
-                    <a href="#" class="nav-link" data-page="page-users" onclick="navigateTo('page-users',this);">Add/Edit Users</a>
-                    <a href="#" class="nav-link" data-page="page-rights" onclick="navigateTo('page-rights',this);">User Rights</a>
                 </div>
             </div>
 
@@ -275,6 +258,9 @@
                     <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
                 </button>
                 <div class="nav-group-body">
+                    <a href="#" class="nav-link" data-page="page-users" onclick="navigateTo('page-users',this);">Add/Edit Users</a>
+                    <a href="#" class="nav-link" data-page="page-rights" onclick="navigateTo('page-rights',this);">User Rights</a>
+                    <a href="#" class="nav-link" data-page="page-edit-log" onclick="navigateTo('page-edit-log',this); initEditLogPage();">Edit Log</a>
                     <a href="#" class="nav-link" data-page="page-backup" onclick="navigateTo('page-backup',this); renderBackupSummary();">Backup Data</a>
                     <a href="#" class="nav-link" data-page="page-change-password" onclick="navigateTo('page-change-password',this); initChangePasswordPage();">Change Password</a>
                     <a href="#" class="nav-link" data-page="page-settings" onclick="navigateTo('page-settings',this); initSettingsPage();">Settings</a>
@@ -293,76 +279,147 @@
             <div class="page-head">
                 <div>
                     <h1>Dashboard</h1>
-                    <p class="page-sub">A quick look at what's in the system right now.</p>
+                    <p class="page-sub">Pick an area to work in.</p>
                 </div>
             </div>
 
-            <h3 style="margin-top:0; margin-bottom:6px; font-family:'Space Grotesk',sans-serif;">Everywhere in LedgerFlow</h3>
-            <div class="dash-directory-grid">
-                <div class="card dash-directory-card">
-                    <h3><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> Data Entry</h3>
-                    <div class="dash-directory-list">
-                        <a href="#" onclick="navigateTo('page-purchase',this); openInvoiceForm('Purchase');"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg><span>Purchase</span></a>
-                        <a href="#" onclick="navigateTo('page-purchase-return',this); openInvoiceForm('PurchaseReturn');"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M9 13l-2 2 2 2"/><path d="M7 15h6"/></svg><span>Purchase Return</span></a>
-                        <a href="#" onclick="navigateTo('page-sale',this); openInvoiceForm('Sale');"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg><span>Sale</span></a>
-                        <a href="#" onclick="navigateTo('page-sale-return',this); openInvoiceForm('SaleReturn');"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/><path d="M11 10l-2 2 2 2"/></svg><span>Sale Return</span></a>
-                    </div>
+            <div class="dash-tab-grid">
+                <a href="#" class="card dash-tab" data-hub="page-hub-data-entry" onclick="navigateTo('page-hub-data-entry')">
+                    <span class="dash-tab-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span>
+                    <span class="dash-tab-name">Data Entry</span>
+                    <span class="dash-tab-desc">Record purchases, sales, and their returns.</span>
+                    <span class="dash-tab-count">4 options</span>
+                </a>
+                <a href="#" class="card dash-tab" data-hub="page-hub-vouchers" onclick="navigateTo('page-hub-vouchers')">
+                    <span class="dash-tab-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 9.5V4h20v5.5"/><path d="M2 9.5a2.5 2.5 0 0 0 5 0M7 9.5a2.5 2.5 0 0 0 5 0M12 9.5a2.5 2.5 0 0 0 5 0M17 9.5a2.5 2.5 0 0 0 5 0"/><path d="M4 9.5V20h16V9.5"/></svg></span>
+                    <span class="dash-tab-name">Vouchers</span>
+                    <span class="dash-tab-desc">Bank receipts and payments, petty cash, and journal entries.</span>
+                    <span class="dash-tab-count">4 options</span>
+                </a>
+                <a href="#" class="card dash-tab" data-hub="page-hub-reports" onclick="navigateTo('page-hub-reports')">
+                    <span class="dash-tab-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></span>
+                    <span class="dash-tab-name">Reports</span>
+                    <span class="dash-tab-desc">Ledgers, stock, and the full set of financial statements.</span>
+                    <span class="dash-tab-count">13 options</span>
+                </a>
+                <a href="#" class="card dash-tab" data-hub="page-hub-management" onclick="navigateTo('page-hub-management')">
+                    <span class="dash-tab-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></span>
+                    <span class="dash-tab-name">Management</span>
+                    <span class="dash-tab-desc">Set up the accounts and items the rest of the app works with.</span>
+                    <span class="dash-tab-count">2 options</span>
+                </a>
+                <a href="#" class="card dash-tab" data-hub="page-hub-utility" onclick="navigateTo('page-hub-utility')">
+                    <span class="dash-tab-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></span>
+                    <span class="dash-tab-name">Utility</span>
+                    <span class="dash-tab-desc">Users, permissions, activity history, backups, and settings.</span>
+                    <span class="dash-tab-count">6 options</span>
+                </a>
+            </div>
+        </section>
+
+        <!-- ============ HUB: DATA ENTRY ============ -->
+        <section id="page-hub-data-entry" class="page">
+            <div class="page-head">
+                <div>
+                    <h1>Data Entry</h1>
+                    <p class="page-sub">Record purchases, sales, and their returns.</p>
                 </div>
-                <div class="card dash-directory-card">
-                    <h3><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 9.5V4h20v5.5"/><path d="M2 9.5a2.5 2.5 0 0 0 5 0M7 9.5a2.5 2.5 0 0 0 5 0M12 9.5a2.5 2.5 0 0 0 5 0M17 9.5a2.5 2.5 0 0 0 5 0"/><path d="M4 9.5V20h16V9.5"/></svg> Vouchers</h3>
-                    <div class="dash-directory-list">
-                        <a href="#" onclick="navigateTo('page-bank-receipt',this); openBankVoucherForm('BankReceipt');"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 2h16v20l-3-2-3 2-3-2-3 2-3-2-1 2Z"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="11" x2="16" y2="11"/></svg><span>Bank Receipt</span></a>
-                        <a href="#" onclick="navigateTo('page-bank-payment',this); openBankVoucherForm('BankPayment');"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg><span>Bank Payment</span></a>
-                        <a href="#" onclick="navigateTo('page-petty-cash',this); openPettyCashForm();"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg><span>Petty Cash</span></a>
-                        <a href="#" onclick="navigateTo('page-journal',this); openJournalForm();"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg><span>Journal Voucher</span></a>
-                    </div>
-                </div>
-                <div class="card dash-directory-card">
-                    <h3><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg> Tools</h3>
-                    <div class="dash-directory-list">
-                        <a href="#" onclick="navigateTo('page-search-account',this); initSearchAccountPage();"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="8" r="4"/><path d="M2 20c0-4 4-6 8-6"/><circle cx="18" cy="18" r="3"/><line x1="20.5" y1="20.5" x2="23" y2="23"/></svg><span>Search Account</span></a>
-                        <a href="#" onclick="navigateTo('page-search-item',this); initSearchItemPage();"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v7a2 2 0 0 0 1 1.73"/><circle cx="17" cy="17" r="4"/><line x1="20" y1="20" x2="22" y2="22"/></svg><span>Search Item</span></a>
-                        <a href="#" onclick="navigateTo('page-edit-log',this); initEditLogPage();"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2h6a1 1 0 0 1 1 1v2H8V3a1 1 0 0 1 1-1Z"/><path d="M8 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2"/><path d="m9 14 2 2 4-4"/></svg><span>Edit Log</span></a>
-                    </div>
-                </div>
-                <div class="card dash-directory-card">
-                    <h3><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> Reports</h3>
-                    <div class="dash-directory-list">
-                        <a href="#" onclick="navigateTo('page-chart-of-accounts',this); openReportFilterModal('page-chart-of-accounts');"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span>Chart of Accounts</span></a>
-                        <a href="#" onclick="navigateTo('page-account-balances',this); openReportFilterModal('page-account-balances');"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span>Account Balances</span></a>
-                        <a href="#" onclick="navigateTo('page-account-ledger',this); openReportFilterModal('page-account-ledger');"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span>Account Ledger</span></a>
-                        <a href="#" onclick="navigateTo('page-load-ledger',this); openReportFilterModal('page-load-ledger');"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span>Load Ledger</span></a>
-                        <a href="#" onclick="navigateTo('page-item-ledger',this); openReportFilterModal('page-item-ledger');"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span>Item Ledger</span></a>
-                        <a href="#" onclick="navigateTo('page-stock-report',this); openReportFilterModal('page-stock-report');"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span>Stock Report</span></a>
-                        <a href="#" onclick="navigateTo('page-cash-book',this); openReportFilterModal('page-cash-book');"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span>Cash Book</span></a>
-                        <a href="#" onclick="navigateTo('page-sale-report',this); openReportFilterModal('page-sale-report');"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span>Sale Invoices Report</span></a>
-                        <a href="#" onclick="navigateTo('page-purchase-report',this); openReportFilterModal('page-purchase-report');"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span>Purchase Invoices Report</span></a>
-                        <a href="#" onclick="navigateTo('page-trial-balance',this); openReportFilterModal('page-trial-balance');"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span>Trial Balance</span></a>
-                        <a href="#" onclick="navigateTo('page-balance-sheet',this); openReportFilterModal('page-balance-sheet');"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span>Balance Sheet</span></a>
-                        <a href="#" onclick="navigateTo('page-profit-on-sale',this); openReportFilterModal('page-profit-on-sale');"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span>Profit on Sale</span></a>
-                        <a href="#" onclick="navigateTo('page-profit-loss',this); openReportFilterModal('page-profit-loss');"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span>Profit &amp; Loss</span></a>
-                    </div>
-                </div>
-                <div class="card dash-directory-card">
-                    <h3><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Management</h3>
-                    <div class="dash-directory-list">
-                        <a href="#" onclick="navigateTo('page-accounts',this)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><circle cx="8" cy="12" r="2"/><line x1="13" y1="10" x2="18" y2="10"/><line x1="13" y1="14" x2="18" y2="14"/></svg><span>Add/Edit Accounts</span></a>
-                        <a href="#" onclick="navigateTo('page-items',this)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v7a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 15Z"/><polyline points="3.29 7 12 12 20.71 7"/><line x1="12" y1="22" x2="12" y2="12"/></svg><span>Add/Edit Items</span></a>
-                        <a href="#" onclick="navigateTo('page-users',this)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg><span>Add/Edit Users</span></a>
-                        <a href="#" onclick="navigateTo('page-rights',this)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/></svg><span>User Rights</span></a>
-                    </div>
-                </div>
-                <div class="card dash-directory-card">
-                    <h3><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg> Utility</h3>
-                    <div class="dash-directory-list">
-                        <a href="#" onclick="navigateTo('page-backup',this); renderBackupSummary();"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v6c0 1.66 4 3 9 3s9-1.34 9-3V5"/><path d="M3 11v6c0 1.66 4 3 9 3s9-1.34 9-3v-6"/></svg><span>Backup Data</span></a>
-                        <a href="#" onclick="navigateTo('page-change-password',this); initChangePasswordPage();"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="15" r="4"/><path d="m10.5 11.5 8-8"/><path d="m15.5 6.5 3 3"/><path d="m18 4 2 2"/></svg><span>Change Password</span></a>
-                        <a href="#" onclick="navigateTo('page-settings',this); initSettingsPage();"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span>Settings</span></a>
-                    </div>
+                <button class="btn btn-ghost" onclick="navigateTo('page-dashboard')">Back to Dashboard</button>
+            </div>
+            <div class="card dash-directory-card dash-hub-card">
+                <div class="dash-directory-list">
+                        <a href="#" data-page="page-purchase" onclick="navigateTo('page-purchase',this); openInvoiceForm('Purchase');"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg><span>Purchase</span></a>
+                        <a href="#" data-page="page-purchase-return" onclick="navigateTo('page-purchase-return',this); openInvoiceForm('PurchaseReturn');"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M9 13l-2 2 2 2"/><path d="M7 15h6"/></svg><span>Purchase Return</span></a>
+                        <a href="#" data-page="page-sale" onclick="navigateTo('page-sale',this); openInvoiceForm('Sale');"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg><span>Sale</span></a>
+                        <a href="#" data-page="page-sale-return" onclick="navigateTo('page-sale-return',this); openInvoiceForm('SaleReturn');"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/><path d="M11 10l-2 2 2 2"/></svg><span>Sale Return</span></a>
                 </div>
             </div>
         </section>
 
+        <!-- ============ HUB: VOUCHERS ============ -->
+        <section id="page-hub-vouchers" class="page">
+            <div class="page-head">
+                <div>
+                    <h1>Vouchers</h1>
+                    <p class="page-sub">Bank receipts and payments, petty cash, and journal entries.</p>
+                </div>
+                <button class="btn btn-ghost" onclick="navigateTo('page-dashboard')">Back to Dashboard</button>
+            </div>
+            <div class="card dash-directory-card dash-hub-card">
+                <div class="dash-directory-list">
+                        <a href="#" data-page="page-bank-receipt" onclick="navigateTo('page-bank-receipt',this); openBankVoucherForm('BankReceipt');"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 2h16v20l-3-2-3 2-3-2-3 2-3-2-1 2Z"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="11" x2="16" y2="11"/></svg><span>Bank Receipt</span></a>
+                        <a href="#" data-page="page-bank-payment" onclick="navigateTo('page-bank-payment',this); openBankVoucherForm('BankPayment');"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg><span>Bank Payment</span></a>
+                        <a href="#" data-page="page-petty-cash" onclick="navigateTo('page-petty-cash',this); openPettyCashForm();"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg><span>Petty Cash</span></a>
+                        <a href="#" data-page="page-journal" onclick="navigateTo('page-journal',this); openJournalForm();"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg><span>Journal Voucher</span></a>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ HUB: REPORTS ============ -->
+        <section id="page-hub-reports" class="page">
+            <div class="page-head">
+                <div>
+                    <h1>Reports</h1>
+                    <p class="page-sub">Ledgers, stock, and the full set of financial statements.</p>
+                </div>
+                <button class="btn btn-ghost" onclick="navigateTo('page-dashboard')">Back to Dashboard</button>
+            </div>
+            <div class="card dash-directory-card dash-hub-card">
+                <div class="dash-directory-list">
+                        <a href="#" data-page="page-chart-of-accounts" onclick="navigateTo('page-chart-of-accounts',this); openReportFilterModal('page-chart-of-accounts');"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span>Chart of Accounts</span></a>
+                        <a href="#" data-page="page-account-balances" onclick="navigateTo('page-account-balances',this); openReportFilterModal('page-account-balances');"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span>Account Balances</span></a>
+                        <a href="#" data-page="page-account-ledger" onclick="navigateTo('page-account-ledger',this); openReportFilterModal('page-account-ledger');"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span>Account Ledger</span></a>
+                        <a href="#" data-page="page-load-ledger" onclick="navigateTo('page-load-ledger',this); openReportFilterModal('page-load-ledger');"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span>Load Ledger</span></a>
+                        <a href="#" data-page="page-item-ledger" onclick="navigateTo('page-item-ledger',this); openReportFilterModal('page-item-ledger');"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span>Item Ledger</span></a>
+                        <a href="#" data-page="page-stock-report" onclick="navigateTo('page-stock-report',this); openReportFilterModal('page-stock-report');"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span>Stock Report</span></a>
+                        <a href="#" data-page="page-cash-book" onclick="navigateTo('page-cash-book',this); openReportFilterModal('page-cash-book');"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span>Cash Book</span></a>
+                        <a href="#" data-page="page-sale-report" onclick="navigateTo('page-sale-report',this); openReportFilterModal('page-sale-report');"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span>Sale Invoices Report</span></a>
+                        <a href="#" data-page="page-purchase-report" onclick="navigateTo('page-purchase-report',this); openReportFilterModal('page-purchase-report');"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span>Purchase Invoices Report</span></a>
+                        <a href="#" data-page="page-trial-balance" onclick="navigateTo('page-trial-balance',this); openReportFilterModal('page-trial-balance');"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span>Trial Balance</span></a>
+                        <a href="#" data-page="page-balance-sheet" onclick="navigateTo('page-balance-sheet',this); openReportFilterModal('page-balance-sheet');"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span>Balance Sheet</span></a>
+                        <a href="#" data-page="page-profit-on-sale" onclick="navigateTo('page-profit-on-sale',this); openReportFilterModal('page-profit-on-sale');"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span>Profit on Sale</span></a>
+                        <a href="#" data-page="page-profit-loss" onclick="navigateTo('page-profit-loss',this); openReportFilterModal('page-profit-loss');"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span>Profit &amp; Loss</span></a>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ HUB: MANAGEMENT ============ -->
+        <section id="page-hub-management" class="page">
+            <div class="page-head">
+                <div>
+                    <h1>Management</h1>
+                    <p class="page-sub">Set up the accounts and items the rest of the app works with.</p>
+                </div>
+                <button class="btn btn-ghost" onclick="navigateTo('page-dashboard')">Back to Dashboard</button>
+            </div>
+            <div class="card dash-directory-card dash-hub-card">
+                <div class="dash-directory-list">
+                        <a href="#" data-page="page-accounts" onclick="navigateTo('page-accounts',this)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><circle cx="8" cy="12" r="2"/><line x1="13" y1="10" x2="18" y2="10"/><line x1="13" y1="14" x2="18" y2="14"/></svg><span>Add/Edit Accounts</span></a>
+                        <a href="#" data-page="page-items" onclick="navigateTo('page-items',this)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v7a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 15Z"/><polyline points="3.29 7 12 12 20.71 7"/><line x1="12" y1="22" x2="12" y2="12"/></svg><span>Add/Edit Items</span></a>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ HUB: UTILITY ============ -->
+        <section id="page-hub-utility" class="page">
+            <div class="page-head">
+                <div>
+                    <h1>Utility</h1>
+                    <p class="page-sub">Users, permissions, activity history, backups, and settings.</p>
+                </div>
+                <button class="btn btn-ghost" onclick="navigateTo('page-dashboard')">Back to Dashboard</button>
+            </div>
+            <div class="card dash-directory-card dash-hub-card">
+                <div class="dash-directory-list">
+                        <a href="#" data-page="page-users" onclick="navigateTo('page-users',this)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg><span>Add/Edit Users</span></a>
+                        <a href="#" data-page="page-rights" onclick="navigateTo('page-rights',this)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/></svg><span>User Rights</span></a>
+                        <a href="#" data-page="page-edit-log" onclick="navigateTo('page-edit-log',this); initEditLogPage();"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2h6a1 1 0 0 1 1 1v2H8V3a1 1 0 0 1 1-1Z"/><path d="M8 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2"/><path d="m9 14 2 2 4-4"/></svg><span>Edit Log</span></a>
+                        <a href="#" data-page="page-backup" onclick="navigateTo('page-backup',this); renderBackupSummary();"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v6c0 1.66 4 3 9 3s9-1.34 9-3V5"/><path d="M3 11v6c0 1.66 4 3 9 3s9-1.34 9-3v-6"/></svg><span>Backup Data</span></a>
+                        <a href="#" data-page="page-change-password" onclick="navigateTo('page-change-password',this); initChangePasswordPage();"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="15" r="4"/><path d="m10.5 11.5 8-8"/><path d="m15.5 6.5 3 3"/><path d="m18 4 2 2"/></svg><span>Change Password</span></a>
+                        <a href="#" data-page="page-settings" onclick="navigateTo('page-settings',this); initSettingsPage();"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span>Settings</span></a>
+                </div>
+            </div>
+        </section>
 
         <!-- ============ ACCOUNTS: LIST ============ -->
         <section id="page-accounts" class="page">
@@ -425,24 +482,18 @@
                             <label for="acc-type">A/c Type <span class="req">*</span></label>
                             <select id="acc-type" required onchange="onAccountTypeChange()">
                                 <option value="">Select account type…</option>
-                                <optgroup label="Trading">
-                                    <option value="Customer">Customer</option>
-                                    <option value="Supplier">Supplier</option>
-                                    <option value="Customer/Supplier">Customer/Supplier</option>
-                                    <option value="Employee/RSO">Employee/RSO</option>
-                                </optgroup>
-                                <optgroup label="Funds">
-                                    <option value="Cash">Cash</option>
-                                    <option value="Bank">Bank</option>
-                                </optgroup>
-                                <optgroup label="Chart of Accounts">
-                                    <option value="Income">Income</option>
-                                    <option value="Expense">Expense</option>
-                                    <option value="Asset">Asset</option>
-                                    <option value="Liability">Liability</option>
-                                    <option value="Owner Equity">Owner Equity</option>
-                                    <option value="Branch">Branch</option>
-                                </optgroup>
+                                <option value="Customer">Customer</option>
+                                <option value="Supplier">Supplier</option>
+                                <option value="Customer/Supplier">Customer/Supplier</option>
+                                <option value="Employee/RSO">Employee/RSO</option>
+                                <option value="Cash">Cash</option>
+                                <option value="Bank">Bank</option>
+                                <option value="Income">Income</option>
+                                <option value="Expense">Expense</option>
+                                <option value="Asset">Asset</option>
+                                <option value="Liability">Liability</option>
+                                <option value="Owner Equity">Owner Equity</option>
+                                <option value="Branch">Branch</option>
                             </select>
                             <span class="hint" id="acc-type-hint">Choosing a type sets the normal Dr/Cr side automatically below.</span>
                         </div>
@@ -1659,6 +1710,11 @@
             </div>
             <div class="statement-grid" id="bs-report-container">
                 <div class="card statement-section">
+                    <h3>Assets</h3>
+                    <div id="bs-assets-rows"></div>
+                    <div class="statement-row statement-total"><span>Total Assets</span><span id="bs-assets-total">Rs. 0</span></div>
+                </div>
+                <div class="card statement-section">
                     <h3>Liabilities &amp; Equity</h3>
                     <div class="statement-subtitle">Liabilities</div>
                     <div id="bs-liabilities-rows"></div>
@@ -1735,55 +1791,6 @@
         </section>
 
         <!-- ============ SEARCH ACCOUNT ============ -->
-        <section id="page-search-account" class="page">
-            <div class="page-head">
-                <div>
-                    <h1>Search Account</h1>
-                    <p class="page-sub">A quick lookup — type a name, phone, or city to find any account and its current balance.</p>
-                </div>
-            </div>
-            <div class="toolbar-row">
-                <div class="search-field" style="max-width:none; flex:1;">
-                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                    <input type="text" id="sa-search" placeholder="Search by title, mobile, or city…" oninput="renderSearchAccountResults()" autofocus>
-                </div>
-                <span class="count-pill" id="sa-count">0 accounts</span>
-            </div>
-            <div class="card table-card">
-                <div class="table-scroll">
-                    <table class="data-table">
-                        <thead><tr><th>Title</th><th>Type</th><th>Mobile</th><th>City</th><th class="num">Current Balance</th><th></th></tr></thead>
-                        <tbody id="sa-table-body"></tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-
-        <!-- ============ SEARCH ITEM ============ -->
-        <section id="page-search-item" class="page">
-            <div class="page-head">
-                <div>
-                    <h1>Search Item</h1>
-                    <p class="page-sub">A quick lookup — type an item name or category to find current stock and prices.</p>
-                </div>
-            </div>
-            <div class="toolbar-row">
-                <div class="search-field" style="max-width:none; flex:1;">
-                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                    <input type="text" id="si-search" placeholder="Search by item name or category…" oninput="renderSearchItemResults()" autofocus>
-                </div>
-                <span class="count-pill" id="si-count">0 items</span>
-            </div>
-            <div class="card table-card">
-                <div class="table-scroll">
-                    <table class="data-table">
-                        <thead><tr><th>Item Name</th><th>Category</th><th>Unit</th><th class="num">Current Stock</th><th class="num">Purchase Price</th><th class="num">Sale Price</th><th></th></tr></thead>
-                        <tbody id="si-table-body"></tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-
         <!-- ============ EDIT LOG ============ -->
         <section id="page-edit-log" class="page">
             <div class="page-head">

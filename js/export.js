@@ -34,14 +34,60 @@ function extractReportRows(containerIds) {
                 if (cells.length) rows.push(cells);
             });
         } else {
-            container.querySelectorAll('.statement-row, .dash-invoice-row').forEach(rowEl => {
-                const cells = [...rowEl.children].map(el => el.innerText.trim());
-                if (cells.length) rows.push(cells);
+            // Statement-style reports (Balance Sheet, P&L, Profit on Sale) are
+            // divs, not tables. Previously only .statement-row was picked up,
+            // so every section label ("Assets", "Liabilities", "Equity") was
+            // dropped and the export came out as one unlabelled list of
+            // numbers. Walk the section in document order instead, keeping the
+            // headings so the exported file mirrors the on-screen layout.
+            // The container is sometimes the section itself (Profit on Sale,
+            // P&L) and sometimes a grid wrapping several (Balance Sheet), so
+            // handle both rather than only looking at descendants.
+            const sections = container.matches('.statement-section, .card')
+                ? [container]
+                : [...container.querySelectorAll('.statement-section, .card')];
+
+            sections.forEach(section => {
+                section.querySelectorAll('h3, .statement-subtitle, .statement-row, .dash-invoice-row, .totals-row')
+                    .forEach(el => {
+                        if (el.matches('h3, .statement-subtitle')) {
+                            const label = el.innerText.trim();
+                            if (label) rows.push([label, '']);
+                        } else {
+                            const cells = [...el.children].map(c => c.innerText.trim());
+                            if (cells.length) rows.push(cells);
+                        }
+                    });
             });
+            // Fall back to the old flat scan if the markup has no sections.
+            if (!rows.length) {
+                container.querySelectorAll('.statement-row, .dash-invoice-row').forEach(rowEl => {
+                    const cells = [...rowEl.children].map(el => el.innerText.trim());
+                    if (cells.length) rows.push(cells);
+                });
+            }
         }
     });
 
     return rows;
+}
+
+// Reports that are "about" one selected thing — the export and the on-screen
+// heading both need to say which one, otherwise an Account Ledger PDF is
+// indistinguishable from any other account's.
+const REPORT_SUBJECT_FIELDS = {
+    'page-account-ledger': { selectId: 'al-account', label: 'Account' },
+    'page-cash-book': { selectId: 'cb-account', label: 'Account' },
+    'page-item-ledger': { selectId: 'il-item', label: 'Item' }
+};
+
+function getReportSubjectName(pageId) {
+    const cfg = REPORT_SUBJECT_FIELDS[pageId];
+    if (!cfg) return '';
+    const select = $(cfg.selectId);
+    if (!select || !select.value) return '';
+    const text = select.options[select.selectedIndex]?.text || '';
+    return text.trim();
 }
 
 // Which date-filter fields belong to each report, so exports can show
@@ -67,6 +113,19 @@ function formatDateNice(dateStr) {
 // Builds the letterhead lines shown at the top of every export: company
 // name, address, phone, which report this is, and the exact date range
 // (or "as of" date) that was actually used to generate it.
+function getReportDateLine(pageId) {
+    const dateConfig = REPORT_DATE_FIELDS[pageId];
+    if (!dateConfig) return '';
+    if (dateConfig.asOf) {
+        const asOf = $(dateConfig.asOf)?.value;
+        return asOf ? `As of ${formatDateNice(asOf)}` : '';
+    }
+    const from = $(dateConfig.from)?.value;
+    const to = $(dateConfig.to)?.value;
+    if (!from && !to) return '';
+    return `${from ? 'From ' + formatDateNice(from) : 'From the beginning'} to ${to ? formatDateNice(to) : 'today'}`;
+}
+
 function getReportHeaderLines(pageId, title) {
     const settings = (typeof lfGetSettings === 'function') ? lfGetSettings() : {};
     const lines = [];
@@ -79,22 +138,47 @@ function getReportHeaderLines(pageId, title) {
     lines.push(''); // spacer
     lines.push(title);
 
-    const dateConfig = REPORT_DATE_FIELDS[pageId];
-    if (dateConfig) {
-        if (dateConfig.asOf) {
-            const asOf = $(dateConfig.asOf)?.value;
-            if (asOf) lines.push(`As of ${formatDateNice(asOf)}`);
-        } else {
-            const from = $(dateConfig.from)?.value;
-            const to = $(dateConfig.to)?.value;
-            if (from || to) {
-                lines.push(`${from ? 'From ' + formatDateNice(from) : 'From the beginning'} to ${to ? formatDateNice(to) : 'today'}`);
-            }
-        }
-    }
+    const subject = getReportSubjectName(pageId);
+    if (subject) lines.push(`${REPORT_SUBJECT_FIELDS[pageId].label}: ${subject}`);
+
+    const dateLine = getReportDateLine(pageId);
+    if (dateLine) lines.push(dateLine);
 
     lines.push(`Generated ${new Date().toLocaleString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}`);
     return lines;
+}
+
+// ==================== ON-SCREEN / PRINT REPORT HEADER ====================
+// Builds the same letterhead the PDF and Excel exports use, directly into
+// the report page itself — so what's on screen, what prints, and what
+// downloads all carry identical company details, report name, subject and
+// date range. Injected once per page, then updated on every render.
+function renderReportDocHeader(pageId, title) {
+    const section = document.getElementById(pageId);
+    if (!section) return;
+
+    let header = section.querySelector('.report-doc-header');
+    if (!header) {
+        header = document.createElement('div');
+        header.className = 'report-doc-header';
+        const pageHead = section.querySelector('.page-head');
+        if (pageHead) pageHead.insertAdjacentElement('afterend', header);
+        else section.prepend(header);
+    }
+
+    const settings = (typeof lfGetSettings === 'function') ? lfGetSettings() : {};
+    const addressParts = [settings.companyAddress, settings.companyCity].filter(Boolean);
+    const subject = getReportSubjectName(pageId);
+    const dateLine = getReportDateLine(pageId);
+
+    header.innerHTML = `
+        <div class="rdh-company">${escapeHtml(settings.companyName || 'Company')}</div>
+        ${addressParts.length ? `<div class="rdh-meta">${escapeHtml(addressParts.join(', '))}</div>` : ''}
+        ${settings.companyPhone ? `<div class="rdh-meta">Phone: +92 ${escapeHtml(settings.companyPhone)}</div>` : ''}
+        <div class="rdh-title">${escapeHtml(title)}</div>
+        ${subject ? `<div class="rdh-subject">${escapeHtml(REPORT_SUBJECT_FIELDS[pageId].label)}: ${escapeHtml(subject)}</div>` : ''}
+        ${dateLine ? `<div class="rdh-meta">${escapeHtml(dateLine)}</div>` : ''}
+    `;
 }
 
 function exportReportToPDF(containerIds, title, pageId) {
@@ -106,25 +190,62 @@ function exportReportToPDF(containerIds, title, pageId) {
     const wide = rows[0].length > 5;
     const doc = new jsPDF({ orientation: wide ? 'landscape' : 'portrait' });
 
-    let y = 15;
-    doc.setFontSize(13);
+    // Centre the letterhead over the printable width, and give the report
+    // title (and the account/item a report is about) real visual weight so a
+    // printed Account Ledger is identifiable at a glance.
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const centre = pageWidth / 2;
+    const subject = getReportSubjectName(pageId);
+    const subjectLine = subject ? `${REPORT_SUBJECT_FIELDS[pageId].label}: ${subject}` : null;
+
+    let y = 16;
+    doc.setFontSize(15);
     doc.setFont(undefined, 'bold');
-    doc.text(headerLines[0], 14, y);
-    doc.setFont(undefined, 'normal');
-    doc.setFontSize(9);
+    doc.text(headerLines[0], centre, y, { align: 'center' });
+
     for (let i = 1; i < headerLines.length; i++) {
-        if (headerLines[i] === '') continue;
-        y += 5;
-        if (headerLines[i] === title) { doc.setFontSize(11); doc.setFont(undefined, 'bold'); }
-        doc.text(headerLines[i], 14, y);
-        if (headerLines[i] === title) { doc.setFontSize(9); doc.setFont(undefined, 'normal'); }
+        const line = headerLines[i];
+        if (line === '') continue;
+
+        if (line === title) {
+            y += 8;
+            doc.setFontSize(13);
+            doc.setFont(undefined, 'bold');
+        } else if (subjectLine && line === subjectLine) {
+            y += 6;
+            doc.setFontSize(11);
+            doc.setFont(undefined, 'bold');
+        } else {
+            y += 5;
+            doc.setFontSize(9);
+            doc.setFont(undefined, 'normal');
+        }
+        doc.text(line, centre, y, { align: 'center' });
     }
 
+    y += 4;
+    doc.setDrawColor(120);
+    doc.line(14, y, pageWidth - 14, y);
+
+    // Statement-style reports export as [label, value] pairs; giving them a
+    // real header row and column widths is what makes a Balance Sheet PDF
+    // readable instead of an unlabelled two-column blob.
+    const isStatement = rows.length > 0 && rows[0].length === 2;
     doc.autoTable({
+        head: isStatement ? [['Description', 'Amount']] : undefined,
         body: rows,
-        startY: y + 6,
+        startY: y + 5,
         styles: { fontSize: 8, cellPadding: 3 },
-        headStyles: { fillColor: [13, 125, 140] }
+        headStyles: { fillColor: [91, 79, 233], textColor: 255, fontStyle: 'bold' },
+        columnStyles: isStatement ? { 0: { cellWidth: 'auto' }, 1: { halign: 'right', cellWidth: 45 } } : {},
+        // Section labels come through as [label, ''] — render those as bold
+        // sub-headers with a tint so the structure survives the export.
+        didParseCell: (data) => {
+            if (data.section === 'body' && data.row.raw[1] === '' && data.row.raw[0]) {
+                data.cell.styles.fontStyle = 'bold';
+                data.cell.styles.fillColor = [237, 235, 252];
+            }
+        }
     });
 
     doc.save(`${title.replace(/[^a-z0-9]+/gi, '_')}.pdf`);
@@ -139,10 +260,40 @@ function exportReportToExcel(containerIds, title, pageId) {
     const sheetRows = headerLines.map(l => [l]).concat([[]], rows);
 
     const ws = XLSX.utils.aoa_to_sheet(sheetRows);
+
+    // Without explicit widths every column renders at Excel's default ~8
+    // characters, so account titles and the letterhead were cut off. Size
+    // each column to its widest actual value (capped so one long narration
+    // can't blow the sheet out).
+    const colCount = sheetRows.reduce((max, r) => Math.max(max, r.length), 0);
+    ws['!cols'] = Array.from({ length: colCount }, (_, c) => {
+        const widest = sheetRows.reduce((max, r) => {
+            const cell = r[c];
+            return cell == null ? max : Math.max(max, String(cell).length);
+        }, 10);
+        return { wch: Math.min(widest + 2, 45) };
+    });
+
+    // Merge the letterhead lines across the table so they read as a title
+    // block rather than being trapped in column A.
+    if (colCount > 1) {
+        ws['!merges'] = headerLines.map((_, i) => ({
+            s: { r: i, c: 0 }, e: { r: i, c: colCount - 1 }
+        }));
+    }
+
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Report');
     XLSX.writeFile(wb, `${title.replace(/[^a-z0-9]+/gi, '_')}.xlsx`);
     showToast('Excel file downloaded.', 'success');
+}
+
+// Called by each report's render function so the letterhead always matches
+// the data currently on screen (title comes from REPORT_FILTER_CONFIG below,
+// the single place every report's display name is already defined).
+function updateReportHeader(pageId) {
+    const cfg = REPORT_FILTER_CONFIG[pageId];
+    if (cfg) renderReportDocHeader(pageId, cfg.title);
 }
 
 function printCurrentReport() {
@@ -237,6 +388,11 @@ function submitReportFilter() {
         showToast('Please choose a date.', 'warning'); return;
     }
 
+    // Wrapped in try/finally: if a report's render function throws, the
+    // filter modal used to stay stuck open (and the report silently blank),
+    // which is exactly how the missing Balance Sheet Assets column hid
+    // itself. Now the modal always closes and the error surfaces properly.
+    try {
     switch (pageId) {
         case 'page-chart-of-accounts':
             initChartOfAccountsPage();
@@ -300,6 +456,10 @@ function submitReportFilter() {
             renderProfitAndLoss();
             break;
     }
-
-    closeReportFilterModal();
+    } catch (err) {
+        console.error('[Reports] Failed to generate report:', err);
+        showToast('Something went wrong generating that report.', 'error');
+    } finally {
+        closeReportFilterModal();
+    }
 }

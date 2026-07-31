@@ -31,6 +31,7 @@ function initChartOfAccountsPage() {
 }
 
 function renderChartOfAccounts() {
+    updateReportHeader('page-chart-of-accounts');
     const term = ($('coa-search')?.value || '').trim().toLowerCase();
     const typeFilter = $('coa-type-filter')?.value || '';
 
@@ -68,6 +69,7 @@ function initAccountBalancesPage() {
 
 function renderAccountBalances() {
     if (!isPageActive('page-account-balances')) return;
+    updateReportHeader('page-account-balances');
     const term = ($('bal-search')?.value || '').trim().toLowerCase();
     const typeFilter = $('bal-type-filter')?.value || '';
     const hideZero = $('bal-hide-zero')?.checked;
@@ -159,6 +161,7 @@ function initAccountLedgerPage(preselectAccountId) {
 }
 
 function renderAccountLedgerReport() {
+    updateReportHeader('page-account-ledger');
     const accountId = $('al-account').value;
     const dateFrom = $('al-date-from').value;
     const dateTo = $('al-date-to').value;
@@ -187,6 +190,7 @@ function initCashBookPage() {
 }
 
 function renderCashBookReport() {
+    updateReportHeader('page-cash-book');
     const accountId = $('cb-account').value;
     const dateFrom = $('cb-date-from').value;
     const dateTo = $('cb-date-to').value;
@@ -230,6 +234,7 @@ function computeLoadLedgerRows(dateFrom, dateTo) {
 function initLoadLedgerPage() { renderLoadLedgerReport(); }
 
 function renderLoadLedgerReport() {
+    updateReportHeader('page-load-ledger');
     const dateFrom = $('ll-date-from').value;
     const dateTo = $('ll-date-to').value;
     const result = computeLoadLedgerRows(dateFrom, dateTo);
@@ -289,6 +294,7 @@ function initItemLedgerPage(preselectItemId) {
 }
 
 function renderItemLedgerReport() {
+    updateReportHeader('page-item-ledger');
     const itemId = $('il-item').value;
     const dateFrom = $('il-date-from').value;
     const dateTo = $('il-date-to').value;
@@ -322,6 +328,7 @@ function initStockReportPage() { renderStockReport(); }
 
 function renderStockReport() {
     if (!isPageActive('page-stock-report')) return;
+    updateReportHeader('page-stock-report');
     const term = ($('stock-search')?.value || '').trim().toLowerCase();
     let items = lfGetAll(LF_KEYS.ITEMS);
     if (term) items = items.filter(i => (i.name || '').toLowerCase().includes(term));
@@ -350,6 +357,7 @@ function renderStockReport() {
 function initInvoiceReportPage(type) { renderInvoiceReport(type); }
 
 function renderInvoiceReport(type) {
+    updateReportHeader(type === 'Sale' ? 'page-sale-report' : 'page-purchase-report');
     const dateFrom = $(`${type}-report-date-from`).value;
     const dateTo = $(`${type}-report-date-to`).value;
     const term = ($(`${type}-report-search`)?.value || '').trim().toLowerCase();
