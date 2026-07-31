@@ -225,6 +225,14 @@ button { font-family: inherit; }
 }
 .nav-link:hover { background: rgba(255,255,255,0.06); color: var(--sidebar-text-hover); }
 .nav-link.is-active { background: var(--sidebar-active-bg); color: var(--sidebar-active-text); font-weight: 700; box-shadow: inset 3px 0 0 var(--sidebar-active-text); }
+/* Keyboard focus was invisible against the dark sidebar — these two rules
+   are the only way a keyboard user can tell where they are in the nav. */
+.nav-link:focus-visible, .nav-group-header:focus-visible {
+    outline: none;
+    background: rgba(255,255,255,0.10);
+    color: var(--sidebar-text-hover);
+    box-shadow: inset 0 0 0 1.5px var(--sidebar-active-text);
+}
 
 .sidebar-overlay { display: none; }
 
@@ -247,8 +255,19 @@ button { font-family: inherit; }
     margin-bottom: 20px;
     flex-wrap: wrap;
 }
-.page-head h1 { font-size: 1.6rem; font-weight: 800; }
-.page-sub { color: var(--ink-faint); font-size: 0.92rem; margin-top: 4px; max-width: 56ch; }
+.page-head h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    line-height: 1.2;
+}
+.page-sub {
+    color: var(--ink-faint);
+    font-size: 0.92rem;
+    margin-top: 6px;
+    max-width: 60ch;
+    line-height: 1.55;
+}
 
 /* ==================== BUTTONS ==================== */
 .btn {
@@ -265,11 +284,13 @@ button { font-family: inherit; }
     white-space: nowrap;
 }
 .btn:active { transform: translateY(1px) scale(0.99); }
+.btn:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--teal-tint); }
 
 .btn-primary {
     background: linear-gradient(155deg, var(--teal), var(--teal-dark));
     color: white;
-    box-shadow: var(--shadow-sm);
+    box-shadow: 0 1px 2px rgba(21,22,28,.08), 0 4px 12px rgba(91,79,233,.18);
+    letter-spacing: 0.005em;
 }
 .btn-primary:hover { box-shadow: var(--shadow-lift); transform: translateY(-1px); }
 
@@ -280,21 +301,25 @@ button { font-family: inherit; }
 }
 .btn-ghost:hover { background: var(--paper); color: var(--ink); border-color: var(--ink-faint); }
 
-.btn-danger-text {
+/* The two text buttons live inside table rows, so they stay compact and
+   only reveal their tinted pill on hover. */
+.btn-danger-text, .btn-outline-text {
     background: transparent;
-    color: var(--garnet);
     border: 1px solid transparent;
-    padding: 0.4rem 0.7rem;
+    padding: 0.38rem 0.72rem;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 650;
+    cursor: pointer;
+    transition: background .15s var(--ease), color .15s var(--ease);
 }
+.btn-danger-text { color: var(--garnet); }
 .btn-danger-text:hover { background: var(--garnet-tint); }
+.btn-danger-text:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--garnet-tint); }
 
-.btn-outline-text {
-    background: transparent;
-    color: var(--teal-dark);
-    border: 1px solid transparent;
-    padding: 0.4rem 0.7rem;
-}
+.btn-outline-text { color: var(--teal-dark); }
 .btn-outline-text:hover { background: var(--teal-tint); }
+.btn-outline-text:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--teal-tint); }
 
 .btn-spinner {
     width: 14px; height: 14px;
@@ -367,30 +392,37 @@ button { font-family: inherit; }
 .table-scroll { overflow-x: auto; }
 
 .data-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
-.data-table th, .data-table td { padding: 0.85rem 1.1rem; text-align: left; white-space: nowrap; }
+.data-table th, .data-table td { padding: 0.9rem 1.15rem; text-align: left; white-space: nowrap; }
 .data-table th {
-    font-size: 0.72rem;
+    font-size: 0.7rem;
     text-transform: uppercase;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.07em;
     color: var(--ink-faint);
     font-weight: 700;
     background: var(--paper);
-    border-bottom: 1px solid var(--border);
+    border-bottom: 1px solid var(--border-strong);
 }
 .data-table td { border-bottom: 1px solid var(--border); color: var(--ink); }
 .data-table tbody tr:last-child td { border-bottom: none; }
-.data-table tbody tr:hover td { background: var(--paper); }
-.data-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+/* A tinted row hover with a leading accent edge reads as "this row is
+   live" far better than the flat grey fill it replaces. */
+.data-table tbody tr { transition: background .12s var(--ease); }
+.data-table tbody tr:hover td { background: var(--teal-tint); }
+.data-table tbody tr:hover td:first-child { box-shadow: inset 3px 0 0 var(--teal); }
+.data-table .num { text-align: right; font-variant-numeric: tabular-nums; font-feature-settings: 'tnum'; }
+.data-table td strong { font-weight: 650; }
 
 .type-badge {
     display: inline-block;
-    font-size: 0.72rem;
-    font-weight: 700;
-    padding: 0.22rem 0.6rem;
+    font-size: 0.7rem;
+    font-weight: 650;
+    padding: 0.24rem 0.62rem;
     border-radius: 999px;
     background: var(--paper);
     color: var(--ink-soft);
     border: 1px solid var(--border);
+    letter-spacing: 0.01em;
+    white-space: nowrap;
 }
 
 .balance-tag { font-weight: 700; font-variant-numeric: tabular-nums; }
@@ -402,34 +434,58 @@ button { font-family: inherit; }
 .empty-row td {
     text-align: center;
     color: var(--ink-faint);
-    padding: 2.5rem 1rem;
+    padding: 3rem 1rem;
+    font-size: 0.9rem;
+    line-height: 1.6;
 }
+.empty-row:hover td { background: transparent !important; box-shadow: none !important; }
 
-.status-badge { font-size: 0.76rem; font-weight: 700; padding: 0.22rem 0.6rem; border-radius: 999px; }
+/* Status pills carry a matching dot, so state reads at a glance without
+   relying on colour alone. */
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.74rem;
+    font-weight: 650;
+    padding: 0.26rem 0.68rem;
+    border-radius: 999px;
+    white-space: nowrap;
+}
+.status-badge::before {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    flex-shrink: 0;
+}
 .status-badge.is-active { background: var(--credit-tint); color: var(--credit); }
 .status-badge.is-inactive { background: var(--garnet-tint); color: var(--garnet); }
 
 /* ==================== MODALS ==================== */
 .modal-backdrop {
     position: fixed; inset: 0;
-    background: rgba(22, 27, 34, 0.45);
-    backdrop-filter: blur(2px);
+    background: rgba(16, 15, 23, 0.55);
+    backdrop-filter: blur(4px);
     display: flex;
     align-items: flex-start;
     justify-content: center;
     padding: 5vh 16px;
     z-index: 60;
     overflow-y: auto;
+    animation: backdropIn .18s var(--ease);
 }
 .modal-backdrop.hidden { display: none; }
+@keyframes backdropIn { from { opacity: 0; } to { opacity: 1; } }
 
 .modal {
     background: var(--surface);
+    border: 1px solid var(--border);
     border-radius: var(--radius-lg);
     width: 100%;
     max-width: 560px;
-    box-shadow: 0 24px 60px rgba(22,27,34,0.25);
-    animation: modalIn .2s var(--ease);
+    box-shadow: 0 24px 70px rgba(16, 15, 23, 0.28), 0 4px 12px rgba(16, 15, 23, 0.12);
+    animation: modalIn .22s var(--ease);
 }
 .modal-lg { max-width: 680px; }
 
@@ -440,10 +496,14 @@ button { font-family: inherit; }
 
 .modal-head {
     display: flex; align-items: center; justify-content: space-between;
-    padding: 1.2rem 1.4rem;
+    padding: 1.25rem 1.45rem;
     border-bottom: 1px solid var(--border);
 }
-.modal-head h2 { font-size: 1.15rem; font-weight: 800; }
+.modal-head h2 {
+    font-size: 1.18rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
 
 .modal-body { padding: 1.3rem 1.4rem; display: flex; flex-direction: column; gap: 1.1rem; max-height: 65vh; overflow-y: auto; }
 
@@ -454,11 +514,16 @@ button { font-family: inherit; }
 }
 
 /* ==================== FORM FIELDS ==================== */
-.field { display: flex; flex-direction: column; gap: 6px; }
+.field { display: flex; flex-direction: column; gap: 7px; }
 .field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.1rem; }
-.field label { font-size: 0.85rem; font-weight: 700; color: var(--ink); }
+.field label {
+    font-size: 0.8rem;
+    font-weight: 650;
+    color: var(--ink-soft);
+    letter-spacing: 0.01em;
+}
 .req { color: var(--garnet); }
-.hint { font-size: 0.78rem; color: var(--ink-faint); }
+.hint { font-size: 0.78rem; color: var(--ink-faint); line-height: 1.5; }
 
 .field input[type="text"],
 .field input[type="tel"],
@@ -468,19 +533,26 @@ button { font-family: inherit; }
 .field select,
 .field textarea {
     border: 1px solid var(--border-strong);
-    border-radius: var(--radius-sm);
-    padding: 0.6rem 0.75rem;
+    border-radius: var(--radius-md);
+    padding: 0.65rem 0.8rem;
     font-size: 0.92rem;
     font-family: inherit;
     color: var(--ink);
     background: var(--surface);
     outline: none;
-    transition: border-color .15s var(--ease), box-shadow .15s var(--ease);
+    transition: border-color .15s var(--ease), box-shadow .15s var(--ease), background .15s var(--ease);
     width: 100%;
 }
+.field input::placeholder, .field textarea::placeholder { color: var(--ink-faint); opacity: 0.75; }
+.field input:hover, .field select:hover, .field textarea:hover { border-color: var(--ink-faint); }
 .field input:focus, .field select:focus, .field textarea:focus {
     border-color: var(--teal);
     box-shadow: 0 0 0 3px var(--teal-tint);
+}
+.field input:disabled, .field input[readonly] {
+    background: var(--paper);
+    color: var(--ink-soft);
+    cursor: not-allowed;
 }
 .field textarea { resize: vertical; }
 
@@ -991,10 +1063,20 @@ button { font-family: inherit; }
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius-md);
-    padding: 0.9rem 1.1rem;
+    padding: 1rem 1.15rem;
+    box-shadow: var(--shadow-sm);
 }
-.report-summary-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-faint); font-weight: 700; }
-.report-summary-value { font-family: 'Space Grotesk', sans-serif; font-size: 1.2rem; font-weight: 800; color: var(--teal-dark); margin-top: 4px; display: block; }
+.report-summary-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.07em; color: var(--ink-faint); font-weight: 700; }
+.report-summary-value {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.35rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--teal-dark);
+    margin-top: 5px;
+    display: block;
+    font-variant-numeric: tabular-nums;
+}
 .report-summary-value.is-dr { color: var(--amber); }
 .report-summary-value.is-cr { color: var(--credit); }
 .report-summary-value.is-warn { color: var(--garnet); }
@@ -1184,11 +1266,119 @@ button { font-family: inherit; }
     .dash-tab-desc { display: none; }
 }
 
-/* A hub page's option grid can breathe more than the old cramped dashboard
-   cards, since it's the only thing on the page. */
-.dash-hub-card { padding: 1.3rem 1.4rem; }
+/* ==================== HUB PAGE OPTIONS ====================
+   The page behind a dashboard tab. Its options use the same horizontal
+   button language as the tabs themselves, and inherit the accent of the
+   area you came from — so opening "Reports" keeps you in violet the whole
+   way down, rather than every screen resetting to the same teal. */
+.page[data-accent="indigo"] { --tab-accent: #5B4FE9; --tab-wash: rgba(91, 79, 233, 0.10); }
+.page[data-accent="teal"]   { --tab-accent: #0D9488; --tab-wash: rgba(13, 148, 136, 0.10); }
+.page[data-accent="violet"] { --tab-accent: #7C3AED; --tab-wash: rgba(124, 58, 237, 0.10); }
+.page[data-accent="amber"]  { --tab-accent: #C2760C; --tab-wash: rgba(194, 118, 12, 0.12); }
+.page[data-accent="slate"]  { --tab-accent: #4A5568; --tab-wash: rgba(74, 85, 104, 0.10); }
+
+[data-theme="dark"] .page[data-accent="indigo"] { --tab-accent: #8A82F5; --tab-wash: rgba(138, 130, 245, 0.16); }
+[data-theme="dark"] .page[data-accent="teal"]   { --tab-accent: #2DD4BF; --tab-wash: rgba(45, 212, 191, 0.16); }
+[data-theme="dark"] .page[data-accent="violet"] { --tab-accent: #A78BFA; --tab-wash: rgba(167, 139, 250, 0.16); }
+[data-theme="dark"] .page[data-accent="amber"]  { --tab-accent: #E0A23D; --tab-wash: rgba(224, 162, 61, 0.16); }
+[data-theme="dark"] .page[data-accent="slate"]  { --tab-accent: #9AA5B8; --tab-wash: rgba(154, 165, 184, 0.16); }
+
+/* The hub card is just a container now — the tiles carry their own surface,
+   so drop the double-card look. */
+.dash-hub-card {
+    padding: 0;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+}
 .dash-hub-card .dash-directory-list {
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(268px, 1fr));
+    gap: 12px;
+}
+.dash-hub-card .dash-directory-list a {
+    position: relative;
+    flex-direction: row;
+    align-items: center;
+    gap: 13px;
+    padding: 0.95rem 1.05rem;
+    text-align: left;
+    font-size: 0.92rem;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+}
+.dash-hub-card .dash-directory-list a::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: var(--tab-accent);
+    opacity: 0;
+    transition: opacity .18s var(--ease);
+}
+.dash-hub-card .dash-directory-list a:hover::before { opacity: 1; }
+
+.hub-opt-icon {
+    display: flex;
+    flex-shrink: 0;
+    width: 38px; height: 38px;
+    align-items: center; justify-content: center;
+    border-radius: 11px;
+    background: var(--tab-wash);
+    color: var(--tab-accent);
+    transition: background .18s var(--ease), color .18s var(--ease);
+}
+/* The legacy stacked-tile rules (.dash-directory-list a svg) sit later in
+   this file and give the icon its own round tinted badge. Inside a hub the
+   badge is the wrapping .hub-opt-icon instead, so out-specify those rules
+   and strip the treatment off the svg itself — otherwise you get a badge
+   inside a badge, and a gradient fill fighting the accent on hover. */
+.dash-hub-card .dash-directory-list a .hub-opt-icon svg,
+.dash-hub-card .dash-directory-list a:hover .hub-opt-icon svg {
+    width: 19px; height: 19px;
+    padding: 0;
+    background: none;
+    border-radius: 0;
+    color: inherit;
+}
+.hub-opt-label {
+    flex: 1;
+    min-width: 0;
+    font-weight: 600;
+    color: var(--ink);
+    line-height: 1.35;
+}
+.hub-opt-arrow {
+    flex-shrink: 0;
+    color: var(--ink-faint);
+    opacity: 0;
+    transform: translateX(-4px);
+    transition: opacity .18s var(--ease), transform .18s var(--ease), color .18s var(--ease);
+}
+
+.dash-hub-card .dash-directory-list a:hover {
+    border-color: var(--tab-accent);
+    background: linear-gradient(100deg, var(--tab-wash), transparent 70%);
+}
+.dash-hub-card .dash-directory-list a:hover .hub-opt-icon {
+    background: var(--tab-accent);
+    color: #fff;
+}
+.dash-hub-card .dash-directory-list a:hover .hub-opt-arrow {
+    opacity: 1;
+    transform: translateX(0);
+    color: var(--tab-accent);
+}
+.dash-hub-card .dash-directory-list a:focus-visible {
+    outline: none;
+    border-color: var(--tab-accent);
+    box-shadow: 0 0 0 3px var(--tab-wash);
+}
+
+/* The "Back to Dashboard" control shouldn't compete with the options. */
+.page[data-accent] .page-head .btn-ghost { align-self: flex-start; }
+
+@media (max-width: 560px) {
+    .dash-hub-card .dash-directory-list { grid-template-columns: 1fr; }
 }
 
 .dash-directory-grid {
