@@ -16,6 +16,16 @@ document.addEventListener('click', (e) => {
 });
 
 // ==================== NAVIGATION ====================
+// Every real navigation PUSHES a history entry (Dashboard included), so the
+// back/forward buttons move through LedgerFlow's own pages like a normal
+// multi-page site. The one thing that needs guarding against is running out
+// of entries: once Back goes past the very first page the app ever pushed,
+// the browser would otherwise leave the app entirely (back to whatever tab
+// or site was open before). The popstate handler below catches that exact
+// moment — no state on the entry we landed on — and re-plants Dashboard as
+// a fresh entry instead, so Back just keeps you on Dashboard rather than
+// exiting. isHandlingPopstate exists so responding to a back/forward press
+// never re-pushes and gets the two mechanisms fighting each other.
 let isHandlingPopstate = false;
 
 function navigateTo(pageId, linkEl) {
@@ -38,14 +48,13 @@ function navigateTo(pageId, linkEl) {
 
     if (pageId === 'page-dashboard') renderDashboard();
 
-    // Record this in the browser's own history, so the phone/browser back
-    // button moves between LedgerFlow's own pages instead of leaving the
-    // site entirely. Skip this when we're the ones RESPONDING to a
-    // back/forward press — otherwise we'd re-push and get stuck.
     if (!isHandlingPopstate) {
-        if (pageId === 'page-dashboard') {
-            history.replaceState({ page: pageId }, '', '#' + pageId);
-        } else {
+        // Don't push a duplicate entry if we're already sitting on this
+        // exact page (e.g. clicking the same sidebar link twice, or
+        // resuming here after a refresh) — that would just clutter history
+        // with entries that all do nothing when you press Back.
+        const alreadyHere = history.state && history.state.page === pageId;
+        if (!alreadyHere) {
             history.pushState({ page: pageId }, '', '#' + pageId);
         }
     }
@@ -53,6 +62,19 @@ function navigateTo(pageId, linkEl) {
 
     if (window.innerWidth <= 900) toggleSidebar(false);
     window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Where to land after login or a page refresh: wherever the user actually
+// was (browser history survives a refresh; the URL hash is a fallback for
+// cases where it doesn't), as long as that page still genuinely exists.
+function resumeLastPageId() {
+    const fromState = history.state && history.state.page;
+    const fromHash = location.hash ? location.hash.slice(1) : null;
+    const candidate = fromState || fromHash;
+    if (candidate && document.getElementById(candidate)?.classList.contains('page')) {
+        return candidate;
+    }
+    return 'page-dashboard';
 }
 
 window.addEventListener('popstate', (event) => {
@@ -63,18 +85,11 @@ window.addEventListener('popstate', (event) => {
     if (event.state && event.state.page) {
         isHandlingPopstate = true;
         navigateTo(event.state.page);
-        if (event.state.page === 'page-dashboard') {
-            // We've hit the Dashboard boundary — re-establish it as the
-            // current history entry so pressing back again refreshes
-            // Dashboard instead of exiting the site.
-            history.replaceState({ page: 'page-dashboard' }, '', '#page-dashboard');
-            renderDashboard();
-        }
     } else {
-        // No app page in this history entry at all — we've gone back past
-        // everything LedgerFlow ever pushed. Refresh Dashboard rather than
-        // letting the browser leave the site.
-        history.replaceState({ page: 'page-dashboard' }, '', '#page-dashboard');
+        // Gone back (or forward) past every entry the app itself ever
+        // pushed. Land on Dashboard and push it as a genuine new entry —
+        // not a replace — so this spot becomes the new floor and Back
+        // keeps landing here instead of exiting the app.
         navigateTo('page-dashboard');
     }
 });

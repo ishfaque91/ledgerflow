@@ -235,7 +235,7 @@ function evaluateAndGateAccess() {
         $('app-root').classList.remove('hidden');
         if (!dashboardShownThisSession) {
             dashboardShownThisSession = true;
-            navigateTo('page-dashboard');
+            navigateTo(resumeLastPageId());
         }
         if (status.daysLeft !== undefined && status.daysLeft <= 5) {
             const noun = status.isPaid ? 'subscription' : 'trial';
@@ -382,7 +382,21 @@ function showLoginScreen() {
     $('login-password').value = '';
     setBtnLoading($('login-submit-btn'), false);
     setBtnLoading($('signup-submit-btn'), false);
+    resetLoginBranding();
     setTimeout(() => $('login-email')?.focus(), 50);
+}
+
+// renderBranding() (utility.js) repaints the login screen with whichever
+// company was last signed in — including their own logo-fallback initial,
+// which destroys the LedgerFlow mark's <svg> by overwriting it with plain
+// text. Once signed out there's no company in scope, so put the generic
+// LedgerFlow identity back.
+function resetLoginBranding() {
+    $('login-company-name').textContent = 'LedgerFlow';
+    $('login-logo-img').classList.add('hidden');
+    const fallback = $('login-logo-fallback');
+    fallback.innerHTML = '<svg class="lf-mark-icon" viewBox="0 0 24 24"><use href="#lf-logo-mark"/></svg>';
+    fallback.classList.remove('hidden');
 }
 
 // ==================== INIT ====================
