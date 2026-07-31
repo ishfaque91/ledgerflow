@@ -6,12 +6,13 @@
 <title>LedgerFlow — Super Admin</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
 <style>
     /* A few tweaks specific to this standalone admin tool */
-    .sap-topbar-title { font-family:'Manrope',sans-serif; font-weight:800; font-size:1.1rem; }
-    .sap-topbar-tag { font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:var(--garnet); background:var(--garnet-tint); padding:0.2rem 0.6rem; border-radius:999px; margin-left:8px; }
+    .sap-topbar-title { display:flex; align-items:center; gap:10px; font-family:'Space Grotesk',sans-serif; font-weight:800; font-size:1.1rem; margin-right:auto; }
+    .sap-topbar-mark { width:32px; height:32px; flex-shrink:0; }
+    .sap-topbar-tag { font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:var(--garnet); background:var(--garnet-tint); padding:0.2rem 0.6rem; border-radius:999px; margin-left:2px; }
     .status-badge.is-trial { background: var(--amber-tint); color: var(--amber); }
     .status-badge.is-expired { background: var(--garnet-tint); color: var(--garnet); }
     .status-badge.is-suspended { background: var(--garnet-tint); color: var(--garnet); }
@@ -21,11 +22,21 @@
 </head>
 <body>
 
+<!-- LedgerFlow logomark: kept identical to the main app's mark so this
+     tool reads as the same product. -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="lf-logo-mark" viewBox="0 0 24 24">
+        <rect x="6" y="4" width="4.4" height="13" rx="2.2" fill="currentColor"/>
+        <rect x="6" y="14.6" width="9" height="4.4" rx="2.2" fill="currentColor"/>
+        <circle cx="18.3" cy="5.7" r="2.3" fill="currentColor"/>
+    </symbol>
+</svg>
+
 <!-- ==================== LOGIN SCREEN ==================== -->
 <div id="login-screen" class="login-screen">
     <div class="login-card">
         <div class="login-brand">
-            <span class="brand-mark login-logo-fallback">L</span>
+            <span class="brand-mark login-logo-fallback"><svg class="lf-mark-icon" viewBox="0 0 24 24"><use href="#lf-logo-mark"/></svg></span>
             <span class="login-company-name">LedgerFlow — Super Admin</span>
         </div>
         <p class="login-sub">This panel controls every client's account. Keep it to yourself.</p>
@@ -51,7 +62,10 @@
 <div id="app-root" class="hidden">
 
     <header class="topbar">
-        <div class="sap-topbar-title">LedgerFlow <span class="sap-topbar-tag">Super Admin</span></div>
+        <div class="sap-topbar-title">
+            <span class="brand-mark sap-topbar-mark"><svg class="lf-mark-icon" viewBox="0 0 24 24"><use href="#lf-logo-mark"/></svg></span>
+            LedgerFlow <span class="sap-topbar-tag">Super Admin</span>
+        </div>
         <div class="topbar-right">
             <span class="user-chip" id="active-admin-chip">—</span>
             <button class="icon-btn" title="Log out" onclick="handleLogout()">
