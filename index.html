@@ -279,42 +279,68 @@
             <div class="page-head">
                 <div>
                     <h1>Dashboard</h1>
-                    <p class="page-sub">Pick an area to work in.</p>
+                    <p class="page-sub">Choose an area to get started — everything in LedgerFlow lives under one of these.</p>
                 </div>
             </div>
 
             <div class="dash-tab-grid">
-                <a href="#" class="card dash-tab" data-hub="page-hub-data-entry" onclick="navigateTo('page-hub-data-entry')">
+                <a href="#" class="dash-tab" data-hub="page-hub-data-entry" data-accent="indigo" onclick="navigateTo('page-hub-data-entry')">
                     <span class="dash-tab-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span>
-                    <span class="dash-tab-name">Data Entry</span>
-                    <span class="dash-tab-desc">Record purchases, sales, and their returns.</span>
-                    <span class="dash-tab-count">4 options</span>
+                    <span class="dash-tab-text">
+                        <span class="dash-tab-name">Data Entry</span>
+                        <span class="dash-tab-desc">Purchases, sales and returns</span>
+                    </span>
+                    <span class="dash-tab-meta">
+                        <span class="dash-tab-count">4</span>
+                        <svg class="dash-tab-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                    </span>
                 </a>
-                <a href="#" class="card dash-tab" data-hub="page-hub-vouchers" onclick="navigateTo('page-hub-vouchers')">
+                <a href="#" class="dash-tab" data-hub="page-hub-vouchers" data-accent="teal" onclick="navigateTo('page-hub-vouchers')">
                     <span class="dash-tab-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 9.5V4h20v5.5"/><path d="M2 9.5a2.5 2.5 0 0 0 5 0M7 9.5a2.5 2.5 0 0 0 5 0M12 9.5a2.5 2.5 0 0 0 5 0M17 9.5a2.5 2.5 0 0 0 5 0"/><path d="M4 9.5V20h16V9.5"/></svg></span>
-                    <span class="dash-tab-name">Vouchers</span>
-                    <span class="dash-tab-desc">Bank receipts and payments, petty cash, and journal entries.</span>
-                    <span class="dash-tab-count">4 options</span>
+                    <span class="dash-tab-text">
+                        <span class="dash-tab-name">Vouchers</span>
+                        <span class="dash-tab-desc">Receipts, payments, petty cash & journals</span>
+                    </span>
+                    <span class="dash-tab-meta">
+                        <span class="dash-tab-count">4</span>
+                        <svg class="dash-tab-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                    </span>
                 </a>
-                <a href="#" class="card dash-tab" data-hub="page-hub-reports" onclick="navigateTo('page-hub-reports')">
+                <a href="#" class="dash-tab" data-hub="page-hub-reports" data-accent="violet" onclick="navigateTo('page-hub-reports')">
                     <span class="dash-tab-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></span>
-                    <span class="dash-tab-name">Reports</span>
-                    <span class="dash-tab-desc">Ledgers, stock, and the full set of financial statements.</span>
-                    <span class="dash-tab-count">13 options</span>
+                    <span class="dash-tab-text">
+                        <span class="dash-tab-name">Reports</span>
+                        <span class="dash-tab-desc">Ledgers, stock and financial statements</span>
+                    </span>
+                    <span class="dash-tab-meta">
+                        <span class="dash-tab-count">13</span>
+                        <svg class="dash-tab-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                    </span>
                 </a>
-                <a href="#" class="card dash-tab" data-hub="page-hub-management" onclick="navigateTo('page-hub-management')">
+                <a href="#" class="dash-tab" data-hub="page-hub-management" data-accent="amber" onclick="navigateTo('page-hub-management')">
                     <span class="dash-tab-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></span>
-                    <span class="dash-tab-name">Management</span>
-                    <span class="dash-tab-desc">Set up the accounts and items the rest of the app works with.</span>
-                    <span class="dash-tab-count">2 options</span>
+                    <span class="dash-tab-text">
+                        <span class="dash-tab-name">Management</span>
+                        <span class="dash-tab-desc">Set up your accounts and items</span>
+                    </span>
+                    <span class="dash-tab-meta">
+                        <span class="dash-tab-count">2</span>
+                        <svg class="dash-tab-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                    </span>
                 </a>
-                <a href="#" class="card dash-tab" data-hub="page-hub-utility" onclick="navigateTo('page-hub-utility')">
+                <a href="#" class="dash-tab" data-hub="page-hub-utility" data-accent="slate" onclick="navigateTo('page-hub-utility')">
                     <span class="dash-tab-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></span>
-                    <span class="dash-tab-name">Utility</span>
-                    <span class="dash-tab-desc">Users, permissions, activity history, backups, and settings.</span>
-                    <span class="dash-tab-count">6 options</span>
+                    <span class="dash-tab-text">
+                        <span class="dash-tab-name">Utility</span>
+                        <span class="dash-tab-desc">Users, permissions, backups and settings</span>
+                    </span>
+                    <span class="dash-tab-meta">
+                        <span class="dash-tab-count">6</span>
+                        <svg class="dash-tab-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                    </span>
                 </a>
             </div>
+
         </section>
 
         <!-- ============ HUB: DATA ENTRY ============ -->
