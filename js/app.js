@@ -79,19 +79,10 @@ window.addEventListener('popstate', (event) => {
     }
 });
 
-function renderDashboard() {
-    $('dash-accounts-count').textContent = lfGetAll(LF_KEYS.ACCOUNTS).length;
-    $('dash-items-count').textContent = lfGetAll(LF_KEYS.ITEMS).length;
-    $('dash-users-count').textContent = lfGetAll(LF_KEYS.USERS).length;
-
-    const loadBalance = lfGetAll(LF_KEYS.LOAD_LEDGER).reduce((sum, e) => sum + e.qtyChange, 0);
-    $('dash-load-balance').textContent = loadBalance.toLocaleString('en-US');
-
-    ['Purchase', 'PurchaseReturn', 'Sale', 'SaleReturn'].forEach(type => {
-        const el = $(`dash-count-${type}`);
-        if (el) el.textContent = lfGetAll(LF_KEYS.INVOICES).filter(i => i.type === type).length;
-    });
-}
+// Dashboard is now just the "Everywhere in LedgerFlow" shortcut grid (no
+// live stats), so there's nothing left to compute — kept as a no-op since
+// navigateTo() and the login/history flows still call it.
+function renderDashboard() {}
 
 function toggleGroup(headerBtn) {
     const group = headerBtn.closest('.nav-group');

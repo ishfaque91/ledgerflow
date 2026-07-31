@@ -150,6 +150,7 @@ async function resolveCompanyAndShowApp(user) {
         const { companyId, fullName } = mapSnap.data();
         setCurrentCompany(companyId);
         $('active-user-chip').textContent = fullName || user.email;
+        $('account-user-email').textContent = user.email || '—';
 
         watchCompanyDoc(() => {
             applyTheme(lfGetSettings().theme);

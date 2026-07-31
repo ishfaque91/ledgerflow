@@ -259,8 +259,9 @@ function openPettyCashForm(editId = null) {
     $('pc-lines').innerHTML = '';
     pcLineCounter = 0;
 
-    const cashAccounts = lfGetAll(LF_KEYS.ACCOUNTS).filter(a => a.type === 'Cash' || a.type === 'Bank');
-    $('pc-cash-account').innerHTML = cashAccounts.map(a => `<option value="${a.id}">${escapeHtml(a.title)} (${a.type})</option>`).join('');
+    // Petty Cash is by definition paid out of Cash-in-hand — Bank accounts don't belong here.
+    const cashAccounts = lfGetAll(LF_KEYS.ACCOUNTS).filter(a => a.type === 'Cash');
+    $('pc-cash-account').innerHTML = cashAccounts.map(a => `<option value="${a.id}">${escapeHtml(a.title)}</option>`).join('');
 
     if (editId) {
         const v = lfFindById(LF_KEYS.VOUCHERS, editId);
@@ -283,6 +284,7 @@ function openPettyCashForm(editId = null) {
         $('pc-number').value = peekNextVoucherNumber('PettyCash');
         $('pc-date').value = new Date().toISOString().slice(0, 10);
         $('pc-entered-by-note').classList.add('hidden');
+        if (cashAccounts.length) $('pc-cash-account').value = cashAccounts[0].id;
         addPettyCashLine();
     }
 

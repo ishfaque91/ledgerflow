@@ -6,19 +6,20 @@
 <title>LedgerFlow — Business Accounting</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
-<!-- LedgerFlow logomark: a ledger page with an ascending flow-line, reused
-     everywhere the "L" placeholder used to sit (wherever a company hasn't
-     uploaded its own logo). -->
+<!-- LedgerFlow logomark: an original geometric monogram — a bold rounded
+     "L" (the ledger) with a diagonal ascending stroke and node (the flow),
+     reused everywhere a company hasn't uploaded its own logo. Built as
+     plain filled/stroked shapes, not a copied icon or font glyph. -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
     <symbol id="lf-logo-mark" viewBox="0 0 24 24">
-        <path d="M6.5 2H16l4 4v14a2 2 0 0 1-2 2H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
-        <path d="M7.5 15.5l3-3.2 2.6 2.4L18 9" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M18 13V9h-4" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
+        <rect x="6" y="4" width="4.4" height="13" rx="2.2" fill="currentColor"/>
+        <rect x="6" y="14.6" width="9" height="4.4" rx="2.2" fill="currentColor"/>
+        <circle cx="18.3" cy="5.7" r="2.3" fill="currentColor"/>
     </symbol>
 </svg>
 
@@ -128,7 +129,6 @@
         </div>
     </div>
     <div class="topbar-right">
-        <span class="user-chip" id="active-user-chip">—</span>
         <button class="icon-btn" id="theme-toggle-btn" title="Toggle dark mode" onclick="toggleTheme()">
             <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z"/></svg>
         </button>
@@ -286,42 +286,7 @@
                 </div>
             </div>
 
-            <div class="dash-grid">
-                <div class="card dash-stat">
-                    <span class="dash-stat-label">Accounts</span>
-                    <span class="dash-stat-value" id="dash-accounts-count">0</span>
-                </div>
-                <div class="card dash-stat">
-                    <span class="dash-stat-label">Items</span>
-                    <span class="dash-stat-value" id="dash-items-count">0</span>
-                </div>
-                <div class="card dash-stat">
-                    <span class="dash-stat-label">Users</span>
-                    <span class="dash-stat-value" id="dash-users-count">0</span>
-                </div>
-                <div class="card dash-stat">
-                    <span class="dash-stat-label">Load Balance</span>
-                    <span class="dash-stat-value" id="dash-load-balance">0</span>
-                </div>
-            </div>
-
-            <div class="card dash-invoices-card">
-                <h3>Invoices so far</h3>
-                <div class="dash-invoice-row">
-                    <span>Purchase</span><span id="dash-count-Purchase">0</span>
-                </div>
-                <div class="dash-invoice-row">
-                    <span>Purchase Return</span><span id="dash-count-PurchaseReturn">0</span>
-                </div>
-                <div class="dash-invoice-row">
-                    <span>Sale</span><span id="dash-count-Sale">0</span>
-                </div>
-                <div class="dash-invoice-row">
-                    <span>Sale Return</span><span id="dash-count-SaleReturn">0</span>
-                </div>
-            </div>
-
-            <h3 style="margin-top:24px; margin-bottom:6px; font-family:'Manrope',sans-serif;">Everywhere in LedgerFlow</h3>
+            <h3 style="margin-top:0; margin-bottom:6px; font-family:'Space Grotesk',sans-serif;">Everywhere in LedgerFlow</h3>
             <div class="dash-directory-grid">
                 <div class="card dash-directory-card">
                     <h3><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> Data Entry</h3>
@@ -1278,7 +1243,7 @@
                     </div>
 
                     <div class="field">
-                        <label for="pc-cash-account">Paid From (Cash/Bank Account) <span class="req">*</span></label>
+                        <label for="pc-cash-account">Paid From (Cash Account) <span class="req">*</span></label>
                         <select id="pc-cash-account" required></select>
                     </div>
 
@@ -1963,6 +1928,13 @@
                     <p class="page-sub">This is what makes each company's copy of the software its own.</p>
                 </div>
             </div>
+
+            <details class="card account-dropdown" id="account-user-dropdown" style="margin-bottom: 20px;">
+                <summary>Signed in as <strong id="active-user-chip">—</strong></summary>
+                <div class="account-dropdown-body">
+                    <div class="statement-row"><span>Email</span><span id="account-user-email">—</span></div>
+                </div>
+            </details>
 
             <div class="card statement-section" id="account-status-card" style="margin-bottom: 20px;">
                 <h3>Account Status</h3>

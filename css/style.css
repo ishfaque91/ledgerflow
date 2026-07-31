@@ -1,28 +1,29 @@
 /* ====================================================================
    LEDGERFLOW — DESIGN TOKENS
-   Palette: ink navy text, warm paper background, a confident teal for
-   trust/action, a garnet red for the brand mark + destructive actions,
-   amber for Debit, deep teal-green for Credit (the ledger's own logic
-   made visible, not decoration).
-   Type: Manrope (display, used with restraint) + Inter (body/data).
+   Palette: near-black ink on a soft warm paper, a confident indigo/violet
+   for trust/action, a coral accent for the brand mark + destructive
+   actions, amber for Debit, deep green for Credit (the ledger's own
+   logic made visible, not decoration).
+   Type: Space Grotesk (display, geometric and a little unconventional) +
+   Inter (body/data — stays highly legible at small sizes for tables).
 ==================================================================== */
 :root {
-    --ink: #161B22;
-    --ink-soft: #4A5568;
-    --ink-faint: #8A94A6;
+    --ink: #15161C;
+    --ink-soft: #585F6E;
+    --ink-faint: #9399A8;
 
-    --paper: #F5F6F8;
+    --paper: #F6F6FA;
     --surface: #FFFFFF;
-    --border: #E4E7EC;
-    --border-strong: #D3D8E0;
+    --border: #E7E8EF;
+    --border-strong: #D2D4E0;
 
-    --teal: #0D7D8C;
-    --teal-dark: #095F6B;
-    --teal-tint: #E4F3F3;
+    --teal: #5B4FE9;
+    --teal-dark: #3E33B8;
+    --teal-tint: #EDEBFC;
 
-    --garnet: #C81E3A;
-    --garnet-dark: #A0142C;
-    --garnet-tint: #FCE9EC;
+    --garnet: #FF5A45;
+    --garnet-dark: #D93F2C;
+    --garnet-tint: #FFEAE6;
 
     --amber: #C2760C;
     --amber-tint: #FBF0DD;
@@ -30,51 +31,48 @@
     --credit: #0F8A5F;
     --credit-tint: #E3F5EC;
 
-    --indigo: #1E3A5F;
-    --indigo-dark: #14283F;
-
     --radius-sm: 8px;
-    --radius-md: 12px;
-    --radius-lg: 18px;
+    --radius-md: 10px;
+    --radius-lg: 16px;
 
-    --shadow-sm: 0 1px 2px rgba(22, 27, 34, 0.06), 0 1px 1px rgba(22, 27, 34, 0.04);
-    --shadow-md: 0 8px 24px rgba(22, 27, 34, 0.08), 0 2px 6px rgba(22, 27, 34, 0.05);
-    --shadow-lift: 0 14px 32px rgba(13, 125, 140, 0.18);
+    --shadow-sm: 0 1px 2px rgba(21, 22, 28, 0.05), 0 1px 1px rgba(21, 22, 28, 0.03);
+    --shadow-md: 0 10px 28px rgba(21, 22, 28, 0.08), 0 2px 6px rgba(21, 22, 28, 0.04);
+    --shadow-lift: 0 14px 32px rgba(91, 79, 233, 0.22);
 
     --ease: cubic-bezier(.2, .8, .2, 1);
 
-    /* Sidebar keeps a fixed elegant dark-navy identity regardless of theme,
-       like the top-level nav in most modern SaaS tools. */
-    --sidebar-grad-1: #1A2130;
-    --sidebar-grad-2: #0F131C;
+    /* Sidebar keeps a fixed dark-ink identity regardless of theme, like the
+       top-level nav in most modern SaaS tools. */
+    --sidebar-grad-1: #191A2E;
+    --sidebar-grad-2: #0F0F1C;
     --sidebar-border: rgba(255, 255, 255, 0.07);
-    --sidebar-text: #A9B2C3;
+    --sidebar-text: #A9ACC2;
     --sidebar-text-hover: #FFFFFF;
-    --sidebar-icon: #7C879C;
-    --sidebar-active-bg: rgba(45, 195, 209, 0.16);
-    --sidebar-active-text: #4FD6E3;
+    --sidebar-icon: #7E82A0;
+    --sidebar-active-bg: rgba(124, 114, 255, 0.16);
+    --sidebar-active-text: #9C97FF;
 }
 
 /* ==================== DARK MODE ====================
    Same tokens, re-pointed. Everything else in the stylesheet just
    reads these variables, so nothing else needs to change. */
 [data-theme="dark"] {
-    --ink: #ECEFF3;
-    --ink-soft: #A9B1C0;
-    --ink-faint: #6E7788;
+    --ink: #EDEEF3;
+    --ink-soft: #ABB0C2;
+    --ink-faint: #6F748A;
 
-    --paper: #10141B;
-    --surface: #181D26;
-    --border: #2A3140;
-    --border-strong: #3A4254;
+    --paper: #100F17;
+    --surface: #191926;
+    --border: #2C2D40;
+    --border-strong: #3C3E56;
 
-    --teal: #14A3B4;
-    --teal-dark: #3FC4D3;
-    --teal-tint: rgba(20, 163, 180, 0.16);
+    --teal: #8A82F5;
+    --teal-dark: #B0A9FF;
+    --teal-tint: rgba(138, 130, 245, 0.16);
 
-    --garnet: #E14762;
-    --garnet-dark: #F26A82;
-    --garnet-tint: rgba(225, 71, 98, 0.16);
+    --garnet: #FF7A64;
+    --garnet-dark: #FF9585;
+    --garnet-tint: rgba(255, 122, 100, 0.16);
 
     --amber: #E0A23D;
     --amber-tint: rgba(224, 162, 61, 0.16);
@@ -82,12 +80,9 @@
     --credit: #34C48C;
     --credit-tint: rgba(52, 196, 140, 0.16);
 
-    --indigo: #3B5878;
-    --indigo-dark: #24405C;
-
     --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
-    --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.4);
-    --shadow-lift: 0 14px 32px rgba(20, 163, 180, 0.25);
+    --shadow-md: 0 10px 28px rgba(0, 0, 0, 0.4);
+    --shadow-lift: 0 14px 32px rgba(138, 130, 245, 0.28);
 }
 
 * { box-sizing: border-box; }
@@ -103,7 +98,7 @@ html, body {
     -webkit-font-smoothing: antialiased;
 }
 
-h1, h2, h3 { font-family: 'Manrope', 'Inter', sans-serif; letter-spacing: -0.01em; margin: 0; }
+h1, h2, h3 { font-family: 'Space Grotesk', 'Inter', sans-serif; letter-spacing: -0.01em; margin: 0; }
 
 button { font-family: inherit; }
 
@@ -121,8 +116,8 @@ button { font-family: inherit; }
     z-index: 40;
 }
 
-.brand { display: flex; align-items: center; gap: 10px; margin-right: auto; }
-.brand-text-group { display: flex; flex-direction: column; line-height: 1.15; }
+.brand { display: flex; align-items: center; gap: 10px; margin-right: auto; min-width: 0; }
+.brand-text-group { display: flex; flex-direction: column; line-height: 1.15; min-width: 0; }
 .demo-account-tag {
     font-size: 0.68rem;
     font-weight: 700;
@@ -136,24 +131,18 @@ button { font-family: inherit; }
     color: white;
     border-radius: 9px;
     display: flex; align-items: center; justify-content: center;
-    font-family: 'Manrope', sans-serif;
+    font-family: 'Space Grotesk', sans-serif;
     font-weight: 800;
     font-size: 1.05rem;
     box-shadow: var(--shadow-sm);
 }
 .lf-mark-icon { width: 60%; height: 60%; color: white; flex-shrink: 0; }
-.brand-name { font-family: 'Manrope', sans-serif; font-weight: 800; font-size: 1.15rem; color: var(--ink); }
+.brand-name {
+    font-family: 'Space Grotesk', sans-serif; font-weight: 800; font-size: 1.15rem; color: var(--ink);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;
+}
 
 .topbar-right { display: flex; align-items: center; gap: 10px; }
-.user-chip {
-    font-weight: 600;
-    font-size: 0.9rem;
-    color: var(--ink-soft);
-    background: var(--paper);
-    border: 1px solid var(--border);
-    padding: 0.4rem 0.85rem;
-    border-radius: 999px;
-}
 
 .icon-btn {
     width: 38px; height: 38px;
@@ -215,7 +204,7 @@ button { font-family: inherit; }
     padding: 0.65rem 0.75rem;
 }
 .nav-group-header.nav-link:hover { background: rgba(255,255,255,0.06); color: var(--sidebar-text-hover); }
-.nav-group-header.nav-link.is-active { background: var(--sidebar-active-bg); color: var(--sidebar-active-text); font-weight: 700; }
+.nav-group-header.nav-link.is-active { background: var(--sidebar-active-bg); color: var(--sidebar-active-text); font-weight: 700; box-shadow: inset 3px 0 0 var(--sidebar-active-text); }
 
 .nav-group-body {
     display: none;
@@ -235,7 +224,7 @@ button { font-family: inherit; }
     transition: background .15s var(--ease), color .15s var(--ease);
 }
 .nav-link:hover { background: rgba(255,255,255,0.06); color: var(--sidebar-text-hover); }
-.nav-link.is-active { background: var(--sidebar-active-bg); color: var(--sidebar-active-text); font-weight: 700; }
+.nav-link.is-active { background: var(--sidebar-active-bg); color: var(--sidebar-active-text); font-weight: 700; box-shadow: inset 3px 0 0 var(--sidebar-active-text); }
 
 .sidebar-overlay { display: none; }
 
@@ -261,13 +250,13 @@ button { font-family: inherit; }
 .page-head h1 { font-size: 1.6rem; font-weight: 800; }
 .page-sub { color: var(--ink-faint); font-size: 0.92rem; margin-top: 4px; max-width: 56ch; }
 
-/* ==================== BUTTONS (the "Windows 98" fix) ==================== */
+/* ==================== BUTTONS ==================== */
 .btn {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    padding: 0.65rem 1.15rem;
-    border-radius: var(--radius-md);
+    padding: 0.68rem 1.3rem;
+    border-radius: 999px;
     font-weight: 700;
     font-size: 0.92rem;
     border: none;
@@ -278,7 +267,7 @@ button { font-family: inherit; }
 .btn:active { transform: translateY(1px) scale(0.99); }
 
 .btn-primary {
-    background: linear-gradient(155deg, var(--teal), var(--indigo));
+    background: linear-gradient(155deg, var(--teal), var(--teal-dark));
     color: white;
     box-shadow: var(--shadow-sm);
 }
@@ -564,7 +553,7 @@ button { font-family: inherit; }
     transition: background .15s var(--ease), color .15s var(--ease);
 }
 .balance-side + .balance-side { border-left: 1px solid var(--border-strong); }
-.side-label { font-family: 'Manrope', sans-serif; font-weight: 800; font-size: 0.95rem; }
+.side-label { font-family: 'Space Grotesk', sans-serif; font-weight: 800; font-size: 0.95rem; }
 .side-caption { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.05em; }
 
 .balance-side.side-dr.is-selected { background: var(--amber-tint); color: var(--amber); }
@@ -835,7 +824,7 @@ button { font-family: inherit; }
     display: flex; align-items: center; justify-content: center;
     background: linear-gradient(155deg, var(--garnet), var(--garnet-dark));
     color: white;
-    font-family: 'Manrope', sans-serif;
+    font-family: 'Space Grotesk', sans-serif;
     font-weight: 800;
     font-size: 1.6rem;
     animation: appLoadingPulse 1.1s ease-in-out infinite;
@@ -871,9 +860,9 @@ button { font-family: inherit; }
 }
 .login-logo-fallback {
     display: flex; align-items: center; justify-content: center;
-    font-family: 'Manrope', sans-serif; font-weight: 800; font-size: 1.4rem;
+    font-family: 'Space Grotesk', sans-serif; font-weight: 800; font-size: 1.4rem;
 }
-.login-company-name { font-family: 'Manrope', sans-serif; font-weight: 800; font-size: 1.3rem; color: var(--ink); }
+.login-company-name { font-family: 'Space Grotesk', sans-serif; font-weight: 800; font-size: 1.3rem; color: var(--ink); }
 .login-sub { color: var(--ink-faint); font-size: 0.88rem; margin: 0 0 1.4rem; }
 .login-form { display: flex; flex-direction: column; gap: 1rem; text-align: left; }
 .login-submit { width: 100%; justify-content: center; margin-top: 0.4rem; }
@@ -887,7 +876,7 @@ button { font-family: inherit; }
 /* Logo upload row in Settings */
 .logo-upload-row { display: flex; align-items: center; gap: 12px; }
 .logo-preview, .logo-preview-fallback { width: 48px; height: 48px; border-radius: 12px; object-fit: cover; }
-.logo-preview-fallback { display: flex; align-items: center; justify-content: center; font-family: 'Manrope', sans-serif; font-weight: 800; }
+.logo-preview-fallback { display: flex; align-items: center; justify-content: center; font-family: 'Space Grotesk', sans-serif; font-weight: 800; }
 
 /* ==================== REPORTS ==================== */
 .report-toolbar {
@@ -920,10 +909,31 @@ button { font-family: inherit; }
     padding: 0.9rem 1.1rem;
 }
 .report-summary-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-faint); font-weight: 700; }
-.report-summary-value { font-family: 'Manrope', sans-serif; font-size: 1.2rem; font-weight: 800; color: var(--teal-dark); margin-top: 4px; display: block; }
+.report-summary-value { font-family: 'Space Grotesk', sans-serif; font-size: 1.2rem; font-weight: 800; color: var(--teal-dark); margin-top: 4px; display: block; }
 .report-summary-value.is-dr { color: var(--amber); }
 .report-summary-value.is-cr { color: var(--credit); }
 .report-summary-value.is-warn { color: var(--garnet); }
+
+.account-dropdown { padding: 0; }
+.account-dropdown summary {
+    padding: 1.1rem 1.3rem;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.92rem;
+    color: var(--ink-soft);
+    list-style: none;
+}
+.account-dropdown summary::-webkit-details-marker { display: none; }
+.account-dropdown summary::before {
+    content: '▸';
+    display: inline-block;
+    margin-right: 8px;
+    color: var(--ink-faint);
+    transition: transform .15s var(--ease);
+}
+.account-dropdown[open] summary::before { transform: rotate(90deg); }
+.account-dropdown summary strong { color: var(--ink); }
+.account-dropdown-body { padding: 0 1.3rem 1.1rem; }
 
 .statement-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
 .statement-section { padding: 1.2rem 1.3rem; }
@@ -949,13 +959,7 @@ button { font-family: inherit; }
 }
 .dash-stat { padding: 1.2rem 1.3rem; display: flex; flex-direction: column; gap: 6px; }
 .dash-stat-label { font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-faint); }
-.dash-stat-value { font-family: 'Manrope', sans-serif; font-size: 1.7rem; font-weight: 800; color: var(--teal-dark); }
-
-.dash-invoices-card { padding: 1.3rem 1.4rem; }
-.dash-invoices-card h3 { font-size: 1rem; margin-bottom: 0.8rem; }
-.dash-invoice-row { display: flex; justify-content: space-between; padding: 0.55rem 0; border-top: 1px solid var(--border); font-size: 0.9rem; }
-.dash-invoice-row:first-of-type { border-top: none; }
-.dash-invoice-row span:last-child { font-weight: 700; color: var(--ink); }
+.dash-stat-value { font-family: 'Space Grotesk', sans-serif; font-size: 1.7rem; font-weight: 800; color: var(--teal-dark); }
 
 @media (max-width: 900px) {
     .dash-grid { grid-template-columns: repeat(2, 1fr); }
@@ -972,7 +976,7 @@ button { font-family: inherit; }
     font-size: 0.95rem;
     margin-bottom: 0.6rem;
     color: var(--teal-dark);
-    font-family: 'Manrope', sans-serif;
+    font-family: 'Space Grotesk', sans-serif;
     display: flex;
     align-items: center;
     gap: 8px;
@@ -983,8 +987,8 @@ button { font-family: inherit; }
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 6px;
-    padding: 0.8rem 0.5rem;
+    gap: 8px;
+    padding: 1rem 0.5rem 0.85rem;
     background: var(--surface);
     color: var(--ink-soft);
     text-decoration: none;
@@ -996,15 +1000,23 @@ button { font-family: inherit; }
     box-shadow: var(--shadow-sm);
     transition: all .15s var(--ease);
 }
-.dash-directory-list a svg { color: var(--indigo); flex-shrink: 0; transition: color .15s var(--ease); }
+.dash-directory-list a svg {
+    color: var(--teal-dark);
+    flex-shrink: 0;
+    width: 34px; height: 34px;
+    padding: 8px;
+    box-sizing: border-box;
+    border-radius: 50%;
+    background: var(--teal-tint);
+    transition: all .15s var(--ease);
+}
 .dash-directory-list a:hover {
-    background: linear-gradient(155deg, var(--teal), var(--indigo));
-    color: white;
-    border-color: transparent;
+    border-color: var(--teal);
     box-shadow: var(--shadow-lift);
+    color: var(--ink);
     transform: translateY(-2px);
 }
-.dash-directory-list a:hover svg { color: white; }
+.dash-directory-list a:hover svg { background: linear-gradient(155deg, var(--teal), var(--teal-dark)); color: white; }
 
 @media (max-width: 900px) {
     .dash-directory-grid { grid-template-columns: 1fr; }
