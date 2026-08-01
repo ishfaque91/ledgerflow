@@ -198,38 +198,82 @@ function printInvoice() {
     const invId = $('inv-id').value;
     const inv = invId ? lfFindById(LF_KEYS.INVOICES, invId) : null;
     if (!inv) { showToast('Save the invoice first before printing.', 'warning'); return; }
+    openPrintWindow(buildInvoicePrintData(inv));
+}
 
+function buildInvoicePrintData(inv) {
     const config = INVOICE_CONFIG[inv.type];
-    const party = lfFindById(LF_KEYS.ACCOUNTS, inv.partyAccountId);
-    const company = getCompanyDoc();
-
-    const itemRows = (inv.items || []).filter(i => i.qty > 0).map(i => {
+    const items = (inv.items || []).filter(i => i.qty > 0).map(i => {
         const item = lfFindById(LF_KEYS.ITEMS, i.itemId);
-        return `<tr><td>${escapeHtml(item ? item.name : i.itemId)}</td><td style="text-align:right">${i.qty}</td><td style="text-align:right">${formatCurrency(i.rate)}</td><td style="text-align:right">${formatCurrency(i.amount)}</td></tr>`;
-    }).join('');
+        return { name: item ? item.name : i.itemId, qty: i.qty, rate: i.rate, amount: i.amount };
+    });
+    return {
+        title: config.title, number: inv.number, date: inv.date,
+        partyLabel: config.partyLabel, partyName: inv.partyName || '',
+        refNumber: inv.refNumber, refDate: inv.refDate,
+        hasLoad: inv.hasLoad, loadAmount: inv.loadAmount, loadDiscount: inv.loadDiscount, loadQty: inv.loadQty,
+        items, itemsTotal: inv.itemsTotal || 0, loadTotal: inv.loadTotal || 0, grandTotal: inv.grandTotal,
+        paymentMode: inv.paymentMode, paymentAmount: inv.paymentAmount || 0,
+        balanceAmount: inv.balanceAmount || 0, cancelled: inv.cancelled
+    };
+}
 
-    const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${config.title} ${inv.number}</title>
-    <style>body{font-family:Arial,sans-serif;font-size:12px;margin:20px;color:#222}
-    h2{margin:0 0 4px;font-size:16px}table{width:100%;border-collapse:collapse;margin:8px 0}
-    th,td{border:1px solid #ccc;padding:5px 8px;text-align:left}th{background:#f0f0f0;font-size:11px}
-    .totals{margin:8px 0;text-align:right}.totals span{display:inline-block;min-width:120px;font-weight:700}
-    .header{display:flex;justify-content:space-between;border-bottom:2px solid #5B4FE9;padding-bottom:8px;margin-bottom:12px}
-    @media print{body{margin:10mm}}</style></head><body>
-    <div class="header"><div><h2>${escapeHtml(company.companyName || 'LedgerFlow')}</h2>
-    <small>${escapeHtml(company.phone ? '+92 ' + company.phone : '')} ${escapeHtml(company.city || '')}</small></div>
-    <div style="text-align:right"><strong>${config.title}</strong><br>${inv.number}<br>${inv.date}</div></div>
-    <p><strong>${config.partyLabel}:</strong> ${escapeHtml(inv.partyName || '')}</p>
-    ${inv.refNumber ? `<p><strong>Ref:</strong> ${escapeHtml(inv.refNumber)} ${inv.refDate ? '(' + inv.refDate + ')' : ''}</p>` : ''}
-    ${inv.hasLoad ? `<p><strong>Load:</strong> Amount: ${formatCurrency(inv.loadAmount)} | Discount: ${inv.loadDiscount}% | Qty: ${inv.loadQty.toLocaleString('en-US')}</p>` : ''}
-    ${itemRows ? `<table><thead><tr><th>Item</th><th style="text-align:right">Qty</th><th style="text-align:right">Rate</th><th style="text-align:right">Amount</th></tr></thead><tbody>${itemRows}</tbody></table>` : ''}
-    <div class="totals">${inv.hasLoad ? `Load Total: <span>${formatCurrency(inv.loadTotal || 0)}</span><br>` : ''}
-    Items Total: <span>${formatCurrency(inv.itemsTotal || 0)}</span><br>
-    <strong>Grand Total: <span>${formatCurrency(inv.grandTotal)}</span></strong><br>
-    ${inv.paymentMode && inv.paymentMode !== 'None' ? `Paid (${inv.paymentMode}): <span>${formatCurrency(inv.paymentAmount || 0)}</span><br>` : ''}
-    Balance: <span>${formatCurrency(inv.balanceAmount || 0)}</span></div>
-    <script>window.print();<\/script></body></html>`;
+function openPrintWindow(data) {
+    const s = lfGetSettings();
+    const logo = s.companyLogo ? `<img src="${s.companyLogo}" style="max-height:50px;max-width:120px;margin-bottom:4px">` : '';
+    const companyInfo = [s.companyAddress, s.companyCity, s.companyPhone ? '+92 ' + s.companyPhone : '', s.companyEmail].filter(Boolean).join(' | ');
+    const ntnGst = [s.companyNTN ? 'NTN: ' + s.companyNTN : '', s.companyGST ? 'GST: ' + s.companyGST : ''].filter(Boolean).join(' | ');
 
-    const w = window.open('', '_blank', 'width=400,height=600');
+    const itemRows = data.items.map((i, idx) =>
+        `<tr><td>${idx + 1}</td><td>${escapeHtml(i.name)}</td><td class="r">${i.qty}</td><td class="r">${formatCurrency(i.rate)}</td><td class="r">${formatCurrency(i.amount)}</td></tr>`
+    ).join('');
+
+    const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${data.title} ${data.number}</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',Arial,sans-serif;font-size:12px;color:#222;padding:15mm 12mm}
+.header{text-align:center;border-bottom:2px solid #333;padding-bottom:10px;margin-bottom:14px}
+.header h1{font-size:18px;margin:4px 0 2px}
+.header .info{font-size:10px;color:#555}
+.meta{display:flex;justify-content:space-between;margin-bottom:12px;font-size:12px}
+.meta-box{border:1px solid #ccc;border-radius:4px;padding:6px 10px;min-width:45%}
+.meta-box strong{display:block;font-size:10px;text-transform:uppercase;color:#888;margin-bottom:2px}
+table{width:100%;border-collapse:collapse;margin:10px 0}
+th{background:#f5f5f5;font-size:10px;text-transform:uppercase;letter-spacing:0.5px;padding:6px 8px;border:1px solid #ccc;text-align:left}
+td{padding:5px 8px;border:1px solid #ddd;font-size:11px}
+.r{text-align:right}
+.totals{margin:10px 0;text-align:right;font-size:12px;line-height:1.8}
+.totals .label{display:inline-block;min-width:130px;text-align:right;margin-right:10px;color:#555}
+.totals .val{display:inline-block;min-width:100px;font-weight:700;text-align:right}
+.grand{font-size:14px;border-top:2px solid #333;padding-top:6px;margin-top:4px}
+.cancelled-stamp{color:#e74c3c;font-weight:800;font-size:16px;text-align:center;border:2px solid #e74c3c;padding:4px;margin:10px 0;text-transform:uppercase}
+.footer{margin-top:30px;display:flex;justify-content:space-between;font-size:11px;color:#888}
+.sig-line{border-top:1px solid #aaa;width:150px;text-align:center;padding-top:4px}
+@media print{body{padding:10mm}}
+</style></head><body>
+<div class="header">${logo}<h1>${escapeHtml(s.companyName || 'LedgerFlow')}</h1>
+${companyInfo ? `<div class="info">${escapeHtml(companyInfo)}</div>` : ''}
+${ntnGst ? `<div class="info">${escapeHtml(ntnGst)}</div>` : ''}</div>
+<h2 style="text-align:center;font-size:14px;margin-bottom:12px">${data.title} — ${data.number}</h2>
+${data.cancelled ? '<div class="cancelled-stamp">Cancelled</div>' : ''}
+<div class="meta">
+<div class="meta-box"><strong>${escapeHtml(data.partyLabel)}</strong>${escapeHtml(data.partyName)}</div>
+<div class="meta-box" style="text-align:right"><strong>Date</strong>${data.date}${data.refNumber ? `<br><strong style="margin-top:4px">Ref</strong>${escapeHtml(data.refNumber)}${data.refDate ? ' (' + data.refDate + ')' : ''}` : ''}</div>
+</div>
+${data.hasLoad ? `<table><thead><tr><th>Load Amount</th><th class="r">Discount %</th><th class="r">Load Qty</th></tr></thead>
+<tbody><tr><td>${formatCurrency(data.loadAmount)}</td><td class="r">${data.loadDiscount}%</td><td class="r">${(data.loadQty || 0).toLocaleString('en-US')}</td></tr></tbody></table>` : ''}
+${data.items.length ? `<table><thead><tr><th>#</th><th>Item</th><th class="r">Qty</th><th class="r">Rate</th><th class="r">Amount</th></tr></thead><tbody>${itemRows}</tbody></table>` : ''}
+<div class="totals">
+${data.hasLoad ? `<div><span class="label">Load Total:</span><span class="val">${formatCurrency(data.loadTotal)}</span></div>` : ''}
+${data.items.length ? `<div><span class="label">Items Total:</span><span class="val">${formatCurrency(data.itemsTotal)}</span></div>` : ''}
+<div class="grand"><span class="label">Grand Total:</span><span class="val">${formatCurrency(data.grandTotal)}</span></div>
+${data.paymentMode && data.paymentMode !== 'None' && data.paymentAmount > 0 ? `<div><span class="label">Paid (${data.paymentMode}):</span><span class="val">${formatCurrency(data.paymentAmount)}</span></div>` : ''}
+${data.balanceAmount > 0 ? `<div><span class="label">Balance:</span><span class="val">${formatCurrency(data.balanceAmount)}</span></div>` : ''}
+</div>
+<div class="footer"><div class="sig-line">Prepared By</div><div class="sig-line">Received By</div></div>
+<script>window.print();<\/script></body></html>`;
+
+    const w = window.open('', '_blank', 'width=420,height=650');
     w.document.write(html);
     w.document.close();
 }

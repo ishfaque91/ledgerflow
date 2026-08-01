@@ -156,13 +156,13 @@ async function resolveCompanyAndShowApp(user) {
             evaluateAndGateAccess();
         });
 
-        watchCollection(LF_KEYS.ACCOUNTS, () => renderAccountList());
+        watchCollection(LF_KEYS.ACCOUNTS, () => { renderAccountList(); renderDashboard(); });
         watchCollection(LF_KEYS.ITEMS, () => renderItemList());
         watchCollection(LF_KEYS.USERS, () => { renderUserList(); populateRightsUserPicker(); applyNavRightsVisibility(); applyRsoNavVisibility(); });
         watchCollection(LF_KEYS.RIGHTS, () => { renderRightsTable(); applyNavRightsVisibility(); });
-        watchCollection(LF_KEYS.INVOICES, () => Object.keys(INVOICE_CONFIG).forEach(t => renderInvoiceList(t)));
+        watchCollection(LF_KEYS.INVOICES, () => { Object.keys(INVOICE_CONFIG).forEach(t => renderInvoiceList(t)); renderDashboard(); });
         watchCollection(LF_KEYS.VOUCHERS, () => ['BankReceipt', 'BankPayment', 'PettyCash', 'Journal'].forEach(t => renderVoucherList(t)));
-        watchCollection(LF_KEYS.EDIT_LOG, () => renderEditHistory());
+        watchCollection(LF_KEYS.EDIT_LOG, () => { renderEditHistory(); renderDashboard(); });
 
         // These three were previously never watched at all — meaning every
         // screen that reads them (Account Ledger, Cash Book, Trial Balance,
@@ -176,6 +176,7 @@ async function resolveCompanyAndShowApp(user) {
             renderTrialBalance();
             renderBalanceSheet();
             renderProfitAndLoss();
+            renderDashboard();
         });
         watchCollection(LF_KEYS.LOAD_LEDGER, () => {
             renderLoadLedgerReport();

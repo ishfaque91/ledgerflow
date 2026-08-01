@@ -121,10 +121,67 @@ window.addEventListener('popstate', (event) => {
     }
 });
 
-// Dashboard is now just the "Everywhere in LedgerFlow" shortcut grid (no
-// live stats), so there's nothing left to compute — kept as a no-op since
-// navigateTo() and the login/history flows still call it.
-function renderDashboard() {}
+function renderDashboard() {
+    const statsEl = $('dash-stats');
+    if (!statsEl) return;
+
+    if (!isCurrentUserOwner()) {
+        statsEl.classList.add('hidden');
+        return;
+    }
+    statsEl.classList.remove('hidden');
+
+    const today = new Date().toISOString().slice(0, 10);
+    const invoices = lfGetAll(LF_KEYS.INVOICES);
+    const accounts = lfGetAll(LF_KEYS.ACCOUNTS);
+
+    const todaySales = invoices.filter(i => i.type === 'Sale' && i.date === today && !i.cancelled);
+    const todayPurchases = invoices.filter(i => i.type === 'Purchase' && i.date === today && !i.cancelled);
+
+    $('dash-today-sales').textContent = formatCurrency(todaySales.reduce((s, i) => s + (i.grandTotal || 0), 0));
+    $('dash-today-sales-count').textContent = `${todaySales.length} invoice${todaySales.length === 1 ? '' : 's'}`;
+    $('dash-today-purchases').textContent = formatCurrency(todayPurchases.reduce((s, i) => s + (i.grandTotal || 0), 0));
+    $('dash-today-purchases-count').textContent = `${todayPurchases.length} invoice${todayPurchases.length === 1 ? '' : 's'}`;
+
+    let cashTotal = 0, bankTotal = 0, receivables = 0, payables = 0;
+    accounts.forEach(acc => {
+        const bal = computeAccountBalance(acc.id);
+        if (acc.type === 'Cash') {
+            cashTotal += bal.side === 'Dr' ? bal.amount : -bal.amount;
+        } else if (acc.type === 'Bank') {
+            bankTotal += bal.side === 'Dr' ? bal.amount : -bal.amount;
+        } else if (acc.type === 'Customer') {
+            if (bal.side === 'Dr') receivables += bal.amount;
+        } else if (acc.type === 'Supplier') {
+            if (bal.side === 'Cr') payables += bal.amount;
+        } else if (acc.type === 'Customer/Supplier') {
+            if (bal.side === 'Dr') receivables += bal.amount;
+            else payables += bal.amount;
+        }
+    });
+
+    $('dash-cash-balance').textContent = formatCurrency(cashTotal);
+    $('dash-bank-balance').textContent = formatCurrency(bankTotal);
+    $('dash-receivables').textContent = formatCurrency(receivables);
+    $('dash-payables').textContent = formatCurrency(payables);
+
+    const recent = lfGetAll(LF_KEYS.EDIT_LOG)
+        .sort((a, b) => new Date(b.timestamp || b.createdAt) - new Date(a.timestamp || a.createdAt))
+        .slice(0, 8);
+    const actEl = $('dash-recent-activity');
+    if (recent.length === 0) {
+        actEl.innerHTML = '<div class="dash-act-item"><span class="dash-act-detail">No recent activity</span></div>';
+    } else {
+        actEl.innerHTML = recent.map(r => {
+            const time = new Date(r.timestamp || r.createdAt);
+            const timeStr = time.toLocaleDateString('en-PK', { day: 'numeric', month: 'short' }) + ' ' + time.toLocaleTimeString('en-PK', { hour: '2-digit', minute: '2-digit' });
+            return `<div class="dash-act-item">
+                <div class="dash-act-left"><span class="dash-act-title">${escapeHtml(r.action || '')} ${escapeHtml(r.entityType || '')}</span>
+                <span class="dash-act-detail">${escapeHtml(r.entityName || '')} — ${escapeHtml(r.userName || '')} — ${timeStr}</span></div>
+            </div>`;
+        }).join('');
+    }
+}
 
 function toggleGroup(headerBtn) {
     const group = headerBtn.closest('.nav-group');

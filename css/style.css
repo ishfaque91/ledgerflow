@@ -1163,15 +1163,32 @@ button { font-family: inherit; }
 }
 
 /* ==================== DASHBOARD ==================== */
+.dash-stats { margin-bottom: 20px; }
+.dash-stat-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+.dash-stat-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 1rem 1.1rem; display: flex; flex-direction: column; gap: 4px;
+}
+.dash-stat-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-faint); }
+.dash-stat-value { font-family: 'Space Grotesk', sans-serif; font-size: 1.25rem; font-weight: 800; color: var(--teal-dark); }
+.dash-stat-sub { font-size: 0.75rem; color: var(--ink-faint); }
+.dash-stat-receivable { color: #e67e22; }
+.dash-stat-payable { color: #e74c3c; }
+.dash-activity { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem 1.1rem; margin-top: 10px; }
+.dash-activity h3 { font-size: 0.82rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--ink-faint); margin-bottom: 8px; }
+.dash-act-item { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-top: 1px solid var(--border); font-size: 0.85rem; }
+.dash-act-item:first-child { border-top: none; }
+.dash-act-left { display: flex; flex-direction: column; gap: 1px; }
+.dash-act-title { font-weight: 600; color: var(--ink); }
+.dash-act-detail { font-size: 0.75rem; color: var(--ink-faint); }
+.dash-act-amount { font-weight: 700; font-variant-numeric: tabular-nums; color: var(--teal-dark); }
+
 .dash-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 14px;
     margin-bottom: 20px;
 }
-.dash-stat { padding: 1.2rem 1.3rem; display: flex; flex-direction: column; gap: 6px; }
-.dash-stat-label { font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-faint); }
-.dash-stat-value { font-family: 'Space Grotesk', sans-serif; font-size: 1.7rem; font-weight: 800; color: var(--teal-dark); }
 
 @media (max-width: 900px) {
     .dash-grid { grid-template-columns: repeat(2, 1fr); }

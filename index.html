@@ -297,6 +297,46 @@
                 </div>
             </div>
 
+            <!-- Stats cards — visible to Owner & Admin only -->
+            <div id="dash-stats" class="dash-stats hidden">
+                <div class="dash-stat-row">
+                    <div class="dash-stat-card">
+                        <span class="dash-stat-label">Today's Sales</span>
+                        <span class="dash-stat-value" id="dash-today-sales">Rs. 0</span>
+                        <span class="dash-stat-sub" id="dash-today-sales-count">0 invoices</span>
+                    </div>
+                    <div class="dash-stat-card">
+                        <span class="dash-stat-label">Today's Purchases</span>
+                        <span class="dash-stat-value" id="dash-today-purchases">Rs. 0</span>
+                        <span class="dash-stat-sub" id="dash-today-purchases-count">0 invoices</span>
+                    </div>
+                </div>
+                <div class="dash-stat-row">
+                    <div class="dash-stat-card">
+                        <span class="dash-stat-label">Cash in Hand</span>
+                        <span class="dash-stat-value" id="dash-cash-balance">Rs. 0</span>
+                    </div>
+                    <div class="dash-stat-card">
+                        <span class="dash-stat-label">Bank Balance</span>
+                        <span class="dash-stat-value" id="dash-bank-balance">Rs. 0</span>
+                    </div>
+                </div>
+                <div class="dash-stat-row">
+                    <div class="dash-stat-card">
+                        <span class="dash-stat-label">Total Receivables</span>
+                        <span class="dash-stat-value dash-stat-receivable" id="dash-receivables">Rs. 0</span>
+                    </div>
+                    <div class="dash-stat-card">
+                        <span class="dash-stat-label">Total Payables</span>
+                        <span class="dash-stat-value dash-stat-payable" id="dash-payables">Rs. 0</span>
+                    </div>
+                </div>
+                <div class="dash-activity">
+                    <h3>Recent Activity</h3>
+                    <div id="dash-recent-activity"></div>
+                </div>
+            </div>
+
             <div class="dash-tab-grid">
                 <a href="#" class="dash-tab" data-hub="page-hub-data-entry" data-accent="indigo" onclick="navigateTo('page-hub-data-entry')">
                     <span class="dash-tab-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span>
@@ -2380,6 +2420,7 @@
                 </form>
                 <div class="modal-foot">
                     <button class="btn btn-ghost" onclick="closeRsoSaleForm()">Cancel</button>
+                    <button class="btn btn-outline" id="rso-sale-print-btn" onclick="printRsoSale()" style="display:none">Print</button>
                     <button class="btn btn-primary" id="rso-sale-save-btn" onclick="saveRsoSale()"><span class="btn-label">Save Sale</span><span class="btn-spinner hidden"></span></button>
                 </div>
             </div>

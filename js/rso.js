@@ -553,7 +553,29 @@ function openRsoSaleForm(editId = null) {
     }
 
     recalcRsoSaleTotal();
+    $('rso-sale-print-btn').style.display = editId ? '' : 'none';
     $('rso-sale-modal').classList.remove('hidden');
+}
+
+function printRsoSale() {
+    const id = $('rso-sale-id').value;
+    const s = id ? lfFindById(LF_KEYS.RSO_SALES, id) : null;
+    if (!s) { showToast('Save the sale first before printing.', 'warning'); return; }
+    const items = (s.items || []).filter(i => i.qty > 0).map(i => {
+        const item = lfFindById(LF_KEYS.ITEMS, i.itemId);
+        return { name: item ? item.name : i.itemName || i.itemId, qty: i.qty, rate: i.rate, amount: i.amount };
+    });
+    openPrintWindow({
+        title: 'RSO Sale', number: s.number, date: s.date,
+        partyLabel: 'Customer', partyName: s.customerName || '',
+        refNumber: '', refDate: '',
+        hasLoad: s.hasLoad !== false && s.loadAmount > 0,
+        loadAmount: s.loadAmount || 0, loadDiscount: s.loadDiscount || 0, loadQty: s.loadQty || 0,
+        items, itemsTotal: s.itemsTotal || 0, loadTotal: s.loadTotal || s.loadAmount || 0,
+        grandTotal: s.grandTotal,
+        paymentMode: s.paidAmount > 0 ? 'Cash' : 'None', paymentAmount: s.paidAmount || 0,
+        balanceAmount: s.balanceAmount || 0, cancelled: false
+    });
 }
 
 function closeRsoSaleForm() { $('rso-sale-modal').classList.add('hidden'); }
