@@ -1007,6 +1007,14 @@ button { font-family: inherit; }
     max-width: 380px;
     text-align: center;
 }
+@media (max-width: 480px) {
+    .login-screen { padding: 0; background: var(--surface); }
+    .login-card {
+        max-width: 100%; border: none; border-radius: 0; box-shadow: none;
+        min-height: 100vh; display: flex; flex-direction: column; justify-content: center;
+        padding: 2rem 1.5rem;
+    }
+}
 .login-brand { display: flex; flex-direction: column; align-items: center; gap: 10px; margin-bottom: 4px; }
 .login-logo-img, .login-logo-fallback {
     width: 52px; height: 52px;
@@ -1171,17 +1179,8 @@ button { font-family: inherit; }
 }
 .dash-stat-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-faint); }
 .dash-stat-value { font-family: 'Space Grotesk', sans-serif; font-size: 1.25rem; font-weight: 800; color: var(--teal-dark); }
-.dash-stat-sub { font-size: 0.75rem; color: var(--ink-faint); }
 .dash-stat-receivable { color: #e67e22; }
 .dash-stat-payable { color: #e74c3c; }
-.dash-activity { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem 1.1rem; margin-top: 10px; }
-.dash-activity h3 { font-size: 0.82rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--ink-faint); margin-bottom: 8px; }
-.dash-act-item { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-top: 1px solid var(--border); font-size: 0.85rem; }
-.dash-act-item:first-child { border-top: none; }
-.dash-act-left { display: flex; flex-direction: column; gap: 1px; }
-.dash-act-title { font-weight: 600; color: var(--ink); }
-.dash-act-detail { font-size: 0.75rem; color: var(--ink-faint); }
-.dash-act-amount { font-weight: 700; font-variant-numeric: tabular-nums; color: var(--teal-dark); }
 
 .dash-grid {
     display: grid;
