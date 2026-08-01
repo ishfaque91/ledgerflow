@@ -37,6 +37,7 @@ function renderUserList(searchTerm = '') {
     }
 
     const companyOwnerUid = getCompanyDoc().ownerUid;
+    const canManageUsers = isCurrentUserOwner();
     tbody.innerHTML = users.map(u => {
         const isOwner = u.role === 'owner' || (u.linkedAuthUid && companyOwnerUid === u.linkedAuthUid);
         const roleBadge = isOwner ? 'Owner' : u.role === 'admin' ? 'Admin' : u.role === 'rso' ? 'RSO' : 'Staff';
@@ -46,10 +47,10 @@ function renderUserList(searchTerm = '') {
             <td>${escapeHtml(u.username)}</td>
             <td><span class="status-badge ${u.status === 'Inactive' ? 'is-inactive' : 'is-active'}">${escapeHtml(u.status || 'Active')}</span></td>
             <td>
-                <div class="row-actions">
+                ${canManageUsers ? `<div class="row-actions">
                     <button class="btn-outline-text" onclick="openUserForm('${u.id}')">Edit</button>
                     ${isOwner ? '' : `<button class="btn-danger-text" onclick="deleteUser('${u.id}')">Delete</button>`}
-                </div>
+                </div>` : ''}
             </td>
         </tr>`;
     }).join('');
@@ -276,13 +277,17 @@ async function deleteUser(id) {
         return;
     }
 
-    if (!confirm(`Remove "${user.fullName}"? Their login access is revoked immediately.`)) return;
+    if (!confirm(`Remove "${user.fullName}"? Their data entries will be kept. Only their login access is revoked.`)) return;
 
     try {
         if (user.linkedAuthUid) {
             await fbDb.collection('users').doc(user.linkedAuthUid).delete();
-            const deleteAuthUser = firebase.functions().httpsCallable('deleteAuthUser');
-            await deleteAuthUser({ uid: user.linkedAuthUid });
+            try {
+                const deleteAuthUser = firebase.functions().httpsCallable('deleteAuthUser');
+                await deleteAuthUser({ uid: user.linkedAuthUid });
+            } catch (fnErr) {
+                console.warn('[Users] Cloud Function deleteAuthUser unavailable, user record removed but Auth account may persist:', fnErr.message);
+            }
         }
         await lfDelete(LF_KEYS.USERS, id);
         showToast('User removed — their login access has been revoked.', 'success');
