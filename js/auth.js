@@ -160,7 +160,7 @@ async function resolveCompanyAndShowApp(user) {
 
         watchCollection(LF_KEYS.ACCOUNTS, () => renderAccountList());
         watchCollection(LF_KEYS.ITEMS, () => renderItemList());
-        watchCollection(LF_KEYS.USERS, () => { renderUserList(); populateRightsUserPicker(); applyNavRightsVisibility(); });
+        watchCollection(LF_KEYS.USERS, () => { renderUserList(); populateRightsUserPicker(); applyNavRightsVisibility(); applyRsoNavVisibility(); });
         watchCollection(LF_KEYS.RIGHTS, () => { renderRightsTable(); applyNavRightsVisibility(); });
         watchCollection(LF_KEYS.INVOICES, () => Object.keys(INVOICE_CONFIG).forEach(t => renderInvoiceList(t)));
         watchCollection(LF_KEYS.VOUCHERS, () => ['BankReceipt', 'BankPayment', 'PettyCash', 'Journal'].forEach(t => renderVoucherList(t)));
@@ -187,6 +187,13 @@ async function resolveCompanyAndShowApp(user) {
             renderItemLedgerReport();
             renderStockReport();
         });
+
+        watchCollection(LF_KEYS.RSO_CUSTOMERS, () => { renderRsoCustomerList(); initRsoReportCustomerDropdown(); });
+        watchCollection(LF_KEYS.RSO_SALES, () => { renderRsoSaleList(); renderRsoDashboard(); });
+        watchCollection(LF_KEYS.RSO_RETURNS, () => { renderRsoReturnList(); renderRsoDashboard(); });
+        watchCollection(LF_KEYS.RSO_RECOVERIES, () => { renderRsoRecoveryList(); renderRsoDashboard(); });
+        watchCollection(LF_KEYS.RSO_LOADS, () => { renderRsoLoadList(); renderRsoDashboard(); });
+        watchCollection(LF_KEYS.RSO_DEPOSITS, () => { renderRsoDepositList(); renderRsoDashboard(); });
     } catch (err) {
         console.error('[Auth] Resolving company failed:', err);
         showToast('Something went wrong loading your account.', 'error');
@@ -235,6 +242,13 @@ function evaluateAndGateAccess() {
         $('app-root').classList.remove('hidden');
         if (!dashboardShownThisSession) {
             dashboardShownThisSession = true;
+            applyRsoNavVisibility();
+            if (isRsoUser()) {
+                renderRsoDashboard();
+                initRsoReportDropdowns();
+            } else {
+                initRsoReportDropdowns();
+            }
             navigateTo(resumeLastPageId());
         }
         if (status.daysLeft !== undefined && status.daysLeft <= 5) {

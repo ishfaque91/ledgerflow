@@ -38,7 +38,7 @@ function renderUserList(searchTerm = '') {
 
     tbody.innerHTML = users.map(u => `
         <tr>
-            <td><strong>${escapeHtml(u.fullName)}</strong> <span class="type-badge">${u.role === 'owner' ? 'Owner' : 'Staff'}</span></td>
+            <td><strong>${escapeHtml(u.fullName)}</strong> <span class="type-badge">${u.role === 'owner' ? 'Owner' : u.role === 'rso' ? 'RSO' : 'Staff'}</span></td>
             <td>${escapeHtml(u.username)}</td>
             <td><span class="status-badge ${u.status === 'Inactive' ? 'is-inactive' : 'is-active'}">${escapeHtml(u.status || 'Active')}</span></td>
             <td>
@@ -76,13 +76,15 @@ function openUserForm(id = null) {
         $('user-auth-uid').value = user.linkedAuthUid || '';
         $('user-fullname').value = user.fullName;
         $('user-username').value = user.username;
-        $('user-username').readOnly = true; // email is tied to their login, not editable here
+        $('user-username').readOnly = true;
         $('user-status').value = user.status || 'Active';
-        $('user-password-field').classList.add('hidden'); // can't change someone else's password from here
+        $('user-role').value = user.role === 'rso' ? 'rso' : 'staff';
+        $('user-password-field').classList.add('hidden');
     } else {
         $('user-modal-title').textContent = 'New User';
         $('user-password-field').classList.remove('hidden');
         $('user-password').required = true;
+        $('user-role').value = 'staff';
     }
 
     modal.classList.remove('hidden');
@@ -106,6 +108,7 @@ async function saveUser() {
     const fullName = sanitizeInput($('user-fullname').value);
     const email = sanitizeInput($('user-username').value).toLowerCase();
     const status = $('user-status').value;
+    const role = $('user-role').value || 'staff';
     const password = $('user-password').value;
     const saveBtn = $('user-save-btn');
 
@@ -135,16 +138,38 @@ async function saveUser() {
             const uid = cred.user.uid;
             await fbSecondaryAuth.signOut();
 
-            await fbDb.collection('users').doc(uid).set({ companyId: currentCompanyId, email, fullName, role: 'staff' });
-            const created = { fullName, username: email, status, linkedAuthUid: uid, role: 'staff' };
+            await fbDb.collection('users').doc(uid).set({ companyId: currentCompanyId, email, fullName, role });
+            const created = { fullName, username: email, status, linkedAuthUid: uid, role };
             await lfUpsert(LF_KEYS.USERS, created);
+
+            if (role === 'rso') {
+                const existing = lfGetAll(LF_KEYS.ACCOUNTS).find(a => a.type === 'Employee/RSO' && a.linkedUserId === created.id);
+                if (!existing) {
+                    await lfUpsert(LF_KEYS.ACCOUNTS, {
+                        type: 'Employee/RSO', title: fullName + ' (RSO)',
+                        linkedUserId: created.id, openingAmount: 0, openingSide: 'Dr',
+                        mobile: '', phone: '', email: '', city: '', gst: '', ntn: '', address: ''
+                    });
+                }
+            }
 
             showToast('User created — they can log in with that email and password now.', 'success');
             logActivity('Created', 'User', fullName, { after: created, recordId: created.id });
         } else {
             const before = { ...(lfFindById(LF_KEYS.USERS, id) || {}) };
-            const updated = { id, fullName, username: email, status };
+            const updated = { id, fullName, username: email, status, role };
             await lfUpsert(LF_KEYS.USERS, updated);
+
+            if (role === 'rso') {
+                const existing = lfGetAll(LF_KEYS.ACCOUNTS).find(a => a.type === 'Employee/RSO' && a.linkedUserId === id);
+                if (!existing) {
+                    await lfUpsert(LF_KEYS.ACCOUNTS, {
+                        type: 'Employee/RSO', title: fullName + ' (RSO)',
+                        linkedUserId: id, openingAmount: 0, openingSide: 'Dr',
+                        mobile: '', phone: '', email: '', city: '', gst: '', ntn: '', address: ''
+                    });
+                }
+            }
             showToast('User updated.', 'success');
             logActivity('Updated', 'User', fullName, { before, after: { ...before, ...updated }, recordId: id });
         }

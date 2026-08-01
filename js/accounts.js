@@ -91,7 +91,7 @@ function renderAccountList(searchTerm = '') {
 
 // ==================== FORM: OPEN / CLOSE ====================
 function openAccountForm(id = null) {
-    if (!hasRight('MANAGEMENT', 'Add/Edit Accounts', 'Edit')) {
+    if (!hasRight('VOUCHERS', 'Add/Edit Accounts', 'Edit')) {
         showToast(`You don't have permission to ${id ? 'edit' : 'add'} accounts.`, 'warning');
         return;
     }
@@ -167,7 +167,7 @@ async function saveAccount() {
     const openingAmount = parseAmount($('acc-opening').value);
     const saveBtn = $('account-save-btn');
 
-    if (!hasRight('MANAGEMENT', 'Add/Edit Accounts', 'Edit')) {
+    if (!hasRight('VOUCHERS', 'Add/Edit Accounts', 'Edit')) {
         showToast("You don't have permission to save accounts.", 'warning');
         return;
     }
@@ -215,7 +215,7 @@ async function saveAccount() {
 async function deleteAccount(id) {
     const acc = lfFindById(LF_KEYS.ACCOUNTS, id);
     if (!acc) return;
-    if (!hasRight('MANAGEMENT', 'Add/Edit Accounts', 'Delete')) {
+    if (!hasRight('VOUCHERS', 'Add/Edit Accounts', 'Delete')) {
         showToast("You don't have permission to delete accounts.", 'warning');
         return;
     }

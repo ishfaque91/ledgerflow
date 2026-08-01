@@ -40,6 +40,15 @@ const RIGHTS_SCHEMA = {
         { name: 'Profit & Loss Graph', perms: ['View'] },
         { name: 'Income & Expense Graph', perms: ['View'] }
     ],
+    'RSO / SALESMAN': [
+        { name: 'RSO Customers', perms: ['View', 'Edit'] },
+        { name: 'Issue Stock / Load', perms: ['View', 'Edit'] },
+        { name: 'RSO Sale', perms: ['View', 'Edit'] },
+        { name: 'RSO Return', perms: ['View', 'Edit'] },
+        { name: 'Recovery', perms: ['View', 'Edit'] },
+        { name: 'Cash Deposit', perms: ['View', 'Edit'] },
+        { name: 'RSO Reports', perms: ['View'] }
+    ],
     'UTILITY': [
         { name: 'Add/Edit Users', perms: ['Add', 'Edit', 'Delete'] },
         { name: 'User Rights', perms: ['View'] },
@@ -224,6 +233,13 @@ const PAGE_RIGHTS_MAP = {
     'page-graph-ie': ['REPORTS', 'Income & Expense Graph'],
     'page-items': ['DATA ENTRY', 'Add/Edit Items'],
     'page-accounts': ['VOUCHERS', 'Add/Edit Accounts'],
+    'page-rso-customers': ['RSO / SALESMAN', 'RSO Customers'],
+    'page-rso-load': ['RSO / SALESMAN', 'Issue Stock / Load'],
+    'page-rso-sale': ['RSO / SALESMAN', 'RSO Sale'],
+    'page-rso-return': ['RSO / SALESMAN', 'RSO Return'],
+    'page-rso-recovery': ['RSO / SALESMAN', 'Recovery'],
+    'page-rso-deposit': ['RSO / SALESMAN', 'Cash Deposit'],
+    'page-rso-reports': ['RSO / SALESMAN', 'RSO Reports'],
     'page-rights': ['UTILITY', 'User Rights'],
     'page-backup': ['UTILITY', 'Backup'],
     'page-change-password': ['UTILITY', 'Change Password'],

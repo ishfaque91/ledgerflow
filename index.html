@@ -251,6 +251,25 @@
                 </div>
             </div>
 
+            <div class="nav-group" data-rso-shared>
+                <button class="nav-group-header" onclick="toggleGroup(this)">
+                    <span class="nav-group-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    </span>
+                    <span>RSO / Salesman</span>
+                    <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+                <div class="nav-group-body">
+                    <a href="#" class="nav-link" data-page="page-rso-customers" onclick="navigateTo('page-rso-customers',this);">Customers</a>
+                    <a href="#" class="nav-link" data-page="page-rso-load" onclick="navigateTo('page-rso-load',this);">Issue Stock / Load</a>
+                    <a href="#" class="nav-link" data-page="page-rso-sale" onclick="navigateTo('page-rso-sale',this);">RSO Sale</a>
+                    <a href="#" class="nav-link" data-page="page-rso-return" onclick="navigateTo('page-rso-return',this);">RSO Return</a>
+                    <a href="#" class="nav-link" data-page="page-rso-recovery" onclick="navigateTo('page-rso-recovery',this);">Recovery</a>
+                    <a href="#" class="nav-link" data-page="page-rso-deposit" onclick="navigateTo('page-rso-deposit',this);">Cash Deposit</a>
+                    <a href="#" class="nav-link" data-page="page-rso-reports" onclick="navigateTo('page-rso-reports',this);">RSO Reports</a>
+                </div>
+            </div>
+
             <div class="nav-group">
                 <button class="nav-group-header" onclick="toggleGroup(this)">
                     <span class="nav-group-icon">
@@ -316,6 +335,17 @@
                     </span>
                     <span class="dash-tab-meta">
                         <span class="dash-tab-count">14</span>
+                        <svg class="dash-tab-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                    </span>
+                </a>
+                <a href="#" class="dash-tab" data-hub="page-hub-rso" data-accent="amber" data-rso-shared onclick="navigateTo('page-hub-rso')">
+                    <span class="dash-tab-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+                    <span class="dash-tab-text">
+                        <span class="dash-tab-name">RSO / Salesman</span>
+                        <span class="dash-tab-desc">Customers, sales, stock, recoveries & reports</span>
+                    </span>
+                    <span class="dash-tab-meta">
+                        <span class="dash-tab-count">7</span>
                         <svg class="dash-tab-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
                     </span>
                 </a>
@@ -399,6 +429,29 @@
                         <a href="#" data-page="page-profit-loss" onclick="navigateTo('page-profit-loss',this); openReportFilterModal('page-profit-loss');"><span class="hub-opt-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></span><span class="hub-opt-label">Profit &amp; Loss</span><svg class="hub-opt-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></a>
                         <a href="#" data-page="page-graph-pl" onclick="navigateTo('page-graph-pl',this); initProfitLossGraphPage();"><span class="hub-opt-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span><span class="hub-opt-label">Profit &amp; Loss Graph</span><svg class="hub-opt-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></a>
                         <a href="#" data-page="page-graph-ie" onclick="navigateTo('page-graph-ie',this); initIncomeExpenseGraphPage();"><span class="hub-opt-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span><span class="hub-opt-label">Income &amp; Expense Graph</span><svg class="hub-opt-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></a>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ HUB: RSO ============ -->
+        <section id="page-hub-rso" class="page" data-accent="amber">
+            <div class="page-head">
+                <div>
+                    <h1>RSO / Salesman</h1>
+                    <p class="page-sub">Manage RSO customers, sales, stock, recoveries, and reports.</p>
+                </div>
+                <button class="btn btn-ghost" onclick="navigateTo('page-dashboard')">Back to Dashboard</button>
+            </div>
+            <div id="rso-dash-stats" class="rso-stat-grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:1.2rem;"></div>
+            <div class="card dash-directory-card dash-hub-card">
+                <div class="dash-directory-list">
+                    <a href="#" data-page="page-rso-customers" onclick="navigateTo('page-rso-customers',this)"><span class="hub-opt-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span><span class="hub-opt-label">Customers</span><svg class="hub-opt-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></a>
+                    <a href="#" data-page="page-rso-load" onclick="navigateTo('page-rso-load',this)"><span class="hub-opt-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v7a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 15Z"/></svg></span><span class="hub-opt-label">Issue Stock / Load</span><svg class="hub-opt-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></a>
+                    <a href="#" data-page="page-rso-sale" onclick="navigateTo('page-rso-sale',this)"><span class="hub-opt-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg></span><span class="hub-opt-label">RSO Sale</span><svg class="hub-opt-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></a>
+                    <a href="#" data-page="page-rso-return" onclick="navigateTo('page-rso-return',this)"><span class="hub-opt-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/><path d="M11 10l-2 2 2 2"/></svg></span><span class="hub-opt-label">RSO Return</span><svg class="hub-opt-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></a>
+                    <a href="#" data-page="page-rso-recovery" onclick="navigateTo('page-rso-recovery',this)"><span class="hub-opt-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span><span class="hub-opt-label">Recovery</span><svg class="hub-opt-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></a>
+                    <a href="#" data-page="page-rso-deposit" onclick="navigateTo('page-rso-deposit',this)"><span class="hub-opt-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg></span><span class="hub-opt-label">Cash Deposit</span><svg class="hub-opt-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></a>
+                    <a href="#" data-page="page-rso-reports" onclick="navigateTo('page-rso-reports',this)"><span class="hub-opt-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></span><span class="hub-opt-label">RSO Reports</span><svg class="hub-opt-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></a>
                 </div>
             </div>
         </section>
@@ -774,6 +827,17 @@
                                 <option value="Active">Active</option>
                                 <option value="Inactive">Inactive</option>
                             </select>
+                        </div>
+                    </div>
+
+                    <div class="field-grid">
+                        <div class="field" id="user-role-field">
+                            <label for="user-role">Role</label>
+                            <select id="user-role">
+                                <option value="staff">Staff</option>
+                                <option value="rso">RSO / Salesman</option>
+                            </select>
+                            <span class="hint">RSO users only see their own customers, sales, and stock.</span>
                         </div>
                     </div>
 
@@ -2115,6 +2179,388 @@
             </div>
         </section>
 
+        <!-- ============ RSO: CUSTOMERS ============ -->
+        <section id="page-rso-customers" class="page">
+            <div class="page-head">
+                <div><h1>RSO Customers</h1><p class="page-sub">Shops and markets assigned to RSOs.</p></div>
+                <button class="btn btn-primary" onclick="openRsoCustomerForm()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    New Customer
+                </button>
+            </div>
+            <div class="toolbar-row">
+                <div class="search-field">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input type="text" id="rso-customer-search" placeholder="Search by name, shop, area…" oninput="renderRsoCustomerList(this.value)">
+                </div>
+                <span class="count-pill" id="rso-customer-count">0 customers</span>
+            </div>
+            <div class="card table-card"><div class="table-scroll">
+                <table class="data-table"><thead><tr><th>Customer / Shop</th><th>Mobile</th><th>Area</th><th class="num">Credit Limit</th><th class="num">Balance</th><th class="rso-admin-col">RSO</th><th></th></tr></thead>
+                <tbody id="rso-customer-table-body"></tbody></table>
+            </div></div>
+        </section>
+
+        <!-- RSO Customer Form Modal -->
+        <div class="modal-backdrop hidden" id="rso-customer-modal">
+            <div class="modal modal-lg">
+                <div class="modal-head">
+                    <h2 id="rso-customer-modal-title">New Customer</h2>
+                    <button class="icon-btn" onclick="closeRsoCustomerForm()" title="Close"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+                </div>
+                <form id="rso-customer-form" class="modal-body" onsubmit="return false;">
+                    <input type="hidden" id="rso-cust-id">
+                    <div class="field" id="rso-cust-rso-field">
+                        <label for="rso-cust-rso-user">Assigned RSO <span class="req">*</span></label>
+                        <select id="rso-cust-rso-user"></select>
+                    </div>
+                    <div class="field-grid">
+                        <div class="field"><label for="rso-cust-name">Customer Name <span class="req">*</span></label><input type="text" id="rso-cust-name" placeholder="e.g. Ali Khan" required></div>
+                        <div class="field"><label for="rso-cust-shop">Shop Name</label><input type="text" id="rso-cust-shop" placeholder="e.g. Ali General Store"></div>
+                    </div>
+                    <div class="field-grid">
+                        <div class="field"><label for="rso-cust-mobile">Mobile</label><div class="phone-control"><span class="phone-prefix">+92</span><input type="tel" id="rso-cust-mobile" placeholder="333 2392852" maxlength="11" oninput="formatPhoneInput(this)"></div></div>
+                        <div class="field"><label for="rso-cust-area">Area / Route</label><input type="text" id="rso-cust-area" placeholder="e.g. Nazimabad Block 3"></div>
+                    </div>
+                    <div class="field"><label for="rso-cust-address">Address</label><textarea id="rso-cust-address" rows="2" placeholder="Shop address"></textarea></div>
+                    <div class="field-grid">
+                        <div class="field"><label for="rso-cust-credit-limit">Credit Limit</label><div class="amount-control"><span class="amount-prefix">Rs.</span><input type="text" id="rso-cust-credit-limit" inputmode="decimal" placeholder="0" oninput="formatAmountInput(this)"></div></div>
+                        <div class="field"><label for="rso-cust-opening">Opening Balance</label><div class="amount-control"><span class="amount-prefix">Rs.</span><input type="text" id="rso-cust-opening" inputmode="decimal" placeholder="0" oninput="formatAmountInput(this)"></div></div>
+                    </div>
+                </form>
+                <div class="modal-foot">
+                    <button class="btn btn-ghost" onclick="closeRsoCustomerForm()">Cancel</button>
+                    <button class="btn btn-primary" id="rso-customer-save-btn" onclick="saveRsoCustomer()"><span class="btn-label">Save Customer</span><span class="btn-spinner hidden"></span></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ RSO: LOAD (Issue Stock) ============ -->
+        <section id="page-rso-load" class="page">
+            <div class="page-head">
+                <div><h1>Issue Stock to RSO</h1><p class="page-sub">Admin issues inventory loads to RSOs for field distribution.</p></div>
+                <button class="btn btn-primary" onclick="openRsoLoadForm()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    New Load
+                </button>
+            </div>
+            <div class="toolbar-row">
+                <div class="search-field">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input type="text" id="rso-load-search" placeholder="Search…" oninput="renderRsoLoadList(this.value)">
+                </div>
+                <span class="count-pill" id="rso-load-count">0 loads</span>
+            </div>
+            <div class="card table-card"><div class="table-scroll">
+                <table class="data-table"><thead><tr><th>Number</th><th>Date</th><th>RSO</th><th>Items</th><th class="num">Total</th><th></th></tr></thead>
+                <tbody id="rso-load-table-body"></tbody></table>
+            </div></div>
+        </section>
+
+        <!-- RSO Load Form Modal -->
+        <div class="modal-backdrop hidden" id="rso-load-modal">
+            <div class="modal modal-lg">
+                <div class="modal-head">
+                    <h2 id="rso-load-modal-title">Issue Stock to RSO</h2>
+                    <button class="icon-btn" onclick="closeRsoLoadForm()" title="Close"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+                </div>
+                <form id="rso-load-form" class="modal-body" onsubmit="return false;">
+                    <input type="hidden" id="rso-load-id">
+                    <div class="field-grid">
+                        <div class="field"><label>Number</label><input type="text" id="rso-load-number" readonly></div>
+                        <div class="field"><label>Date <span class="req">*</span></label><input type="date" id="rso-load-date" required></div>
+                    </div>
+                    <div class="field"><label for="rso-load-rso-user">RSO <span class="req">*</span></label><select id="rso-load-rso-user"></select></div>
+                    <div class="field"><label>Items</label>
+                        <div class="item-row-header"><span>Item</span><span>Qty</span><span>Rate</span><span>Amount</span></div>
+                        <div id="rso-load-item-rows"></div>
+                    </div>
+                    <div class="totals-bar"><span>Grand Total:</span> <strong id="rso-load-grand-total">Rs. 0</strong></div>
+                </form>
+                <div class="modal-foot">
+                    <button class="btn btn-ghost" onclick="closeRsoLoadForm()">Cancel</button>
+                    <button class="btn btn-primary" id="rso-load-save-btn" onclick="saveRsoLoad()"><span class="btn-label">Save Load</span><span class="btn-spinner hidden"></span></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ RSO: SALE ============ -->
+        <section id="page-rso-sale" class="page">
+            <div class="page-head">
+                <div><h1>RSO Sales</h1><p class="page-sub">Sales made by RSOs to their assigned customers.</p></div>
+                <button class="btn btn-primary" onclick="openRsoSaleForm()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    New Sale
+                </button>
+            </div>
+            <div class="toolbar-row">
+                <div class="search-field">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input type="text" id="rso-sale-search" placeholder="Search…" oninput="renderRsoSaleList(this.value)">
+                </div>
+                <span class="count-pill" id="rso-sale-count">0 sales</span>
+            </div>
+            <div class="card table-card"><div class="table-scroll">
+                <table class="data-table"><thead><tr><th>Number</th><th>Date</th><th>Customer</th><th>Items</th><th class="num">Total</th><th class="num">Paid</th><th></th></tr></thead>
+                <tbody id="rso-sale-table-body"></tbody></table>
+            </div></div>
+        </section>
+
+        <!-- RSO Sale Form Modal -->
+        <div class="modal-backdrop hidden" id="rso-sale-modal">
+            <div class="modal modal-lg">
+                <div class="modal-head">
+                    <h2 id="rso-sale-modal-title">New RSO Sale</h2>
+                    <button class="icon-btn" onclick="closeRsoSaleForm()" title="Close"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+                </div>
+                <form id="rso-sale-form" class="modal-body" onsubmit="return false;">
+                    <input type="hidden" id="rso-sale-id">
+                    <div class="field-grid">
+                        <div class="field"><label>Number</label><input type="text" id="rso-sale-number" readonly></div>
+                        <div class="field"><label>Date <span class="req">*</span></label><input type="date" id="rso-sale-date" required></div>
+                    </div>
+                    <div class="field" id="rso-sale-rso-field">
+                        <label for="rso-sale-rso-user">RSO <span class="req">*</span></label>
+                        <select id="rso-sale-rso-user" onchange="onRsoSaleRsoChange()"></select>
+                    </div>
+                    <div class="field"><label for="rso-sale-customer">Customer <span class="req">*</span></label><select id="rso-sale-customer"></select></div>
+                    <div class="field"><label>Items <small>(available stock in parentheses)</small></label>
+                        <div class="item-row-header"><span>Item</span><span>Qty</span><span>Rate</span><span>Amount</span></div>
+                        <div id="rso-sale-item-rows"></div>
+                    </div>
+                    <div class="field-grid">
+                        <div class="field"><label>Cash Received</label><div class="amount-control"><span class="amount-prefix">Rs.</span><input type="text" id="rso-sale-paid" inputmode="decimal" placeholder="0" oninput="formatAmountInput(this); recalcRsoSaleTotal()"></div></div>
+                        <div class="field"><label>Balance</label><div class="amount-control"><span class="amount-prefix" id="rso-sale-balance">Rs. 0</span></div></div>
+                    </div>
+                    <div class="totals-bar"><span>Grand Total:</span> <strong id="rso-sale-grand-total">Rs. 0</strong></div>
+                </form>
+                <div class="modal-foot">
+                    <button class="btn btn-ghost" onclick="closeRsoSaleForm()">Cancel</button>
+                    <button class="btn btn-primary" id="rso-sale-save-btn" onclick="saveRsoSale()"><span class="btn-label">Save Sale</span><span class="btn-spinner hidden"></span></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ RSO: RETURN ============ -->
+        <section id="page-rso-return" class="page">
+            <div class="page-head">
+                <div><h1>RSO Returns</h1><p class="page-sub">Sales returns from RSO customers.</p></div>
+                <button class="btn btn-primary" onclick="openRsoReturnForm()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    New Return
+                </button>
+            </div>
+            <div class="toolbar-row">
+                <div class="search-field">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input type="text" id="rso-return-search" placeholder="Search…" oninput="renderRsoReturnList(this.value)">
+                </div>
+                <span class="count-pill" id="rso-return-count">0 returns</span>
+            </div>
+            <div class="card table-card"><div class="table-scroll">
+                <table class="data-table"><thead><tr><th>Number</th><th>Date</th><th>Customer</th><th>Items</th><th class="num">Total</th><th></th></tr></thead>
+                <tbody id="rso-return-table-body"></tbody></table>
+            </div></div>
+        </section>
+
+        <!-- RSO Return Form Modal -->
+        <div class="modal-backdrop hidden" id="rso-return-modal">
+            <div class="modal modal-lg">
+                <div class="modal-head">
+                    <h2 id="rso-return-modal-title">New RSO Return</h2>
+                    <button class="icon-btn" onclick="closeRsoReturnForm()" title="Close"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+                </div>
+                <form id="rso-return-form" class="modal-body" onsubmit="return false;">
+                    <input type="hidden" id="rso-return-id">
+                    <div class="field-grid">
+                        <div class="field"><label>Number</label><input type="text" id="rso-return-number" readonly></div>
+                        <div class="field"><label>Date <span class="req">*</span></label><input type="date" id="rso-return-date" required></div>
+                    </div>
+                    <div class="field" id="rso-return-rso-field">
+                        <label for="rso-return-rso-user">RSO <span class="req">*</span></label>
+                        <select id="rso-return-rso-user" onchange="onRsoReturnRsoChange()"></select>
+                    </div>
+                    <div class="field"><label for="rso-return-customer">Customer <span class="req">*</span></label><select id="rso-return-customer"></select></div>
+                    <div class="field"><label>Items</label>
+                        <div class="item-row-header"><span>Item</span><span>Qty</span><span>Rate</span><span>Amount</span></div>
+                        <div id="rso-return-item-rows"></div>
+                    </div>
+                    <div class="totals-bar"><span>Grand Total:</span> <strong id="rso-return-grand-total">Rs. 0</strong></div>
+                </form>
+                <div class="modal-foot">
+                    <button class="btn btn-ghost" onclick="closeRsoReturnForm()">Cancel</button>
+                    <button class="btn btn-primary" id="rso-return-save-btn" onclick="saveRsoReturn()"><span class="btn-label">Save Return</span><span class="btn-spinner hidden"></span></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ RSO: RECOVERY ============ -->
+        <section id="page-rso-recovery" class="page">
+            <div class="page-head">
+                <div><h1>RSO Recoveries</h1><p class="page-sub">Payment collections from RSO customers.</p></div>
+                <button class="btn btn-primary" onclick="openRsoRecoveryForm()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    New Recovery
+                </button>
+            </div>
+            <div class="toolbar-row">
+                <div class="search-field">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input type="text" id="rso-recovery-search" placeholder="Search…" oninput="renderRsoRecoveryList(this.value)">
+                </div>
+                <span class="count-pill" id="rso-recovery-count">0 recoveries</span>
+            </div>
+            <div class="card table-card"><div class="table-scroll">
+                <table class="data-table"><thead><tr><th>Date</th><th>Customer</th><th class="num">Amount</th><th>Mode</th><th>Note</th><th></th></tr></thead>
+                <tbody id="rso-recovery-table-body"></tbody></table>
+            </div></div>
+        </section>
+
+        <!-- RSO Recovery Form Modal -->
+        <div class="modal-backdrop hidden" id="rso-recovery-modal">
+            <div class="modal">
+                <div class="modal-head">
+                    <h2 id="rso-recovery-modal-title">New Recovery</h2>
+                    <button class="icon-btn" onclick="closeRsoRecoveryForm()" title="Close"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+                </div>
+                <form id="rso-recovery-form" class="modal-body" onsubmit="return false;">
+                    <input type="hidden" id="rso-recv-id">
+                    <div class="field"><label>Date <span class="req">*</span></label><input type="date" id="rso-recv-date" required></div>
+                    <div class="field" id="rso-recv-rso-field">
+                        <label for="rso-recv-rso-user">RSO <span class="req">*</span></label>
+                        <select id="rso-recv-rso-user" onchange="onRsoRecoveryRsoChange()"></select>
+                    </div>
+                    <div class="field">
+                        <label for="rso-recv-customer">Customer <span class="req">*</span></label>
+                        <select id="rso-recv-customer" onchange="onRsoRecoveryCustomerChange()"></select>
+                        <span class="hint" id="rso-recv-cust-balance"></span>
+                    </div>
+                    <div class="field-grid">
+                        <div class="field"><label>Amount <span class="req">*</span></label><div class="amount-control"><span class="amount-prefix">Rs.</span><input type="text" id="rso-recv-amount" inputmode="decimal" placeholder="0" oninput="formatAmountInput(this)"></div></div>
+                        <div class="field"><label>Mode</label><select id="rso-recv-mode"><option>Cash</option><option>Cheque</option><option>Online</option></select></div>
+                    </div>
+                    <div class="field"><label>Note</label><input type="text" id="rso-recv-note" placeholder="Optional reference"></div>
+                </form>
+                <div class="modal-foot">
+                    <button class="btn btn-ghost" onclick="closeRsoRecoveryForm()">Cancel</button>
+                    <button class="btn btn-primary" id="rso-recovery-save-btn" onclick="saveRsoRecovery()"><span class="btn-label">Save Recovery</span><span class="btn-spinner hidden"></span></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ RSO: DEPOSIT ============ -->
+        <section id="page-rso-deposit" class="page">
+            <div class="page-head">
+                <div><h1>RSO Cash Deposits</h1><p class="page-sub">Cash deposited by RSOs to the company.</p></div>
+                <button class="btn btn-primary" onclick="openRsoDepositForm()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    New Deposit
+                </button>
+            </div>
+            <div class="toolbar-row">
+                <div class="search-field">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input type="text" id="rso-deposit-search" placeholder="Search…" oninput="renderRsoDepositList(this.value)">
+                </div>
+                <span class="count-pill" id="rso-deposit-count">0 deposits</span>
+            </div>
+            <div class="card table-card"><div class="table-scroll">
+                <table class="data-table"><thead><tr><th>Date</th><th>RSO</th><th>Bank/Cash</th><th class="num">Amount</th><th>Note</th><th></th></tr></thead>
+                <tbody id="rso-deposit-table-body"></tbody></table>
+            </div></div>
+        </section>
+
+        <!-- RSO Deposit Form Modal -->
+        <div class="modal-backdrop hidden" id="rso-deposit-modal">
+            <div class="modal">
+                <div class="modal-head">
+                    <h2 id="rso-deposit-modal-title">New Deposit</h2>
+                    <button class="icon-btn" onclick="closeRsoDepositForm()" title="Close"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+                </div>
+                <form id="rso-deposit-form" class="modal-body" onsubmit="return false;">
+                    <input type="hidden" id="rso-dep-id">
+                    <div class="field"><label>Date <span class="req">*</span></label><input type="date" id="rso-dep-date" required></div>
+                    <div class="field" id="rso-dep-rso-field">
+                        <label for="rso-dep-rso-user">RSO <span class="req">*</span></label>
+                        <select id="rso-dep-rso-user"></select>
+                    </div>
+                    <div class="field"><label for="rso-dep-bank">Deposit To (Bank/Cash) <span class="req">*</span></label><select id="rso-dep-bank"></select></div>
+                    <div class="field"><label>Amount <span class="req">*</span></label><div class="amount-control"><span class="amount-prefix">Rs.</span><input type="text" id="rso-dep-amount" inputmode="decimal" placeholder="0" oninput="formatAmountInput(this)"></div></div>
+                    <div class="field"><label>Note</label><input type="text" id="rso-dep-note" placeholder="Optional reference"></div>
+                </form>
+                <div class="modal-foot">
+                    <button class="btn btn-ghost" onclick="closeRsoDepositForm()">Cancel</button>
+                    <button class="btn btn-primary" id="rso-deposit-save-btn" onclick="saveRsoDeposit()"><span class="btn-label">Save Deposit</span><span class="btn-spinner hidden"></span></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ RSO: REPORTS ============ -->
+        <section id="page-rso-reports" class="page">
+            <div class="page-head">
+                <div><h1>RSO Reports</h1><p class="page-sub">Customer ledgers, outstanding, stock, sales, and recovery reports.</p></div>
+            </div>
+
+            <div class="card statement-section">
+                <h3>Customer Ledger</h3>
+                <div class="field-grid" style="margin-bottom:1rem">
+                    <div class="field"><label>Customer</label><select id="rso-rpt-cust-ledger-customer" onchange="renderRsoCustomerLedger()"></select></div>
+                </div>
+                <div id="rso-rpt-cust-ledger-body"><p class="hint">Select a customer to view their ledger.</p></div>
+            </div>
+
+            <div class="card statement-section">
+                <h3>Customer Outstanding</h3>
+                <button class="btn btn-ghost" onclick="renderRsoCustomerOutstanding()" style="margin-bottom:0.8rem">Refresh</button>
+                <div id="rso-rpt-outstanding-body"></div>
+            </div>
+
+            <div class="card statement-section">
+                <h3>RSO Stock Report</h3>
+                <div class="field" id="rso-rpt-stock-rso-field" style="margin-bottom:1rem">
+                    <label>RSO</label><select id="rso-rpt-stock-rso" onchange="renderRsoStockReport()"></select>
+                </div>
+                <div id="rso-rpt-stock-body"><p class="hint">Select an RSO to view stock.</p></div>
+            </div>
+
+            <div class="card statement-section">
+                <h3>RSO Sales Report</h3>
+                <div class="field-grid" style="margin-bottom:1rem">
+                    <div class="field" id="rso-rpt-sales-rso-field"><label>RSO</label><select id="rso-rpt-sales-rso" onchange="renderRsoSalesReport()"></select></div>
+                    <div class="field"><label>From</label><input type="date" id="rso-rpt-sales-from" onchange="renderRsoSalesReport()"></div>
+                    <div class="field"><label>To</label><input type="date" id="rso-rpt-sales-to" onchange="renderRsoSalesReport()"></div>
+                </div>
+                <div id="rso-rpt-sales-body"></div>
+            </div>
+
+            <div class="card statement-section">
+                <h3>RSO Recovery Report</h3>
+                <div class="field-grid" style="margin-bottom:1rem">
+                    <div class="field" id="rso-rpt-recovery-rso-field"><label>RSO</label><select id="rso-rpt-recovery-rso" onchange="renderRsoRecoveryReport()"></select></div>
+                    <div class="field"><label>From</label><input type="date" id="rso-rpt-recovery-from" onchange="renderRsoRecoveryReport()"></div>
+                    <div class="field"><label>To</label><input type="date" id="rso-rpt-recovery-to" onchange="renderRsoRecoveryReport()"></div>
+                </div>
+                <div id="rso-rpt-recovery-body"></div>
+            </div>
+
+            <div class="card statement-section">
+                <h3>RSO Ledger</h3>
+                <div class="field" id="rso-rpt-rso-ledger-rso-field" style="margin-bottom:1rem">
+                    <label>RSO</label><select id="rso-rpt-rso-ledger-rso" onchange="renderRsoLedgerReport()"></select>
+                </div>
+                <div id="rso-rpt-rso-ledger-body"><p class="hint">Select an RSO to view their ledger.</p></div>
+            </div>
+
+            <div class="card statement-section">
+                <h3>Daily Sales Summary</h3>
+                <div class="field-grid" style="margin-bottom:1rem">
+                    <div class="field"><label>Date</label><input type="date" id="rso-rpt-daily-date" onchange="renderRsoDailySalesReport()"></div>
+                    <div class="field" id="rso-rpt-daily-rso-field"><label>RSO</label><select id="rso-rpt-daily-rso" onchange="renderRsoDailySalesReport()"><option value="">All RSOs</option></select></div>
+                </div>
+                <div id="rso-rpt-daily-body"></div>
+            </div>
+        </section>
+
         <!-- ============ SETTINGS ============ -->
         <section id="page-settings" class="page">
             <div class="page-head">
@@ -2248,6 +2694,7 @@
 <script src="js/items.js"></script>
 <script src="js/users.js"></script>
 <script src="js/rights.js"></script>
+<script src="js/rso.js"></script>
 <script src="js/dataentry.js"></script>
 <script src="js/vouchers.js"></script>
 <script src="js/reports.js"></script>

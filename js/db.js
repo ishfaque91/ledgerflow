@@ -27,7 +27,13 @@ const LF_KEYS = {
     LOAD_LEDGER: 'loadLedger',
     ITEM_LEDGER: 'itemLedger',
     VOUCHERS: 'vouchers',
-    EDIT_LOG: 'editLog'
+    EDIT_LOG: 'editLog',
+    RSO_CUSTOMERS: 'rsoCustomers',
+    RSO_SALES: 'rsoSales',
+    RSO_RETURNS: 'rsoReturns',
+    RSO_RECOVERIES: 'rsoRecoveries',
+    RSO_LOADS: 'rsoLoads',
+    RSO_DEPOSITS: 'rsoDeposits'
 };
 
 let currentCompanyId = null;
