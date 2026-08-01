@@ -74,14 +74,11 @@ async function handleSignup() {
             createdAt: new Date().toISOString(), updatedAt: new Date().toISOString()
         });
 
-        await cred.user.sendEmailVerification();
-
-        showToast('Account created! Please check your email and verify it before logging in.', 'success', 6000);
+        showToast(`Welcome, ${companyName}! Your 30-day trial has started.`, 'success');
 
         signupInProgress = false;
         setBtnLoading(btn, false);
-        await fbAuth.signOut();
-        showLoginScreen();
+        await resolveCompanyAndShowApp(cred.user);
     } catch (err) {
         console.error('[Auth] Signup failed:', err.code || '(no code)', err);
 
@@ -116,43 +113,11 @@ async function handleLogin() {
 
     setBtnLoading(btn, true);
     try {
-        const cred = await fbAuth.signInWithEmailAndPassword(email, password);
-        if (!cred.user.emailVerified) {
-            lastUnverifiedUser = cred.user;
-            await fbAuth.signOut();
-            showToast('Your email is not verified. Check your inbox or click "Resend" below.', 'warning', 6000);
-            $('login-resend-row').classList.remove('hidden');
-            setBtnLoading(btn, false);
-            return;
-        }
-        $('login-resend-row').classList.add('hidden');
+        await fbAuth.signInWithEmailAndPassword(email, password);
     } catch (err) {
         console.error('[Auth] Login failed:', err);
         showToast(mapFirebaseError(err), 'error');
         setBtnLoading(btn, false);
-    }
-}
-
-let lastUnverifiedUser = null;
-async function resendVerificationEmail() {
-    if (lastUnverifiedUser) {
-        try {
-            await lastUnverifiedUser.sendEmailVerification();
-            showToast('Verification email sent! Check your inbox.', 'success');
-        } catch (e) {
-            const email = $('login-email').value.trim().toLowerCase();
-            const password = $('login-password').value;
-            try {
-                const cred = await fbAuth.signInWithEmailAndPassword(email, password);
-                await cred.user.sendEmailVerification();
-                await fbAuth.signOut();
-                showToast('Verification email sent! Check your inbox.', 'success');
-            } catch (e2) {
-                showToast('Could not resend. Please try logging in again.', 'error');
-            }
-        }
-    } else {
-        showToast('Please try logging in first.', 'warning');
     }
 }
 
@@ -546,10 +511,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (signupInProgress) return;
 
         if (user) {
-            if (!user.emailVerified) {
-                fbAuth.signOut();
-                return;
-            }
             resolveCompanyAndShowApp(user);
         } else {
             clearCurrentCompany();

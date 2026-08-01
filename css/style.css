@@ -594,6 +594,12 @@ button { font-family: inherit; }
 }
 .password-toggle:hover { background: var(--teal-tint); }
 
+.email-control { display: flex; align-items: center; gap: 8px; }
+.email-control input { flex: 1; }
+.email-tick { font-size: 1.2rem; min-width: 1.4rem; text-align: center; line-height: 1; }
+.email-tick.is-valid::after { content: '\2714'; color: #27ae60; }
+.email-tick.is-invalid::after { content: '\2718'; color: var(--coral); }
+
 /* ==================== OPENING BALANCE — signature control ==================== */
 .balance-field { background: var(--paper); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1rem; }
 .balance-control { display: flex; gap: 12px; align-items: stretch; }

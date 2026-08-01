@@ -136,7 +136,6 @@ async function createAuthAndUser(email, password, fullName, status, role) {
     try {
         const cred = await fbSecondaryAuth.createUserWithEmailAndPassword(email, password);
         uid = cred.user.uid;
-        await cred.user.sendEmailVerification();
         await fbSecondaryAuth.signOut();
     } catch (e) {
         if (e.code === 'auth/email-already-in-use') {
@@ -144,7 +143,6 @@ async function createAuthAndUser(email, password, fullName, status, role) {
             await deleteAuthUser({ email });
             const cred = await fbSecondaryAuth.createUserWithEmailAndPassword(email, password);
             uid = cred.user.uid;
-            await cred.user.sendEmailVerification();
             await fbSecondaryAuth.signOut();
         } else {
             throw e;

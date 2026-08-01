@@ -36,7 +36,15 @@ function showToast(message, type = 'info', duration = 3200) {
 
 // ==================== VALIDATION ====================
 function isValidEmail(email) {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    return /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/.test(email);
+}
+
+function validateEmailField(input) {
+    const tick = input.parentElement.querySelector('.email-tick');
+    if (!tick) return;
+    const val = input.value.trim();
+    if (!val) { tick.className = 'email-tick'; return; }
+    tick.className = 'email-tick ' + (isValidEmail(val) ? 'is-valid' : 'is-invalid');
 }
 
 // Pakistani mobile: 10 digits after +92, must start with 3 (e.g. 3332392852)
