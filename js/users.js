@@ -136,14 +136,17 @@ async function saveUser() {
             await fbSecondaryAuth.signOut();
 
             await fbDb.collection('users').doc(uid).set({ companyId: currentCompanyId, email, fullName, role: 'staff' });
-            await lfUpsert(LF_KEYS.USERS, { fullName, username: email, status, linkedAuthUid: uid, role: 'staff' });
+            const created = { fullName, username: email, status, linkedAuthUid: uid, role: 'staff' };
+            await lfUpsert(LF_KEYS.USERS, created);
 
             showToast('User created — they can log in with that email and password now.', 'success');
-            logActivity('Created', 'User', fullName);
+            logActivity('Created', 'User', fullName, { after: created, recordId: created.id });
         } else {
-            await lfUpsert(LF_KEYS.USERS, { id, fullName, username: email, status });
+            const before = { ...(lfFindById(LF_KEYS.USERS, id) || {}) };
+            const updated = { id, fullName, username: email, status };
+            await lfUpsert(LF_KEYS.USERS, updated);
             showToast('User updated.', 'success');
-            logActivity('Updated', 'User', fullName);
+            logActivity('Updated', 'User', fullName, { before, after: { ...before, ...updated }, recordId: id });
         }
 
         closeUserForm();
@@ -177,7 +180,7 @@ async function deleteUser(id) {
         }
         await lfDelete(LF_KEYS.USERS, id);
         showToast('User removed — their login access has been revoked.', 'success');
-        logActivity('Deleted', 'User', user.fullName);
+        logActivity('Deleted', 'User', user.fullName, { before: user, recordId: id });
     } catch (e) {
         console.error(e);
         showToast('Could not remove user — please try again.', 'error');

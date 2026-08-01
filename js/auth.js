@@ -164,7 +164,7 @@ async function resolveCompanyAndShowApp(user) {
         watchCollection(LF_KEYS.RIGHTS, () => { renderRightsTable(); applyNavRightsVisibility(); });
         watchCollection(LF_KEYS.INVOICES, () => Object.keys(INVOICE_CONFIG).forEach(t => renderInvoiceList(t)));
         watchCollection(LF_KEYS.VOUCHERS, () => ['BankReceipt', 'BankPayment', 'PettyCash', 'Journal'].forEach(t => renderVoucherList(t)));
-        watchCollection(LF_KEYS.EDIT_LOG, () => renderEditLog());
+        watchCollection(LF_KEYS.EDIT_LOG, () => renderEditHistory());
 
         // These three were previously never watched at all — meaning every
         // screen that reads them (Account Ledger, Cash Book, Trial Balance,
@@ -288,6 +288,100 @@ function updateDemoTag(status) {
 
 function showRenewContact() {
     showToast(`To activate your subscription, contact ${VENDOR_CONTACT.name}: ${VENDOR_CONTACT.phone} / ${VENDOR_CONTACT.email}`, 'info', 8000);
+}
+
+// ==================== ACCOUNT RENEWAL PAGE ====================
+// Plan pricing lives here so it's changed in one place. Bank details on
+// the page itself are deliberate placeholders until the real account is
+// supplied.
+const RENEW_PLANS = {
+    monthly:    { label: 'Monthly plan',     days: 30,  amount: 2000 },
+    halfyearly: { label: 'Half-yearly plan', days: 180, amount: 11000 },
+    yearly:     { label: 'Yearly plan',      days: 365, amount: 20000 }
+};
+
+function initRenewPage() {
+    renderRenewStatus();
+    onRenewPlanChange();
+    const line = $('renew-contact-line');
+    if (line) {
+        line.textContent = `Or reach ${VENDOR_CONTACT.name} directly on ${VENDOR_CONTACT.phone}`;
+    }
+}
+
+// Mirrors the Settings status card, so someone who lands here from the
+// trial banner still sees exactly where they stand before paying.
+function renderRenewStatus() {
+    const valueEl = $('renew-status-value');
+    if (!valueEl) return;
+
+    const status = evaluateCompanyStatus();
+    const company = getCompanyDoc();
+    const daysLabel = $('renew-days-label');
+    const daysValue = $('renew-days-value');
+    const card = $('renew-status-card');
+    card?.classList.remove('is-urgent', 'is-expired');
+
+    if (company.status === 'suspended') {
+        valueEl.textContent = 'Suspended';
+        daysLabel.textContent = 'Time remaining';
+        daysValue.textContent = '—';
+        card?.classList.add('is-expired');
+        return;
+    }
+
+    if (!status.ok) {
+        valueEl.textContent = status.reason === 'subscriptionExpired' ? 'Subscription expired' : 'Trial expired';
+        daysLabel.textContent = 'Time remaining';
+        daysValue.textContent = 'Expired';
+        card?.classList.add('is-expired');
+        return;
+    }
+
+    if (status.daysLeft === undefined) {
+        valueEl.textContent = company.status === 'active' ? 'Active' : 'Unknown';
+        daysLabel.textContent = 'Time remaining';
+        daysValue.textContent = '—';
+        return;
+    }
+
+    const daysLeft = Math.max(status.daysLeft, 0);
+    valueEl.textContent = status.isPaid ? 'Active (paid)' : 'Demo / trial';
+    daysLabel.textContent = 'Time remaining';
+    daysValue.textContent = `${daysLeft} day${daysLeft === 1 ? '' : 's'}`;
+    if (daysLeft <= 5) card?.classList.add('is-urgent');
+}
+
+function onRenewPlanChange() {
+    const selected = document.querySelector('input[name="renew-plan"]:checked');
+    const plan = RENEW_PLANS[selected?.value] || RENEW_PLANS.yearly;
+
+    const amountEl = $('renew-amount');
+    if (amountEl) amountEl.textContent = formatCurrency(plan.amount);
+    const noteEl = $('renew-amount-note');
+    if (noteEl) noteEl.textContent = `${plan.label} · ${plan.days} days`;
+
+    // Reflect selection on the cards themselves — the native radio is
+    // visually hidden, so without this there'd be no indication of choice.
+    document.querySelectorAll('#renew-plan-list .plan-card').forEach(card => {
+        const input = card.querySelector('input[name="renew-plan"]');
+        card.classList.toggle('is-selected', !!input && input.checked);
+    });
+}
+
+function copyPayField(id) {
+    const el = $(id);
+    if (!el) return;
+    const text = el.textContent.trim();
+    // Placeholders aren't worth copying — say so rather than silently
+    // putting "[ Account number ]" on the clipboard.
+    if (text.startsWith('[')) {
+        showToast('Payment details will be added here shortly.', 'info');
+        return;
+    }
+    navigator.clipboard?.writeText(text)
+        .then(() => showToast('Copied.', 'success', 1500))
+        .catch(() => showToast('Could not copy — please select and copy manually.', 'warning'));
 }
 
 // Always-visible status readout on the Settings page — unlike the banner,

@@ -14,12 +14,15 @@ from PIL import Image, ImageDraw
 GARNET = (255, 90, 69)       # --garnet
 GARNET_DARK = (217, 63, 44)  # --garnet-dark
 
-# Shapes from the <symbol id="lf-logo-mark" viewBox="0 0 24 24"> in index.html
+# Shapes from the <symbol id="lf-logo-mark" viewBox="0 0 24 24"> in
+# index.html — three ascending rounded pillars. Deliberately carries no
+# letterform. The trailing value is the fill opacity, which gives the
+# ascent a sense of depth without needing a second colour.
 MARK_VIEWBOX = 24.0
 MARK_SHAPES = [
-    ("rect", 6, 4, 4.4, 13, 2.2),
-    ("rect", 6, 14.6, 9, 4.4, 2.2),
-    ("circle", 18.3, 5.7, 2.3),
+    ("rect", 4.6, 13.4, 3.9, 6.6, 1.95, 0.55),
+    ("rect", 10.05, 9.2, 3.9, 10.8, 1.95, 0.78),
+    ("rect", 15.5, 4.0, 3.9, 16.0, 1.95, 1.0),
 ]
 
 
@@ -48,18 +51,19 @@ def rounded_rect_mask(size, radius):
     return mask
 
 
-def draw_mark(draw, size, scale_frac, offset_y_frac=0.0):
-    """Draws the white ledger+flow mark centered in a `size`x`size` canvas,
-    scaled so the 24x24 viewbox occupies `scale_frac` of the canvas width."""
+def draw_mark(img, size, scale_frac, offset_y_frac=0.0):
+    """Draws the white ascending-pillars mark centered in a `size`x`size`
+    canvas, scaled so the 24x24 viewbox occupies `scale_frac` of the width.
+
+    Drawn onto a transparent overlay and alpha-composited, because the
+    pillars carry per-shape opacity and PIL can't blend that directly onto
+    an opaque background."""
     mark_px = size * scale_frac
     unit = mark_px / MARK_VIEWBOX
-    # Center the mark's own bounding box (roughly x:6-20.6, y:4-19), not the
-    # full 24x24 viewbox, so it looks visually centered rather than
-    # top-left-heavy.
-    bbox_x0, bbox_x1 = 6.0, 20.6
-    bbox_y0, bbox_y1 = 4.0, 19.0
-    bbox_cx = (bbox_x0 + bbox_x1) / 2
-    bbox_cy = (bbox_y0 + bbox_y1) / 2
+    # Center the mark's own bounding box (x:4.6-19.4, y:4-20), not the full
+    # 24x24 viewbox, so it sits optically centred.
+    bbox_cx = (4.6 + 19.4) / 2
+    bbox_cy = (4.0 + 20.0) / 2
     origin_x = size / 2 - bbox_cx * unit
     origin_y = size / 2 - bbox_cy * unit + size * offset_y_frac
 
@@ -69,28 +73,21 @@ def draw_mark(draw, size, scale_frac, offset_y_frac=0.0):
     def ty(y):
         return origin_y + y * unit
 
-    for shape in MARK_SHAPES:
-        if shape[0] == "rect":
-            _, x, y, w, h, r = shape
-            draw.rounded_rectangle(
-                [tx(x), ty(y), tx(x + w), ty(y + h)],
-                radius=r * unit,
-                fill=(255, 255, 255),
-            )
-        elif shape[0] == "circle":
-            _, cx, cy, r = shape
-            draw.ellipse(
-                [tx(cx - r), ty(cy - r), tx(cx + r), ty(cy + r)],
-                fill=(255, 255, 255),
-            )
+    for _, x, y, w, h, r, opacity in MARK_SHAPES:
+        layer = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+        ImageDraw.Draw(layer).rounded_rectangle(
+            [tx(x), ty(y), tx(x + w), ty(y + h)],
+            radius=r * unit,
+            fill=(255, 255, 255, round(255 * opacity)),
+        )
+        img.alpha_composite(layer)
 
 
 def make_icon(size, maskable=False):
     if maskable:
         # Full-bleed background, mark kept inside Android's ~66% safe zone.
-        img = diagonal_gradient(size, GARNET, GARNET_DARK)
-        draw = ImageDraw.Draw(img)
-        draw_mark(draw, size, scale_frac=0.5)
+        img = diagonal_gradient(size, GARNET, GARNET_DARK).convert("RGBA")
+        draw_mark(img, size, scale_frac=0.5)
         return img
 
     # "any" purpose: rounded-square badge, like the in-app brand mark.
@@ -99,8 +96,7 @@ def make_icon(size, maskable=False):
     mask = rounded_rect_mask(size, radius)
     icon = Image.new("RGBA", (size, size), (0, 0, 0, 0))
     icon.paste(bg, (0, 0), mask)
-    draw = ImageDraw.Draw(icon)
-    draw_mark(draw, size, scale_frac=0.6)
+    draw_mark(icon, size, scale_frac=0.6)
     return icon
 
 

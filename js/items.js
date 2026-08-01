@@ -112,10 +112,14 @@ async function saveItem() {
 
     setBtnLoading(saveBtn, true);
 
+    const before = id ? { ...(lfFindById(LF_KEYS.ITEMS, id) || {}) } : null;
+    const record = { id: id || undefined, name, category, unit, purchasePrice, salePrice, tax, hsn };
+
     try {
-        await lfUpsert(LF_KEYS.ITEMS, { id: id || undefined, name, category, unit, purchasePrice, salePrice, tax, hsn });
+        await lfUpsert(LF_KEYS.ITEMS, record);
         showToast(id ? 'Item updated.' : 'Item created.', 'success');
-        logActivity(id ? 'Updated' : 'Created', 'Item', name);
+        logActivity(id ? 'Updated' : 'Created', 'Item', name,
+                    { before, after: record, recordId: record.id || id });
         closeItemForm();
     } catch (e) {
         console.error(e);
@@ -142,6 +146,6 @@ function deleteItem(id) {
     if (!confirm(`Delete "${item.name}"? This cannot be undone.`)) return;
     lfDelete(LF_KEYS.ITEMS, id);
     showToast('Item deleted.', 'success');
-    logActivity('Deleted', 'Item', item.name);
+    logActivity('Deleted', 'Item', item.name, { before: item, recordId: id });
     renderItemList($('item-search')?.value || '');
 }

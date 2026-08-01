@@ -107,19 +107,134 @@ function getCurrentUserDisplayName() {
     return match ? match.fullName : (authUser.email || 'Unknown');
 }
 
-// ==================== ACTIVITY LOG ====================
+// ==================== EDIT HISTORY ====================
+// Every create/update/delete is recorded with a field-level before/after
+// diff, so "what actually changed on this voucher, and who changed it"
+// is answerable months later.
+
+// Bookkeeping fields nobody wants to see in a change list — they either
+// change on every single save, or they're internal plumbing.
+const HISTORY_IGNORED_FIELDS = new Set([
+    'id', 'createdAt', 'updatedAt', 'enteredBy', 'lastEditedBy', 'linkedAuthUid'
+]);
+
+// Raw record keys are developer names; these are what a person should read.
+const HISTORY_FIELD_LABELS = {
+    title: 'Title', name: 'Name', type: 'Type', mobile: 'Mobile', phone: 'Phone',
+    email: 'Email', city: 'City', gst: 'GST No.', ntn: 'NTN No.', address: 'Address',
+    openingAmount: 'Opening Balance', openingSide: 'Opening Dr/Cr',
+    category: 'Category', unit: 'Unit', purchasePrice: 'Purchase Price',
+    salePrice: 'Sale Price', tax: 'Tax', openingQty: 'Opening Qty',
+    fullName: 'Full Name', username: 'Email', status: 'Status', role: 'Role',
+    number: 'Number', date: 'Date', refNumber: 'Ref No.', refDate: 'Ref Date',
+    partyAccountId: 'Party', partyName: 'Party', debitTo: 'Debit To',
+    hasLoad: 'Includes Load', loadAmount: 'Load Amount', loadDiscount: 'Load Discount %',
+    loadQty: 'Load Qty', itemsTotal: 'Items Total', loadTotal: 'Load Total',
+    grandTotal: 'Grand Total', paymentMode: 'Payment Mode',
+    paymentAccountId: 'Payment Account', paymentAmount: 'Paid Amount',
+    balanceAmount: 'Balance', items: 'Item Lines', lines: 'Lines',
+    bankAccountId: 'Bank/Cash Account', bankName: 'Bank/Cash Account',
+    amount: 'Amount', chequeNo: 'Cheque No.', chequeDate: 'Cheque Date',
+    narration: 'Narration', cashAccountId: 'Cash Account',
+    cashAccountName: 'Cash Account', total: 'Total',
+    totalDr: 'Total Debit', totalCr: 'Total Credit'
+};
+
+const HISTORY_MONEY_FIELDS = new Set([
+    'openingAmount', 'purchasePrice', 'salePrice', 'loadAmount', 'itemsTotal',
+    'loadTotal', 'grandTotal', 'paymentAmount', 'balanceAmount', 'amount',
+    'total', 'totalDr', 'totalCr'
+]);
+
+function historyFieldLabel(key) {
+    if (HISTORY_FIELD_LABELS[key]) return HISTORY_FIELD_LABELS[key];
+    // Fall back to turning camelCase into words rather than showing a raw key
+    return key.replace(/([A-Z])/g, ' $1').replace(/^./, c => c.toUpperCase()).trim();
+}
+
+// Renders a stored value the way the person saw it in the form.
+function historyFormatValue(key, value) {
+    if (value === null || value === undefined || value === '') return '—';
+    if (typeof value === 'boolean') return value ? 'Yes' : 'No';
+    if (Array.isArray(value)) {
+        if (value.length === 0) return 'none';
+        return `${value.length} row${value.length === 1 ? '' : 's'}`;
+    }
+    if (typeof value === 'object') return JSON.stringify(value);
+    if (HISTORY_MONEY_FIELDS.has(key) && typeof value === 'number') {
+        return (typeof formatCurrency === 'function') ? formatCurrency(value) : String(value);
+    }
+    return String(value);
+}
+
+// Compares two versions of a record and returns only what actually moved.
+// Arrays (invoice item rows, voucher lines) are compared as a whole via
+// JSON — enough to say "these lines changed" without pretending to do a
+// meaningful row-by-row diff of free-form data.
+function diffRecords(before, after) {
+    const changes = [];
+    const a = before || {};
+    const b = after || {};
+    const keys = new Set([...Object.keys(a), ...Object.keys(b)]);
+
+    keys.forEach(key => {
+        if (HISTORY_IGNORED_FIELDS.has(key)) return;
+        const from = a[key];
+        const to = b[key];
+        if (to === undefined && from === undefined) return;
+
+        const same = (typeof from === 'object' || typeof to === 'object')
+            ? JSON.stringify(from ?? null) === JSON.stringify(to ?? null)
+            : String(from ?? '') === String(to ?? '');
+        if (same) return;
+
+        changes.push({
+            field: key,
+            label: historyFieldLabel(key),
+            from: historyFormatValue(key, from),
+            to: historyFormatValue(key, to)
+        });
+    });
+
+    return changes.sort((x, y) => x.label.localeCompare(y.label));
+}
+
 // Fire-and-forget on purpose — logging a failure should never block or
 // break the actual save/delete the person is trying to do.
-function logActivity(action, entityType, label) {
+//
+// opts: { before, after, recordId } — pass the record as it was and as it
+// now is, and the entry carries a full field-level diff.
+function logActivity(action, entityType, label, opts = {}) {
     try {
         const user = (typeof fbAuth !== 'undefined' && fbAuth.currentUser) ? fbAuth.currentUser : null;
-        lfUpsert(LF_KEYS.EDIT_LOG, {
+        const entry = {
             action, entityType, label: label || '',
             userEmail: user ? user.email : 'unknown',
+            userName: (typeof getCurrentUserDisplayName === 'function') ? getCurrentUserDisplayName() : '',
             timestamp: new Date().toISOString()
-        }).catch(err => console.error('[EditLog] Failed to log:', err));
+        };
+
+        if (opts.recordId) entry.recordId = opts.recordId;
+
+        if (action === 'Updated' && opts.before && opts.after) {
+            entry.changes = diffRecords(opts.before, opts.after);
+        } else if (action === 'Created' && opts.after) {
+            // A creation has no "before", so record the values it started
+            // with — that's what makes the trail auditable end to end.
+            entry.changes = diffRecords({}, opts.after);
+        } else if (action === 'Deleted' && opts.before) {
+            entry.changes = diffRecords(opts.before, {});
+        }
+
+        // Who originally created the record, carried onto every later entry
+        // so the history can show creator and editor side by side.
+        const src = opts.after || opts.before;
+        if (src && src.enteredBy) entry.createdBy = src.enteredBy;
+
+        lfUpsert(LF_KEYS.EDIT_LOG, entry)
+            .catch(err => console.error('[EditHistory] Failed to log:', err));
     } catch (err) {
-        console.error('[EditLog] Failed to log:', err);
+        console.error('[EditHistory] Failed to log:', err);
     }
 }
 

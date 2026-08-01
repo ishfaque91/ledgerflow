@@ -122,7 +122,7 @@ async function deleteVoucher(id) {
         await removeLedgerEntriesForInvoice(id);
         await lfDelete(LF_KEYS.VOUCHERS, id);
         showToast('Voucher deleted.', 'success');
-        logActivity('Deleted', v.type, v.number);
+        logActivity('Deleted', v.type, v.number, { before: v, recordId: id });
     } catch (e) {
         console.error('[Vouchers] Delete failed:', e);
         showToast('Could not delete — please try again.', 'error');
@@ -239,7 +239,10 @@ async function saveBankVoucher() {
             })
         ]);
 
-        await lfUpsert(LF_KEYS.VOUCHERS, {
+        // Snapshot the stored voucher before overwriting it, so the
+        // history can show exactly which fields moved.
+        const before = id ? { ...(lfFindById(LF_KEYS.VOUCHERS, id) || {}) } : null;
+        const record = {
             id: voucherId, type, number, date,
             bankAccountId, bankName: bankAcc ? bankAcc.title : '',
             partyAccountId, partyName: partyAcc ? partyAcc.title : '',
@@ -247,10 +250,12 @@ async function saveBankVoucher() {
             createdAt: id ? undefined : new Date().toISOString(),
             enteredBy: id ? undefined : getCurrentUserDisplayName(),
             lastEditedBy: getCurrentUserDisplayName()
-        });
+        };
+        await lfUpsert(LF_KEYS.VOUCHERS, record);
 
         showToast(`${config.title} ${id ? 'updated' : 'saved'} as ${number}.`, 'success');
-        logActivity(id ? 'Updated' : 'Created', config.title, number);
+        logActivity(id ? 'Updated' : 'Created', config.title, number,
+                    { before, after: { ...record, enteredBy: before?.enteredBy || record.enteredBy }, recordId: voucherId });
         closeBankVoucherForm();
     } catch (e) {
         console.error('[Vouchers] Save failed:', e);
@@ -398,17 +403,22 @@ async function savePettyCash() {
         }));
         await Promise.all(writes);
 
-        await lfUpsert(LF_KEYS.VOUCHERS, {
+        // Snapshot the stored voucher before overwriting it, so the
+        // history can show exactly which fields moved.
+        const before = id ? { ...(lfFindById(LF_KEYS.VOUCHERS, id) || {}) } : null;
+        const record = {
             id: voucherId, type: 'PettyCash', number, date,
             cashAccountId, cashAccountName: cashAcc ? cashAcc.title : '',
             lines, total,
             createdAt: id ? undefined : new Date().toISOString(),
             enteredBy: id ? undefined : getCurrentUserDisplayName(),
             lastEditedBy: getCurrentUserDisplayName()
-        });
+        };
+        await lfUpsert(LF_KEYS.VOUCHERS, record);
 
         showToast(`Petty Cash voucher ${id ? 'updated' : 'saved'} as ${number}.`, 'success');
-        logActivity(id ? 'Updated' : 'Created', 'Petty Cash', number);
+        logActivity(id ? 'Updated' : 'Created', 'Petty Cash', number,
+                    { before, after: { ...record, enteredBy: before?.enteredBy || record.enteredBy }, recordId: voucherId });
         closePettyCashForm();
     } catch (e) {
         console.error('[Vouchers] Save failed:', e);
@@ -569,16 +579,21 @@ async function saveJournal() {
             ref: number, side: line.side, amount: line.amount, note: `Journal ${number} — ${narration}`
         })));
 
-        await lfUpsert(LF_KEYS.VOUCHERS, {
+        // Snapshot the stored voucher before overwriting it, so the
+        // history can show exactly which fields moved.
+        const before = id ? { ...(lfFindById(LF_KEYS.VOUCHERS, id) || {}) } : null;
+        const record = {
             id: voucherId, type: 'Journal', number, date, narration,
             lines, totalDr, totalCr,
             createdAt: id ? undefined : new Date().toISOString(),
             enteredBy: id ? undefined : getCurrentUserDisplayName(),
             lastEditedBy: getCurrentUserDisplayName()
-        });
+        };
+        await lfUpsert(LF_KEYS.VOUCHERS, record);
 
         showToast(`Journal Voucher ${id ? 'updated' : 'saved'} as ${number}.`, 'success');
-        logActivity(id ? 'Updated' : 'Created', 'Journal Voucher', number);
+        logActivity(id ? 'Updated' : 'Created', 'Journal Voucher', number,
+                    { before, after: { ...record, enteredBy: before?.enteredBy || record.enteredBy }, recordId: voucherId });
         closeJournalForm();
     } catch (e) {
         console.error('[Vouchers] Save failed:', e);

@@ -195,10 +195,14 @@ async function saveAccount() {
         openingAmount, openingSide: currentBalanceSide
     };
 
+    // Snapshot before the write, so the history can show what changed.
+    const before = id ? { ...(lfFindById(LF_KEYS.ACCOUNTS, id) || {}) } : null;
+
     try {
         await lfUpsert(LF_KEYS.ACCOUNTS, record);
         showToast(id ? 'Account updated.' : 'Account created.', 'success');
-        logActivity(id ? 'Updated' : 'Created', 'Account', title);
+        logActivity(id ? 'Updated' : 'Created', 'Account', title,
+                    { before, after: record, recordId: record.id || id });
         closeAccountForm();
     } catch (e) {
         console.error(e);
@@ -229,7 +233,7 @@ async function deleteAccount(id) {
     try {
         await lfDelete(LF_KEYS.ACCOUNTS, id);
         showToast('Account deleted.', 'success');
-        logActivity('Deleted', 'Account', acc.title);
+        logActivity('Deleted', 'Account', acc.title, { before: acc, recordId: id });
     } catch (e) {
         console.error(e);
         showToast('Could not delete — please try again.', 'error');

@@ -102,7 +102,9 @@ const REPORT_DATE_FIELDS = {
     'page-trial-balance': { asOf: 'tb-as-of' },
     'page-balance-sheet': { asOf: 'bs-as-of' },
     'page-profit-on-sale': { from: 'pos-date-from', to: 'pos-date-to' },
-    'page-profit-loss': { from: 'pl-date-from', to: 'pl-date-to' }
+    'page-profit-loss': { from: 'pl-date-from', to: 'pl-date-to' },
+    'page-graph-pl': { from: 'gpl-date-from', to: 'gpl-date-to' },
+    'page-graph-ie': { from: 'gie-date-from', to: 'gie-date-to' }
 };
 
 function formatDateNice(dateStr) {
@@ -318,7 +320,9 @@ const REPORT_FILTER_CONFIG = {
     'page-trial-balance': { title: 'Trial Balance', fields: ['asOf'] },
     'page-balance-sheet': { title: 'Balance Sheet', fields: ['asOf'] },
     'page-profit-on-sale': { title: 'Profit on Sale', fields: ['dateRange'] },
-    'page-profit-loss': { title: 'Profit & Loss', fields: ['dateRange'] }
+    'page-profit-loss': { title: 'Profit & Loss', fields: ['dateRange'] },
+    'page-graph-pl': { title: 'Profit & Loss Graph', fields: ['dateRange'] },
+    'page-graph-ie': { title: 'Income & Expense Graph', fields: ['dateRange'] }
 };
 
 let currentReportFilterPageId = null;

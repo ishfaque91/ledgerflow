@@ -35,7 +35,9 @@ const RIGHTS_SCHEMA = {
         { name: 'Trial Balance', perms: ['View'] },
         { name: 'Balance Sheet', perms: ['View'] },
         { name: 'Profit on Sale', perms: ['View'] },
-        { name: 'Profit & Loss', perms: ['View'] }
+        { name: 'Profit & Loss', perms: ['View'] },
+        { name: 'Profit & Loss Graph', perms: ['View'] },
+        { name: 'Income & Expense Graph', perms: ['View'] }
     ],
     'MANAGEMENT': [
         { name: 'Add/Edit Items', perms: ['View', 'Edit'] },
@@ -44,7 +46,7 @@ const RIGHTS_SCHEMA = {
     'UTILITY': [
         { name: 'Add/Edit Users', perms: ['Add', 'Edit', 'Delete'] },
         { name: 'User Rights', perms: ['View'] },
-        { name: 'Edit Log', perms: ['View'] },
+        { name: 'Edit History', perms: ['View'] },
         { name: 'Backup', perms: ['View'] },
         { name: 'Change Password', perms: ['View'] },
         { name: 'Settings', perms: ['View'] }
@@ -208,7 +210,7 @@ const PAGE_RIGHTS_MAP = {
     'page-bank-payment': ['VOUCHERS', 'Bank Payment'],
     'page-petty-cash': ['VOUCHERS', 'Petty Cash'],
     'page-journal': ['VOUCHERS', 'Journal Voucher'],
-    'page-edit-log': ['UTILITY', 'Edit Log'],
+    'page-edit-log': ['UTILITY', 'Edit History'],
     'page-chart-of-accounts': ['REPORTS', 'Chart of Accounts'],
     'page-account-balances': ['REPORTS', 'Account Balances'],
     'page-account-ledger': ['REPORTS', 'Account Ledger'],
@@ -222,6 +224,8 @@ const PAGE_RIGHTS_MAP = {
     'page-balance-sheet': ['REPORTS', 'Balance Sheet'],
     'page-profit-on-sale': ['REPORTS', 'Profit on Sale'],
     'page-profit-loss': ['REPORTS', 'Profit & Loss'],
+    'page-graph-pl': ['REPORTS', 'Profit & Loss Graph'],
+    'page-graph-ie': ['REPORTS', 'Income & Expense Graph'],
     'page-items': ['MANAGEMENT', 'Add/Edit Items'],
     'page-rights': ['UTILITY', 'User Rights'],
     'page-backup': ['UTILITY', 'Backup'],

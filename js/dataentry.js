@@ -464,8 +464,13 @@ async function saveInvoice() {
 
         await Promise.all(writes);
 
+        // Snapshot the stored invoice before overwriting it. The ledger
+        // rewrite above doesn't touch the invoice document, so this is
+        // still the pre-edit version.
+        const before = id ? { ...(lfFindById(LF_KEYS.INVOICES, id) || {}) } : null;
+
         // ---- Save the invoice document itself ----
-        await lfUpsert(LF_KEYS.INVOICES, {
+        const record = {
             id: invoiceId, type: currentInvoiceType, number, date, refNumber, refDate,
             partyAccountId, partyName: party ? party.title : '', debitTo,
             hasLoad, loadAmount, loadDiscount, loadQty,
@@ -474,10 +479,15 @@ async function saveInvoice() {
             createdAt: id ? undefined : new Date().toISOString(),
             enteredBy: id ? undefined : getCurrentUserDisplayName(),
             lastEditedBy: getCurrentUserDisplayName()
-        });
+        };
+        await lfUpsert(LF_KEYS.INVOICES, record);
 
         showToast(`${config.title} ${id ? 'updated' : 'saved'} as ${number}.`, 'success');
-        logActivity(id ? 'Updated' : 'Created', config.title, number);
+        logActivity(id ? 'Updated' : 'Created', config.title, number, {
+            before,
+            after: { ...record, enteredBy: before?.enteredBy || record.enteredBy },
+            recordId: invoiceId
+        });
         closeInvoiceForm();
     } catch (e) {
         console.error('[DataEntry] Save failed:', e);
@@ -504,7 +514,7 @@ async function deleteInvoice(id) {
         await removeLedgerEntriesForInvoice(id);
         await lfDelete(LF_KEYS.INVOICES, id);
         showToast('Invoice deleted.', 'success');
-        logActivity('Deleted', inv.type, inv.number);
+        logActivity('Deleted', inv.type, inv.number, { before: inv, recordId: id });
     } catch (e) {
         console.error('[DataEntry] Delete failed:', e);
         showToast('Could not delete — please try again.', 'error');
