@@ -66,29 +66,38 @@ const RIGHTS_SCHEMA = {
 function buildDefaultPermissions(role) {
     const perms = {};
 
+    if (role === 'admin') {
+        Object.entries(RIGHTS_SCHEMA).forEach(([group, screens]) => {
+            screens.forEach(s => {
+                s.perms.forEach(p => { perms[`${group}|${s.name}|${p}`] = true; });
+            });
+        });
+        return perms;
+    }
+
     if (role === 'rso') {
         const rsoGroup = RIGHTS_SCHEMA['RSO / SALESMAN'];
         rsoGroup.forEach(s => {
             s.perms.forEach(p => { perms[`RSO / SALESMAN|${s.name}|${p}`] = true; });
         });
         perms['UTILITY|Change Password|View'] = true;
-    } else {
-        // Staff gets Data Entry + Vouchers + basic operational reports only.
-        // No user management, no Chart of Accounts, no Cash Book, no
-        // invoice reports, no financial reports — owner grants explicitly.
-        ['DATA ENTRY', 'VOUCHERS'].forEach(group => {
-            RIGHTS_SCHEMA[group].forEach(s => {
-                if (s.name === 'Add/Edit Accounts') return;
-                s.perms.forEach(p => { perms[`${group}|${s.name}|${p}`] = true; });
-            });
-        });
-        const staffReports = [
-            'Account Ledger', 'Item Ledger',
-            'Load Ledger', 'Stock Report'
-        ];
-        staffReports.forEach(name => { perms[`REPORTS|${name}|View`] = true; });
-        perms['UTILITY|Change Password|View'] = true;
+        return perms;
     }
+
+    // Staff: Data Entry (no items) + Vouchers (no accounts) + basic reports.
+    // No user management, no items management, no financial reports.
+    ['DATA ENTRY', 'VOUCHERS'].forEach(group => {
+        RIGHTS_SCHEMA[group].forEach(s => {
+            if (s.name === 'Add/Edit Accounts' || s.name === 'Add/Edit Items') return;
+            s.perms.forEach(p => { perms[`${group}|${s.name}|${p}`] = true; });
+        });
+    });
+    const staffReports = [
+        'Account Ledger', 'Item Ledger',
+        'Load Ledger', 'Stock Report'
+    ];
+    staffReports.forEach(name => { perms[`REPORTS|${name}|View`] = true; });
+    perms['UTILITY|Change Password|View'] = true;
 
     return perms;
 }
@@ -298,7 +307,7 @@ function isCurrentUserOwner() {
     const authUser = (typeof fbAuth !== 'undefined') ? fbAuth.currentUser : null;
     const user = getCurrentUserRecord();
     if (!user) return true;
-    if (user.role === 'owner') return true;
+    if (user.role === 'owner' || user.role === 'admin') return true;
     const company = getCompanyDoc();
     if (authUser && company.ownerUid === authUser.uid) return true;
     return false;

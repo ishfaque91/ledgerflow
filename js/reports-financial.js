@@ -196,7 +196,20 @@ function renderBalanceSheet() {
 
     const balanceMap = buildBalanceCacheAsOf(asOf);
     let totalCurrentAssets = 0, totalFixedAssets = 0, totalLiabilities = 0, totalEquity = 0;
-    const currentAssetRows = [], fixedAssetRows = [], liabilityRows = [], equityRows = [];
+    const currentAssetsByType = {}, fixedAssetsByType = {}, liabilitiesByType = {}, equityRows = [];
+
+    function pushToGroup(groups, type, title, amount) {
+        if (!groups[type]) groups[type] = { rows: [], subtotal: 0 };
+        groups[type].rows.push({ title, amount });
+        groups[type].subtotal += amount;
+    }
+
+    const TYPE_LABELS = {
+        'Cash': 'Cash', 'Bank': 'Bank', 'Customer': 'Accounts Receivable (Customers)',
+        'Employee/RSO': 'Employee / RSO', 'Branch': 'Branch',
+        'Asset': 'Fixed Assets', 'Liability': 'Other Liabilities',
+        'Supplier': 'Accounts Payable (Suppliers)', 'Inventory': 'Inventory'
+    };
 
     accounts.forEach(acc => {
         const bal = balanceMap[acc.id] || { amount: 0, side: 'Dr' };
@@ -209,24 +222,29 @@ function renderBalanceSheet() {
         } else if (CURRENT_ASSET_TYPES.includes(acc.type)) {
             const signed = bal.side === 'Dr' ? bal.amount : -bal.amount;
             totalCurrentAssets += signed;
-            currentAssetRows.push({ title: acc.title, amount: signed });
+            pushToGroup(currentAssetsByType, acc.type, acc.title, signed);
         } else if (FIXED_ASSET_TYPES.includes(acc.type)) {
             const signed = bal.side === 'Dr' ? bal.amount : -bal.amount;
             totalFixedAssets += signed;
-            fixedAssetRows.push({ title: acc.title, amount: signed });
+            pushToGroup(fixedAssetsByType, acc.type, acc.title, signed);
         } else if (LIABILITY_TYPES.includes(acc.type)) {
             const signed = bal.side === 'Cr' ? bal.amount : -bal.amount;
             totalLiabilities += signed;
-            liabilityRows.push({ title: acc.title, amount: signed });
+            pushToGroup(liabilitiesByType, acc.type, acc.title, signed);
         } else if (acc.type === 'Customer/Supplier') {
-            if (bal.side === 'Dr') { totalCurrentAssets += bal.amount; currentAssetRows.push({ title: acc.title, amount: bal.amount }); }
-            else { totalLiabilities += bal.amount; liabilityRows.push({ title: acc.title, amount: bal.amount }); }
+            if (bal.side === 'Dr') {
+                totalCurrentAssets += bal.amount;
+                pushToGroup(currentAssetsByType, 'Customer', acc.title, bal.amount);
+            } else {
+                totalLiabilities += bal.amount;
+                pushToGroup(liabilitiesByType, 'Supplier', acc.title, bal.amount);
+            }
         }
     });
 
     const closingStock = Math.round(computeClosingStock(asOf) * 100) / 100;
     if (closingStock > 0) {
-        currentAssetRows.push({ title: 'Closing Stock (Inventory)', amount: closingStock });
+        pushToGroup(currentAssetsByType, 'Inventory', 'Closing Stock', closingStock);
         totalCurrentAssets += closingStock;
     }
 
@@ -244,25 +262,33 @@ function renderBalanceSheet() {
     $('bs-difference').textContent = formatCurrency(Math.abs(difference));
     $('bs-difference').className = `report-summary-value ${difference === 0 ? '' : 'is-warn'}`;
 
-    $('bs-current-assets-rows').innerHTML = currentAssetRows.length
-        ? currentAssetRows.map(r => statementRowHtml(r.title, r.amount)).join('')
-        : `<div class="statement-row"><span>None</span><span>-</span></div>`;
+    $('bs-current-assets-rows').innerHTML = renderGroupedRows(currentAssetsByType, TYPE_LABELS);
     $('bs-current-assets-total').textContent = formatCurrency(totalCurrentAssets);
 
-    $('bs-fixed-assets-rows').innerHTML = fixedAssetRows.length
-        ? fixedAssetRows.map(r => statementRowHtml(r.title, r.amount)).join('')
-        : `<div class="statement-row"><span>None</span><span>-</span></div>`;
+    $('bs-fixed-assets-rows').innerHTML = renderGroupedRows(fixedAssetsByType, TYPE_LABELS);
     $('bs-fixed-assets-total').textContent = formatCurrency(totalFixedAssets);
     $('bs-assets-total').textContent = formatCurrency(totalAssets);
 
-    $('bs-liabilities-rows').innerHTML = liabilityRows.length
-        ? liabilityRows.map(r => statementRowHtml(r.title, r.amount)).join('')
-        : `<div class="statement-row"><span>None</span><span>-</span></div>`;
+    $('bs-liabilities-rows').innerHTML = renderGroupedRows(liabilitiesByType, TYPE_LABELS);
     $('bs-liabilities-total').textContent = formatCurrency(totalLiabilities);
 
     $('bs-equity-rows').innerHTML = equityRows.map(r => statementRowHtml(r.title, r.amount)).join('');
     $('bs-equity-total').textContent = formatCurrency(totalEquity);
     $('bs-liab-equity-total').textContent = formatCurrency(totalLiabEquity);
+}
+
+function renderGroupedRows(groups, labels) {
+    const types = Object.keys(groups);
+    if (types.length === 0) return `<div class="statement-row"><span>None</span><span>-</span></div>`;
+
+    return types.map(type => {
+        const g = groups[type];
+        const label = labels[type] || type;
+        let html = `<div class="bs-category-header">${escapeHtml(label)}</div>`;
+        html += g.rows.map(r => `<div class="statement-row bs-sub-row"><span>${escapeHtml(r.title)}</span><span>${formatCurrency(r.amount)}</span></div>`).join('');
+        html += `<div class="statement-row bs-sub-total"><span>Sub-total: ${escapeHtml(label)}</span><span>${formatCurrency(g.subtotal)}</span></div>`;
+        return html;
+    }).join('');
 }
 
 // ==================== PROFIT ON SALE ====================

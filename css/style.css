@@ -1138,6 +1138,10 @@ button { font-family: inherit; }
 .statement-total span:last-child { color: var(--teal-dark); font-weight: 800; }
 .statement-subtitle { font-size: 0.78rem; color: var(--ink-faint); font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; margin: 14px 0 4px; }
 .statement-subtitle:first-child { margin-top: 0; }
+.bs-category-header { font-size: 0.8rem; font-weight: 700; color: var(--teal-dark); text-transform: uppercase; letter-spacing: 0.04em; margin: 12px 0 2px; padding: 4px 0; border-bottom: 1px dashed var(--border); }
+.bs-sub-row { padding-left: 1rem; }
+.bs-sub-total { padding-left: 1rem; font-weight: 700; font-size: 0.82rem; border-top: 1px solid var(--border-strong); margin-bottom: 8px; }
+.bs-sub-total span:last-child { color: var(--teal-dark); }
 
 @media (max-width: 900px) {
     .statement-grid { grid-template-columns: 1fr; }

@@ -18,6 +18,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="LedgerFlow">
+<meta name="screen-orientation" content="portrait">
+<script>try { screen.orientation.lock('portrait').catch(()=>{}); } catch(e) {}</script>
 <meta name="mobile-web-app-capable" content="yes">
 </head>
 <body>
@@ -261,7 +263,6 @@
                 </button>
                 <div class="nav-group-body">
                     <a href="#" class="nav-link" data-page="page-rso-customers" onclick="navigateTo('page-rso-customers',this);">Customers</a>
-                    <a href="#" class="nav-link" data-page="page-rso-load" onclick="navigateTo('page-rso-load',this);">Issue Stock / Load</a>
                     <a href="#" class="nav-link" data-page="page-rso-sale" onclick="navigateTo('page-rso-sale',this);">RSO Sale</a>
                     <a href="#" class="nav-link" data-page="page-rso-return" onclick="navigateTo('page-rso-return',this);">RSO Return</a>
                     <a href="#" class="nav-link" data-page="page-rso-recovery" onclick="navigateTo('page-rso-recovery',this);">Recovery</a>
@@ -447,7 +448,6 @@
             <div class="card dash-directory-card dash-hub-card">
                 <div class="dash-directory-list">
                     <a href="#" data-page="page-rso-customers" onclick="navigateTo('page-rso-customers',this)"><span class="hub-opt-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span><span class="hub-opt-label">Customers</span><svg class="hub-opt-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></a>
-                    <a href="#" data-page="page-rso-load" onclick="navigateTo('page-rso-load',this)"><span class="hub-opt-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v7a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 15Z"/></svg></span><span class="hub-opt-label">Issue Stock / Load</span><svg class="hub-opt-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></a>
                     <a href="#" data-page="page-rso-sale" onclick="navigateTo('page-rso-sale',this)"><span class="hub-opt-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg></span><span class="hub-opt-label">RSO Sale</span><svg class="hub-opt-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></a>
                     <a href="#" data-page="page-rso-return" onclick="navigateTo('page-rso-return',this)"><span class="hub-opt-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/><path d="M11 10l-2 2 2 2"/></svg></span><span class="hub-opt-label">RSO Return</span><svg class="hub-opt-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></a>
                     <a href="#" data-page="page-rso-recovery" onclick="navigateTo('page-rso-recovery',this)"><span class="hub-opt-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span><span class="hub-opt-label">Recovery</span><svg class="hub-opt-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></a>
@@ -836,7 +836,8 @@
                         <div class="field" id="user-role-field">
                             <label for="user-role">Role</label>
                             <select id="user-role">
-                                <option value="owner">Owner (Admin)</option>
+                                <option value="owner">Owner</option>
+                                <option value="admin">Admin</option>
                                 <option value="staff">Staff</option>
                                 <option value="rso">RSO / Salesman</option>
                             </select>
@@ -2360,15 +2361,31 @@
                         <select id="rso-sale-rso-user" onchange="onRsoSaleRsoChange()"></select>
                     </div>
                     <div class="field"><label for="rso-sale-customer">Customer <span class="req">*</span></label><select id="rso-sale-customer"></select></div>
-                    <div class="field"><label>Items <small>(available stock in parentheses)</small></label>
+
+                    <div class="field">
+                        <label class="check-row"><input type="checkbox" id="rso-sale-has-load" checked onchange="onRsoSaleLoadToggle()"><span>Include Load</span></label>
+                    </div>
+                    <div id="rso-sale-load-fields" class="field-grid">
+                        <div class="field"><label id="rso-sale-load-amount-label">Sale Amount</label><div class="amount-control"><span class="amount-prefix">Rs.</span><input type="text" id="rso-sale-load-amount" inputmode="decimal" placeholder="0" oninput="onRsoSaleLoadInput('amount')"></div></div>
+                        <div class="field"><label>Discount %</label><input type="text" id="rso-sale-load-discount" inputmode="decimal" placeholder="0" oninput="onRsoSaleLoadInput('discount')"></div>
+                        <div class="field"><label id="rso-sale-load-qty-label">Load Qty</label><div class="amount-control"><input type="text" id="rso-sale-load-qty" inputmode="decimal" placeholder="0" oninput="onRsoSaleLoadInput('qty')"></div></div>
+                    </div>
+
+                    <div class="field"><label>Items</label>
                         <div class="item-row-header"><span>Item</span><span>Qty</span><span>Rate</span><span>Amount</span></div>
                         <div id="rso-sale-item-rows"></div>
                     </div>
+
+                    <div class="totals-box">
+                        <div class="totals-row"><span>Load Total</span><span id="rso-sale-load-total">Rs. 0</span></div>
+                        <div class="totals-row"><span>Items Total</span><span id="rso-sale-items-total">Rs. 0</span></div>
+                        <div class="totals-row totals-grand"><span>Grand Total</span><span id="rso-sale-grand-total">Rs. 0</span></div>
+                    </div>
+
                     <div class="field-grid">
                         <div class="field"><label>Cash Received</label><div class="amount-control"><span class="amount-prefix">Rs.</span><input type="text" id="rso-sale-paid" inputmode="decimal" placeholder="0" oninput="formatAmountInput(this); recalcRsoSaleTotal()"></div></div>
                         <div class="field"><label>Balance</label><div class="amount-control"><span class="amount-prefix" id="rso-sale-balance">Rs. 0</span></div></div>
                     </div>
-                    <div class="totals-bar"><span>Grand Total:</span> <strong id="rso-sale-grand-total">Rs. 0</strong></div>
                 </form>
                 <div class="modal-foot">
                     <button class="btn btn-ghost" onclick="closeRsoSaleForm()">Cancel</button>
@@ -2577,14 +2594,6 @@
                     <div class="field"><label>To</label><input type="date" id="rso-rpt-recovery-to" onchange="renderRsoRecoveryReport()"></div>
                 </div>
                 <div id="rso-rpt-recovery-body"></div>
-            </div>
-
-            <div class="card statement-section">
-                <h3>RSO Ledger</h3>
-                <div class="field" id="rso-rpt-rso-ledger-rso-field" style="margin-bottom:1rem">
-                    <label>RSO</label><select id="rso-rpt-rso-ledger-rso" onchange="renderRsoLedgerReport()"></select>
-                </div>
-                <div id="rso-rpt-rso-ledger-body"><p class="hint">Select an RSO to view their ledger.</p></div>
             </div>
 
             <div class="card statement-section">

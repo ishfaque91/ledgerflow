@@ -476,12 +476,16 @@ function renderRsoSaleList(searchTerm = '') {
         return;
     }
 
-    tbody.innerHTML = sales.map(s => `
+    tbody.innerHTML = sales.map(s => {
+        const details = [];
+        if (s.hasLoad !== false && s.loadAmount > 0) details.push(`Load ${formatCurrency(s.loadAmount)}`);
+        if (s.items && s.items.length > 0) details.push(`${s.items.length} item${s.items.length === 1 ? '' : 's'}`);
+        return `
         <tr>
             <td><strong>${escapeHtml(s.number)}</strong></td>
             <td>${escapeHtml(s.date)}</td>
             <td>${escapeHtml(s.customerName)}</td>
-            <td>${s.items.length} item${s.items.length === 1 ? '' : 's'}</td>
+            <td>${details.join(' + ') || '—'}</td>
             <td class="num">${formatCurrency(s.grandTotal)}</td>
             <td class="num">${formatCurrency(s.paidAmount || 0)}</td>
             <td>
@@ -490,8 +494,8 @@ function renderRsoSaleList(searchTerm = '') {
                     <button class="btn-danger-text" onclick="deleteRsoSale('${s.id}')">Delete</button>
                 </div>
             </td>
-        </tr>
-    `).join('');
+        </tr>`;
+    }).join('');
 }
 
 function openRsoSaleForm(editId = null) {
@@ -509,6 +513,12 @@ function openRsoSaleForm(editId = null) {
         $('rso-sale-rso-field').classList.add('hidden');
     }
 
+    $('rso-sale-has-load').checked = true;
+    $('rso-sale-load-fields').classList.remove('hidden');
+    $('rso-sale-load-amount').value = '';
+    $('rso-sale-load-discount').value = '';
+    $('rso-sale-load-qty').value = '';
+
     if (editId) {
         const s = lfFindById(LF_KEYS.RSO_SALES, editId);
         if (!s) { showToast('Sale not found.', 'error'); return; }
@@ -519,6 +529,16 @@ function openRsoSaleForm(editId = null) {
         if (!isRsoUser()) $('rso-sale-rso-user').value = s.rsoUserId;
         populateRsoCustomerDropdown(s.rsoUserId);
         $('rso-sale-customer').value = s.customerId;
+
+        const hasLoad = s.hasLoad !== false;
+        $('rso-sale-has-load').checked = hasLoad;
+        $('rso-sale-load-fields').classList.toggle('hidden', !hasLoad);
+        if (hasLoad) {
+            $('rso-sale-load-amount').value = s.loadAmount ? s.loadAmount.toLocaleString('en-US') : '';
+            $('rso-sale-load-discount').value = s.loadDiscount || '';
+            $('rso-sale-load-qty').value = s.loadQty ? s.loadQty.toLocaleString('en-US') : '';
+        }
+
         renderRsoSaleItemRows(s.rsoUserId);
         applyRsoSaleItemValues(s.items);
         $('rso-sale-paid').value = (s.paidAmount || 0).toLocaleString('en-US');
@@ -537,6 +557,39 @@ function openRsoSaleForm(editId = null) {
 }
 
 function closeRsoSaleForm() { $('rso-sale-modal').classList.add('hidden'); }
+
+function onRsoSaleLoadToggle() {
+    const on = $('rso-sale-has-load').checked;
+    $('rso-sale-load-fields').classList.toggle('hidden', !on);
+    recalcRsoSaleTotal();
+}
+
+function onRsoSaleLoadInput(field) {
+    const amountInput = $('rso-sale-load-amount');
+    const discountInput = $('rso-sale-load-discount');
+    const qtyInput = $('rso-sale-load-qty');
+
+    if (field === 'amount') formatAmountInput(amountInput);
+    if (field === 'qty') formatAmountInput(qtyInput);
+
+    const amount = parseAmount(amountInput.value);
+    const discount = parseFloat(discountInput.value) || 0;
+    const qty = parseAmount(qtyInput.value);
+
+    if (field === 'discount' && amount > 0) {
+        qtyInput.value = trimNumber(amount * (1 + discount / 100));
+    } else if (field === 'qty' && amount > 0 && qtyInput.value !== '') {
+        discountInput.value = trimPercent(((qty / amount) - 1) * 100);
+    } else if (field === 'amount') {
+        if (discountInput.value !== '') {
+            qtyInput.value = trimNumber(amount * (1 + discount / 100));
+        } else if (qtyInput.value !== '' && amount > 0) {
+            discountInput.value = trimPercent(((qty / amount) - 1) * 100);
+        }
+    }
+
+    recalcRsoSaleTotal();
+}
 
 function onRsoSaleRsoChange() {
     const rsoUserId = $('rso-sale-rso-user').value;
@@ -599,19 +652,30 @@ function getRsoSaleItemRows() {
 }
 
 function recalcRsoSaleTotal() {
-    const items = getRsoSaleItemRows();
-    const total = items.reduce((sum, r) => sum + r.amount, 0);
-    $('rso-sale-grand-total').textContent = formatCurrency(total);
+    const itemsTotal = getRsoSaleItemRows().reduce((sum, r) => sum + r.amount, 0);
+    const loadTotal = $('rso-sale-has-load').checked ? parseAmount($('rso-sale-load-amount').value) : 0;
+    const grandTotal = itemsTotal + loadTotal;
+
+    $('rso-sale-load-total').textContent = formatCurrency(loadTotal);
+    $('rso-sale-items-total').textContent = formatCurrency(itemsTotal);
+    $('rso-sale-grand-total').textContent = formatCurrency(grandTotal);
 
     const paid = parseAmount($('rso-sale-paid')?.value || '0');
-    $('rso-sale-balance').textContent = formatCurrency(Math.max(total - paid, 0));
-    return total;
+    $('rso-sale-balance').textContent = formatCurrency(Math.max(grandTotal - paid, 0));
+    return grandTotal;
 }
 
 async function saveRsoSale() {
     const id = $('rso-sale-id').value;
     const date = $('rso-sale-date').value;
     const customerId = $('rso-sale-customer').value;
+    const hasLoad = $('rso-sale-has-load').checked;
+    const loadAmount = hasLoad ? parseAmount($('rso-sale-load-amount').value) : 0;
+    const loadDiscount = hasLoad ? (parseFloat($('rso-sale-load-discount').value) || 0) : 0;
+    let loadQty = hasLoad ? parseAmount($('rso-sale-load-qty').value) : 0;
+    if (hasLoad && loadQty <= 0 && loadAmount > 0) {
+        loadQty = loadAmount * (1 + loadDiscount / 100);
+    }
     const items = getRsoSaleItemRows();
     const paidAmount = parseAmount($('rso-sale-paid').value);
     const saveBtn = $('rso-sale-save-btn');
@@ -621,9 +685,12 @@ async function saveRsoSale() {
     if (!date) { showToast('Please choose a date.', 'warning'); return; }
     if (!rsoUserId) { showToast('Please select an RSO.', 'warning'); return; }
     if (!customerId) { showToast('Please select a customer.', 'warning'); return; }
-    if (items.length === 0) { showToast('Add at least one item.', 'warning'); return; }
+    if (hasLoad && loadAmount <= 0) { showToast('Enter a Load amount, or untick "Include Load".', 'warning'); return; }
+    if (!hasLoad && items.length === 0) { showToast('Add at least a Load entry or one item row.', 'warning'); return; }
 
-    const grandTotal = items.reduce((sum, r) => sum + r.amount, 0);
+    const itemsTotal = items.reduce((sum, r) => sum + r.amount, 0);
+    const loadTotal = loadAmount;
+    const grandTotal = itemsTotal + loadTotal;
     const customer = lfFindById(LF_KEYS.RSO_CUSTOMERS, customerId);
     const rsoAccount = getRsoAccountForUser(rsoUserId);
 
@@ -631,7 +698,11 @@ async function saveRsoSale() {
 
     try {
         if (id) {
-            await lfDeleteWhereInvoiceId(LF_KEYS.ACCOUNT_LEDGER, id);
+            await Promise.all([
+                lfDeleteWhereInvoiceId(LF_KEYS.ACCOUNT_LEDGER, id),
+                lfDeleteWhereInvoiceId(LF_KEYS.LOAD_LEDGER, id),
+                lfDeleteWhereInvoiceId(LF_KEYS.ITEM_LEDGER, id)
+            ]);
         }
 
         const saleId = id || generateId();
@@ -655,12 +726,30 @@ async function saveRsoSale() {
             }));
         }
 
+        if (hasLoad && loadQty > 0) {
+            writes.push(lfUpsert(LF_KEYS.LOAD_LEDGER, {
+                invoiceId: saleId, date, type: 'RsoSale', ref: number,
+                qtyChange: -loadQty,
+                note: `RSO Sale ${number} — ${customer ? (customer.shopName || customer.name) : ''}`
+            }));
+        }
+
+        items.forEach(row => {
+            writes.push(lfUpsert(LF_KEYS.ITEM_LEDGER, {
+                invoiceId: saleId, date, type: 'RsoSale', ref: number,
+                itemId: row.itemId, itemName: row.itemName,
+                qtyChange: -row.qty,
+                note: `RSO Sale ${number}`
+            }));
+        });
+
         await Promise.all(writes);
 
         const record = {
             id: saleId, number, date, rsoUserId,
             customerId, customerName: customer ? (customer.shopName || customer.name) : '',
-            items, grandTotal, paidAmount,
+            hasLoad, loadAmount, loadDiscount, loadQty, loadTotal,
+            items, itemsTotal, grandTotal, paidAmount,
             balanceAmount: Math.max(grandTotal - paidAmount, 0),
             enteredBy: getCurrentUserDisplayName()
         };
@@ -691,7 +780,11 @@ async function deleteRsoSale(id) {
     if (!s) return;
     if (!confirm(`Delete sale ${s.number}?`)) return;
     try {
-        await lfDeleteWhereInvoiceId(LF_KEYS.ACCOUNT_LEDGER, id);
+        await Promise.all([
+            lfDeleteWhereInvoiceId(LF_KEYS.ACCOUNT_LEDGER, id),
+            lfDeleteWhereInvoiceId(LF_KEYS.LOAD_LEDGER, id),
+            lfDeleteWhereInvoiceId(LF_KEYS.ITEM_LEDGER, id)
+        ]);
         const linkedRecoveries = lfGetAll(LF_KEYS.RSO_RECOVERIES).filter(r => r.saleId === id);
         for (const r of linkedRecoveries) await lfDelete(LF_KEYS.RSO_RECOVERIES, r.id);
         await lfDelete(LF_KEYS.RSO_SALES, id);
@@ -1504,7 +1597,7 @@ function renderRsoDashboard() {
 // ==================== INIT RSO REPORT DROPDOWNS ====================
 function initRsoReportDropdowns() {
     initRsoReportCustomerDropdown();
-    const rsoDropdowns = ['rso-rpt-stock-rso', 'rso-rpt-sales-rso', 'rso-rpt-recovery-rso', 'rso-rpt-rso-ledger-rso', 'rso-rpt-daily-rso'];
+    const rsoDropdowns = ['rso-rpt-stock-rso', 'rso-rpt-sales-rso', 'rso-rpt-recovery-rso', 'rso-rpt-daily-rso'];
     if (isRsoUser()) {
         rsoDropdowns.forEach(id => {
             const el = $(id);

@@ -39,7 +39,7 @@ function renderUserList(searchTerm = '') {
     const companyOwnerUid = getCompanyDoc().ownerUid;
     tbody.innerHTML = users.map(u => {
         const isOwner = u.role === 'owner' || (u.linkedAuthUid && companyOwnerUid === u.linkedAuthUid);
-        const roleBadge = isOwner ? 'Owner' : u.role === 'rso' ? 'RSO' : 'Staff';
+        const roleBadge = isOwner ? 'Owner' : u.role === 'admin' ? 'Admin' : u.role === 'rso' ? 'RSO' : 'Staff';
         return `
         <tr>
             <td><strong>${escapeHtml(u.fullName)}</strong> <span class="type-badge">${roleBadge}</span></td>
@@ -88,14 +88,17 @@ function openUserForm(id = null) {
 
         const isOwner = user.role === 'owner' ||
             (user.linkedAuthUid && getCompanyDoc().ownerUid === user.linkedAuthUid);
+        const adminOpt = roleSelect.querySelector('option[value="admin"]');
         if (isOwner) {
             ownerOpt.hidden = false;
+            adminOpt.hidden = true;
             roleSelect.value = 'owner';
             roleSelect.disabled = true;
         } else {
             ownerOpt.hidden = true;
+            adminOpt.hidden = false;
             roleSelect.disabled = false;
-            roleSelect.value = user.role === 'rso' ? 'rso' : 'staff';
+            roleSelect.value = user.role === 'rso' ? 'rso' : user.role === 'admin' ? 'admin' : 'staff';
         }
 
         $('user-password-field').classList.add('hidden');
@@ -104,6 +107,7 @@ function openUserForm(id = null) {
         $('user-password-field').classList.remove('hidden');
         $('user-password').required = true;
         ownerOpt.hidden = true;
+        roleSelect.querySelector('option[value="admin"]').hidden = false;
         roleSelect.disabled = false;
         roleSelect.value = 'staff';
     }
