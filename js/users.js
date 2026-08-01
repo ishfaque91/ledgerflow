@@ -278,17 +278,21 @@ async function deleteUser(id) {
     if (!confirm(`Remove "${user.fullName}"? Their data entries will be kept. Only their login access is revoked.`)) return;
 
     try {
+        await lfDelete(LF_KEYS.USERS, id);
+
         if (user.linkedAuthUid) {
-            await fbDb.collection('users').doc(user.linkedAuthUid).delete();
+            try { await fbDb.collection('users').doc(user.linkedAuthUid).delete(); } catch (e) {
+                console.warn('[Users] Could not delete root users/ mapping:', e.message);
+            }
             try {
                 const deleteAuthUser = firebase.functions().httpsCallable('deleteAuthUser');
                 await deleteAuthUser({ uid: user.linkedAuthUid });
-            } catch (fnErr) {
-                console.warn('[Users] Cloud Function deleteAuthUser unavailable, user record removed but Auth account may persist:', fnErr.message);
+            } catch (e) {
+                console.warn('[Users] Cloud Function unavailable:', e.message);
             }
         }
-        await lfDelete(LF_KEYS.USERS, id);
-        showToast('User removed — their login access has been revoked.', 'success');
+
+        showToast('User removed.', 'success');
         logActivity('Deleted', 'User', user.fullName, { before: user, recordId: id });
     } catch (e) {
         console.error(e);
