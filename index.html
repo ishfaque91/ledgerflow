@@ -36,18 +36,9 @@
     </symbol>
 </svg>
 
-<!-- ==================== ROTATE-DEVICE OVERLAY ====================
-     A phone's browser can't be forced out of landscape from the page
-     itself (the manifest's orientation lock only applies once the app is
-     installed and launched standalone) -- so as a fallback, block
-     interaction and ask for portrait instead of letting every layout
-     built for portrait render sideways and broken. Desktop/tablet
-     landscape is untouched; see the (max-width: 900px) guard in CSS. -->
-<div id="rotate-overlay" class="rotate-overlay" role="alert">
-    <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/><path d="M22 8l-4 4 4 4" transform="translate(-3,-6) rotate(90 12 12)"/></svg>
-    <p>Please rotate your device back to portrait</p>
-    <span>LedgerFlow is designed for portrait use only</span>
-</div>
+<!-- Portrait lock: CSS transform in style.css forces the viewport back
+     to portrait when the phone rotates to landscape, so the content
+     always stays upright regardless of device orientation. -->
 
 <!-- ==================== INITIAL LOADING SPLASH ====================
      Shown first while we check whether there's an active session, so
