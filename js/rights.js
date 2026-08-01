@@ -74,17 +74,17 @@ function buildDefaultPermissions(role) {
         perms['UTILITY|Change Password|View'] = true;
     } else {
         // Staff gets Data Entry + Vouchers + basic operational reports only.
-        // Financial reports (Trial Balance, Balance Sheet, P&L, Profit on
-        // Sale, graphs) stay hidden — owner grants those explicitly.
+        // No user management, no Chart of Accounts, no Cash Book, no
+        // invoice reports, no financial reports — owner grants explicitly.
         ['DATA ENTRY', 'VOUCHERS'].forEach(group => {
             RIGHTS_SCHEMA[group].forEach(s => {
+                if (s.name === 'Add/Edit Accounts') return;
                 s.perms.forEach(p => { perms[`${group}|${s.name}|${p}`] = true; });
             });
         });
         const staffReports = [
-            'Chart of Accounts', 'Account Ledger', 'Item Ledger',
-            'Load Ledger', 'Stock Report', 'Cash Book',
-            'Sale Invoices Report', 'Purchase Invoices Report'
+            'Account Ledger', 'Item Ledger',
+            'Load Ledger', 'Stock Report'
         ];
         staffReports.forEach(name => { perms[`REPORTS|${name}|View`] = true; });
         perms['UTILITY|Change Password|View'] = true;

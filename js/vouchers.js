@@ -61,8 +61,8 @@ function renderVoucherList(type, searchTerm = '') {
 
     if (type === 'BankReceipt' || type === 'BankPayment') {
         tbody.innerHTML = vouchers.map(v => `
-            <tr>
-                <td><strong>${escapeHtml(v.number)}</strong></td>
+            <tr class="${v.cancelled ? 'cancelled-row' : ''}">
+                <td><strong>${escapeHtml(v.number)}</strong>${v.cancelled ? ' <span class="badge-cancelled">Cancelled</span>' : ''}</td>
                 <td>${escapeHtml(v.date)}</td>
                 <td>${escapeHtml(v.bankName)}</td>
                 <td>${escapeHtml(v.partyName)}</td>
@@ -78,8 +78,8 @@ function renderVoucherList(type, searchTerm = '') {
         `).join('');
     } else if (type === 'PettyCash') {
         tbody.innerHTML = vouchers.map(v => `
-            <tr>
-                <td><strong>${escapeHtml(v.number)}</strong></td>
+            <tr class="${v.cancelled ? 'cancelled-row' : ''}">
+                <td><strong>${escapeHtml(v.number)}</strong>${v.cancelled ? ' <span class="badge-cancelled">Cancelled</span>' : ''}</td>
                 <td>${escapeHtml(v.date)}</td>
                 <td>${escapeHtml(v.cashAccountName)}</td>
                 <td>${(v.lines || []).length} line${(v.lines || []).length === 1 ? '' : 's'}</td>
@@ -95,8 +95,8 @@ function renderVoucherList(type, searchTerm = '') {
         `).join('');
     } else if (type === 'Journal') {
         tbody.innerHTML = vouchers.map(v => `
-            <tr>
-                <td><strong>${escapeHtml(v.number)}</strong></td>
+            <tr class="${v.cancelled ? 'cancelled-row' : ''}">
+                <td><strong>${escapeHtml(v.number)}</strong>${v.cancelled ? ' <span class="badge-cancelled">Cancelled</span>' : ''}</td>
                 <td>${escapeHtml(v.date)}</td>
                 <td>${escapeHtml(v.narration) || '-'}</td>
                 <td>${(v.lines || []).length} line${(v.lines || []).length === 1 ? '' : 's'}</td>
@@ -187,6 +187,17 @@ function openBankVoucherForm(type, editId = null) {
         $('bv-entered-by-note').classList.add('hidden');
     }
 
+    const bvCancelRow = $('bv-cancel-row');
+    const bvCancelCb = $('bv-cancelled');
+    if (editId) {
+        const v = lfFindById(LF_KEYS.VOUCHERS, editId);
+        bvCancelRow.classList.remove('hidden');
+        bvCancelCb.checked = !!(v && v.cancelled);
+    } else {
+        bvCancelRow.classList.add('hidden');
+        bvCancelCb.checked = false;
+    }
+
     $('bankvoucher-modal').classList.remove('hidden');
 }
 
@@ -223,6 +234,8 @@ async function saveBankVoucher() {
     if (!partyAccountId) { showToast(`Please select who this is ${type === 'BankReceipt' ? 'received from' : 'paid to'}.`, 'warning'); return; }
     if (amount <= 0) { showToast('Enter an amount greater than 0.', 'warning'); return; }
 
+    const bvCancelled = !!$('bv-cancelled').checked;
+
     setBtnLoading(saveBtn, true);
 
     try {
@@ -233,25 +246,26 @@ async function saveBankVoucher() {
         const voucherId = id || generateId();
         const number = id ? $('bv-number').value : await takeNextVoucherNumber(type);
 
-        await Promise.all([
-            lfUpsert(LF_KEYS.ACCOUNT_LEDGER, {
-                invoiceId: voucherId, accountId: bankAccountId, date, type,
-                ref: number, side: config.bankSide, amount, note: `${config.title} ${number}`
-            }),
-            lfUpsert(LF_KEYS.ACCOUNT_LEDGER, {
-                invoiceId: voucherId, accountId: partyAccountId, date, type,
-                ref: number, side: config.partySide, amount, note: `${config.title} ${number}`
-            })
-        ]);
+        if (!bvCancelled) {
+            await Promise.all([
+                lfUpsert(LF_KEYS.ACCOUNT_LEDGER, {
+                    invoiceId: voucherId, accountId: bankAccountId, date, type,
+                    ref: number, side: config.bankSide, amount, note: `${config.title} ${number}`
+                }),
+                lfUpsert(LF_KEYS.ACCOUNT_LEDGER, {
+                    invoiceId: voucherId, accountId: partyAccountId, date, type,
+                    ref: number, side: config.partySide, amount, note: `${config.title} ${number}`
+                })
+            ]);
+        }
 
-        // Snapshot the stored voucher before overwriting it, so the
-        // history can show exactly which fields moved.
         const before = id ? { ...(lfFindById(LF_KEYS.VOUCHERS, id) || {}) } : null;
         const record = {
             id: voucherId, type, number, date,
             bankAccountId, bankName: bankAcc ? bankAcc.title : '',
             partyAccountId, partyName: partyAcc ? partyAcc.title : '',
             amount, chequeNo, chequeDate, narration,
+            cancelled: bvCancelled,
             createdAt: id ? undefined : new Date().toISOString(),
             enteredBy: id ? undefined : getCurrentUserDisplayName(),
             lastEditedBy: getCurrentUserDisplayName()
@@ -316,6 +330,18 @@ function openPettyCashForm(editId = null) {
     }
 
     recalcPettyCashTotal();
+
+    const pcCancelRow = $('pc-cancel-row');
+    const pcCancelCb = $('pc-cancelled');
+    if (editId) {
+        const v = lfFindById(LF_KEYS.VOUCHERS, editId);
+        pcCancelRow.classList.remove('hidden');
+        pcCancelCb.checked = !!(v && v.cancelled);
+    } else {
+        pcCancelRow.classList.add('hidden');
+        pcCancelCb.checked = false;
+    }
+
     $('pettycash-modal').classList.remove('hidden');
 }
 
@@ -392,6 +418,8 @@ async function savePettyCash() {
     if (!cashAccountId) { showToast('Please select which account this is paid from.', 'warning'); return; }
     if (lines.length === 0) { showToast('Add at least one expense line with an amount.', 'warning'); return; }
 
+    const pcCancelled = !!$('pc-cancelled').checked;
+
     setBtnLoading(saveBtn, true);
 
     try {
@@ -402,23 +430,24 @@ async function savePettyCash() {
         const number = id ? $('pc-number').value : await takeNextVoucherNumber('PettyCash');
         const total = lines.reduce((sum, l) => sum + l.amount, 0);
 
-        const writes = lines.map(line => lfUpsert(LF_KEYS.ACCOUNT_LEDGER, {
-            invoiceId: voucherId, accountId: line.expenseAccountId, date, type: 'PettyCash',
-            ref: number, side: 'Dr', amount: line.amount, note: `Petty Cash ${number} — ${line.narration}`
-        }));
-        writes.push(lfUpsert(LF_KEYS.ACCOUNT_LEDGER, {
-            invoiceId: voucherId, accountId: cashAccountId, date, type: 'PettyCash',
-            ref: number, side: 'Cr', amount: total, note: `Petty Cash ${number}`
-        }));
-        await Promise.all(writes);
+        if (!pcCancelled) {
+            const writes = lines.map(line => lfUpsert(LF_KEYS.ACCOUNT_LEDGER, {
+                invoiceId: voucherId, accountId: line.expenseAccountId, date, type: 'PettyCash',
+                ref: number, side: 'Dr', amount: line.amount, note: `Petty Cash ${number} — ${line.narration}`
+            }));
+            writes.push(lfUpsert(LF_KEYS.ACCOUNT_LEDGER, {
+                invoiceId: voucherId, accountId: cashAccountId, date, type: 'PettyCash',
+                ref: number, side: 'Cr', amount: total, note: `Petty Cash ${number}`
+            }));
+            await Promise.all(writes);
+        }
 
-        // Snapshot the stored voucher before overwriting it, so the
-        // history can show exactly which fields moved.
         const before = id ? { ...(lfFindById(LF_KEYS.VOUCHERS, id) || {}) } : null;
         const record = {
             id: voucherId, type: 'PettyCash', number, date,
             cashAccountId, cashAccountName: cashAcc ? cashAcc.title : '',
             lines, total,
+            cancelled: pcCancelled,
             createdAt: id ? undefined : new Date().toISOString(),
             enteredBy: id ? undefined : getCurrentUserDisplayName(),
             lastEditedBy: getCurrentUserDisplayName()
@@ -479,6 +508,18 @@ function openJournalForm(editId = null) {
     }
 
     recalcJournalTotals();
+
+    const jvCancelRow = $('jv-cancel-row');
+    const jvCancelCb = $('jv-cancelled');
+    if (editId) {
+        const v = lfFindById(LF_KEYS.VOUCHERS, editId);
+        jvCancelRow.classList.remove('hidden');
+        jvCancelCb.checked = !!(v && v.cancelled);
+    } else {
+        jvCancelRow.classList.add('hidden');
+        jvCancelCb.checked = false;
+    }
+
     $('journal-modal').classList.remove('hidden');
 }
 
@@ -579,6 +620,8 @@ async function saveJournal() {
         return;
     }
 
+    const jvCancelled = !!$('jv-cancelled').checked;
+
     setBtnLoading(saveBtn, true);
 
     try {
@@ -587,17 +630,18 @@ async function saveJournal() {
         const voucherId = id || generateId();
         const number = id ? $('jv-number').value : await takeNextVoucherNumber('Journal');
 
-        await Promise.all(lines.map(line => lfUpsert(LF_KEYS.ACCOUNT_LEDGER, {
-            invoiceId: voucherId, accountId: line.accountId, date, type: 'Journal',
-            ref: number, side: line.side, amount: line.amount, note: `Journal ${number} — ${narration}`
-        })));
+        if (!jvCancelled) {
+            await Promise.all(lines.map(line => lfUpsert(LF_KEYS.ACCOUNT_LEDGER, {
+                invoiceId: voucherId, accountId: line.accountId, date, type: 'Journal',
+                ref: number, side: line.side, amount: line.amount, note: `Journal ${number} — ${narration}`
+            })));
+        }
 
-        // Snapshot the stored voucher before overwriting it, so the
-        // history can show exactly which fields moved.
         const before = id ? { ...(lfFindById(LF_KEYS.VOUCHERS, id) || {}) } : null;
         const record = {
             id: voucherId, type: 'Journal', number, date, narration,
             lines, totalDr, totalCr,
+            cancelled: jvCancelled,
             createdAt: id ? undefined : new Date().toISOString(),
             enteredBy: id ? undefined : getCurrentUserDisplayName(),
             lastEditedBy: getCurrentUserDisplayName()

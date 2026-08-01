@@ -1920,6 +1920,31 @@ button { font-family: inherit; }
 .btn-icon:hover { background: var(--paper); border-color: var(--ink-faint); }
 .btn-icon svg { width: 16px; height: 16px; }
 
+/* ==================== CANCELLED BADGE + ROW ==================== */
+.badge-cancelled {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 2px 7px;
+    border-radius: 4px;
+    background: var(--coral);
+    color: #fff;
+    vertical-align: middle;
+}
+.cancelled-row td { opacity: 0.55; text-decoration: line-through; }
+.cancelled-row td:last-child { text-decoration: none; opacity: 1; }
+.cancelled-row .badge-cancelled { text-decoration: none; opacity: 1; }
+
+.cancel-check {
+    margin-right: auto;
+    color: var(--coral);
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+.cancel-check input:checked + span { color: var(--coral); }
+
 /* ==================== MOBILE SPACING IMPROVEMENTS ==================== */
 @media (max-width: 900px) {
     .page-head { flex-direction: column; gap: 12px; align-items: flex-start; }

@@ -82,13 +82,13 @@ function renderInvoiceList(type, searchTerm = '') {
     }
 
     tbody.innerHTML = invoices.map(inv => `
-        <tr>
-            <td><strong>${escapeHtml(inv.number)}</strong></td>
+        <tr class="${inv.cancelled ? 'cancelled-row' : ''}">
+            <td><strong>${escapeHtml(inv.number)}</strong>${inv.cancelled ? ' <span class="badge-cancelled">Cancelled</span>' : ''}</td>
             <td>${escapeHtml(inv.date)}</td>
             <td>${escapeHtml(inv.partyName)}</td>
             <td>${inv.hasLoad ? inv.loadQty.toLocaleString('en-US') : '-'}</td>
             <td class="num">${formatCurrency(inv.grandTotal)}</td>
-            <td class="num">${inv.balanceAmount > 0 ? formatCurrency(inv.balanceAmount) : '<span class="balance-tag is-cr">Settled</span>'}</td>
+            <td class="num">${inv.cancelled ? '<span class="badge-cancelled">Cancelled</span>' : (inv.balanceAmount > 0 ? formatCurrency(inv.balanceAmount) : '<span class="balance-tag is-cr">Settled</span>')}</td>
             <td>${escapeHtml(inv.enteredBy) || '-'}</td>
             <td>
                 <div class="row-actions">
@@ -179,6 +179,17 @@ function openInvoiceForm(type, editId = null) {
     }
 
     recalcTotals();
+    const cancelRow = $('inv-cancel-row');
+    const cancelCb = $('inv-cancelled');
+    if (editId) {
+        const inv = lfFindById(LF_KEYS.INVOICES, editId);
+        cancelRow.classList.remove('hidden');
+        cancelCb.checked = !!(inv && inv.cancelled);
+    } else {
+        cancelRow.classList.add('hidden');
+        cancelCb.checked = false;
+    }
+
     $('invoice-print-btn').style.display = editId ? '' : 'none';
     $('invoice-modal').classList.remove('hidden');
 }
@@ -436,56 +447,57 @@ async function saveInvoice() {
     }
     const balanceAmount = grandTotal - paymentAmount;
 
+    const cancelled = !!$('inv-cancelled').checked;
+
     setBtnLoading(saveBtn, true);
 
     try {
-        // If editing, undo the previous posting first so re-saving never double-counts
+        // Always wipe previous postings first so re-saving never double-counts
         if (id) await removeLedgerEntriesForInvoice(id);
 
         const party = lfFindById(LF_KEYS.ACCOUNTS, partyAccountId);
         const invoiceId = id || generateId();
         const number = id ? $('inv-number').value : await takeNextDocNumber(currentInvoiceType, config.prefix);
 
-        const writes = [];
+        // Only post to ledgers when the invoice is NOT cancelled
+        if (!cancelled) {
+            const writes = [];
 
-        // ---- Post the unpaid balance to the party's account ledger ----
-        if (balanceAmount > 0) {
-            writes.push(lfUpsert(LF_KEYS.ACCOUNT_LEDGER, {
-                invoiceId, accountId: partyAccountId, date, type: currentInvoiceType,
-                ref: number, side: config.ledgerPartySide, amount: balanceAmount,
-                note: `${config.title} ${number}`
-            }));
+            if (balanceAmount > 0) {
+                writes.push(lfUpsert(LF_KEYS.ACCOUNT_LEDGER, {
+                    invoiceId, accountId: partyAccountId, date, type: currentInvoiceType,
+                    ref: number, side: config.ledgerPartySide, amount: balanceAmount,
+                    note: `${config.title} ${number}`
+                }));
+            }
+
+            if (paymentAmount > 0 && paymentAccountId) {
+                writes.push(lfUpsert(LF_KEYS.ACCOUNT_LEDGER, {
+                    invoiceId, accountId: paymentAccountId, date, type: currentInvoiceType,
+                    ref: number, side: config.paymentCashSide, amount: paymentAmount,
+                    note: `${config.title} ${number} — settlement`
+                }));
+            }
+
+            if (hasLoad && loadQty > 0) {
+                writes.push(lfUpsert(LF_KEYS.LOAD_LEDGER, {
+                    invoiceId, date, type: currentInvoiceType, ref: number,
+                    qtyChange: loadQty * config.direction,
+                    note: `${config.title} ${number} — ${party ? party.title : ''}`
+                }));
+            }
+
+            items.forEach(row => {
+                writes.push(lfUpsert(LF_KEYS.ITEM_LEDGER, {
+                    invoiceId, date, type: currentInvoiceType, ref: number,
+                    itemId: row.itemId, itemName: row.itemName,
+                    qtyChange: row.qty * config.direction,
+                    note: `${config.title} ${number}`
+                }));
+            });
+
+            await Promise.all(writes);
         }
-
-        // ---- Post the paid/received portion to the Cash/Bank ledger ----
-        if (paymentAmount > 0 && paymentAccountId) {
-            writes.push(lfUpsert(LF_KEYS.ACCOUNT_LEDGER, {
-                invoiceId, accountId: paymentAccountId, date, type: currentInvoiceType,
-                ref: number, side: config.paymentCashSide, amount: paymentAmount,
-                note: `${config.title} ${number} — settlement`
-            }));
-        }
-
-        // ---- Post to the Load Ledger (quantity only, no currency) ----
-        if (hasLoad && loadQty > 0) {
-            writes.push(lfUpsert(LF_KEYS.LOAD_LEDGER, {
-                invoiceId, date, type: currentInvoiceType, ref: number,
-                qtyChange: loadQty * config.direction,
-                note: `${config.title} ${number} — ${party ? party.title : ''}`
-            }));
-        }
-
-        // ---- Post to each Item's ledger ----
-        items.forEach(row => {
-            writes.push(lfUpsert(LF_KEYS.ITEM_LEDGER, {
-                invoiceId, date, type: currentInvoiceType, ref: number,
-                itemId: row.itemId, itemName: row.itemName,
-                qtyChange: row.qty * config.direction,
-                note: `${config.title} ${number}`
-            }));
-        });
-
-        await Promise.all(writes);
 
         // Snapshot the stored invoice before overwriting it. The ledger
         // rewrite above doesn't touch the invoice document, so this is
@@ -499,6 +511,7 @@ async function saveInvoice() {
             hasLoad, loadAmount, loadDiscount, loadQty,
             items, itemsTotal, loadTotal, grandTotal,
             paymentMode, paymentAccountId, paymentAmount, balanceAmount,
+            cancelled,
             createdAt: id ? undefined : new Date().toISOString(),
             enteredBy: id ? undefined : getCurrentUserDisplayName(),
             lastEditedBy: getCurrentUserDisplayName()
@@ -542,6 +555,16 @@ async function deleteInvoice(id) {
     } catch (e) {
         console.error('[DataEntry] Delete failed:', e);
         showToast('Could not delete — please try again.', 'error');
+    }
+}
+
+// ==================== CANCEL TOGGLE (shared by invoices + vouchers) ====================
+function onCancelToggle(checkbox, docType) {
+    const label = docType === 'invoice' ? 'invoice' : 'voucher';
+    if (checkbox.checked) {
+        if (!confirm(`Are you sure you want to cancel this ${label}? Its ledger entries will be removed when you save.`)) {
+            checkbox.checked = false;
+        }
     }
 }
 

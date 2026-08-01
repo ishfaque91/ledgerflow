@@ -1171,6 +1171,10 @@
                 </form>
 
                 <div class="modal-foot">
+                    <label class="check-row cancel-check hidden" id="inv-cancel-row">
+                        <input type="checkbox" id="inv-cancelled" onchange="onCancelToggle(this, 'invoice')">
+                        <span>Cancel this invoice (removes ledger entries)</span>
+                    </label>
                     <button class="btn btn-ghost" onclick="closeInvoiceForm()">Cancel</button>
                     <button class="btn btn-ghost" id="invoice-print-btn" onclick="printInvoice()" style="display:none;">
                         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
@@ -1304,6 +1308,10 @@
                     </div>
                 </form>
                 <div class="modal-foot">
+                    <label class="check-row cancel-check hidden" id="bv-cancel-row">
+                        <input type="checkbox" id="bv-cancelled" onchange="onCancelToggle(this, 'voucher')">
+                        <span>Cancel this voucher (removes ledger entries)</span>
+                    </label>
                     <button class="btn btn-ghost" onclick="closeBankVoucherForm()">Cancel</button>
                     <button class="btn btn-primary" id="bankvoucher-save-btn" onclick="saveBankVoucher()">
                         <span class="btn-label">Save Voucher</span>
@@ -1390,6 +1398,10 @@
                     </div>
                 </form>
                 <div class="modal-foot">
+                    <label class="check-row cancel-check hidden" id="pc-cancel-row">
+                        <input type="checkbox" id="pc-cancelled" onchange="onCancelToggle(this, 'voucher')">
+                        <span>Cancel this voucher (removes ledger entries)</span>
+                    </label>
                     <button class="btn btn-ghost" onclick="closePettyCashForm()">Cancel</button>
                     <button class="btn btn-primary" id="pettycash-save-btn" onclick="savePettyCash()">
                         <span class="btn-label">Save Voucher</span>
@@ -1479,6 +1491,10 @@
                     </div>
                 </form>
                 <div class="modal-foot">
+                    <label class="check-row cancel-check hidden" id="jv-cancel-row">
+                        <input type="checkbox" id="jv-cancelled" onchange="onCancelToggle(this, 'voucher')">
+                        <span>Cancel this voucher (removes ledger entries)</span>
+                    </label>
                     <button class="btn btn-ghost" onclick="closeJournalForm()">Cancel</button>
                     <button class="btn btn-primary" id="journal-save-btn" onclick="saveJournal()">
                         <span class="btn-label">Save Voucher</span>
