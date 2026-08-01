@@ -103,6 +103,28 @@ function togglePasswordVisibility() {
     btn.textContent = showing ? 'Show' : 'Hide';
 }
 
+async function createAuthAndUser(email, password, fullName, status, role) {
+    let uid;
+    try {
+        const cred = await fbSecondaryAuth.createUserWithEmailAndPassword(email, password);
+        uid = cred.user.uid;
+        await fbSecondaryAuth.signOut();
+    } catch (e) {
+        if (e.code === 'auth/email-already-in-use') {
+            // Orphaned auth account from a previously deleted user — clean it
+            // up via the Cloud Function, then retry creation.
+            const deleteAuthUser = firebase.functions().httpsCallable('deleteAuthUser');
+            await deleteAuthUser({ email });
+            const cred = await fbSecondaryAuth.createUserWithEmailAndPassword(email, password);
+            uid = cred.user.uid;
+            await fbSecondaryAuth.signOut();
+        } else {
+            throw e;
+        }
+    }
+    return uid;
+}
+
 async function saveUser() {
     const id = $('user-id').value;
     const fullName = sanitizeInput($('user-fullname').value);
@@ -132,11 +154,7 @@ async function saveUser() {
 
     try {
         if (!id) {
-            // Brand-new staff login — create it on the secondary app so this
-            // doesn't sign the admin out of their own session.
-            const cred = await fbSecondaryAuth.createUserWithEmailAndPassword(email, password);
-            const uid = cred.user.uid;
-            await fbSecondaryAuth.signOut();
+            const uid = await createAuthAndUser(email, password, fullName, status, role);
 
             await fbDb.collection('users').doc(uid).set({ companyId: currentCompanyId, email, fullName, role });
             const created = { fullName, username: email, status, linkedAuthUid: uid, role };
@@ -202,6 +220,8 @@ async function deleteUser(id) {
     try {
         if (user.linkedAuthUid) {
             await fbDb.collection('users').doc(user.linkedAuthUid).delete();
+            const deleteAuthUser = firebase.functions().httpsCallable('deleteAuthUser');
+            await deleteAuthUser({ uid: user.linkedAuthUid });
         }
         await lfDelete(LF_KEYS.USERS, id);
         showToast('User removed — their login access has been revoked.', 'success');
