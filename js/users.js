@@ -36,19 +36,23 @@ function renderUserList(searchTerm = '') {
         return;
     }
 
-    tbody.innerHTML = users.map(u => `
+    const companyOwnerUid = getCompanyDoc().ownerUid;
+    tbody.innerHTML = users.map(u => {
+        const isOwner = u.role === 'owner' || (u.linkedAuthUid && companyOwnerUid === u.linkedAuthUid);
+        const roleBadge = isOwner ? 'Owner' : u.role === 'rso' ? 'RSO' : 'Staff';
+        return `
         <tr>
-            <td><strong>${escapeHtml(u.fullName)}</strong> <span class="type-badge">${u.role === 'owner' ? 'Owner' : u.role === 'rso' ? 'RSO' : 'Staff'}</span></td>
+            <td><strong>${escapeHtml(u.fullName)}</strong> <span class="type-badge">${roleBadge}</span></td>
             <td>${escapeHtml(u.username)}</td>
             <td><span class="status-badge ${u.status === 'Inactive' ? 'is-inactive' : 'is-active'}">${escapeHtml(u.status || 'Active')}</span></td>
             <td>
                 <div class="row-actions">
                     <button class="btn-outline-text" onclick="openUserForm('${u.id}')">Edit</button>
-                    <button class="btn-danger-text" onclick="deleteUser('${u.id}')">Delete</button>
+                    ${isOwner ? '' : `<button class="btn-danger-text" onclick="deleteUser('${u.id}')">Delete</button>`}
                 </div>
             </td>
-        </tr>
-    `).join('');
+        </tr>`;
+    }).join('');
 }
 
 function openUserForm(id = null) {
@@ -67,6 +71,9 @@ function openUserForm(id = null) {
     const toggleBtn = document.querySelector('#user-modal .password-toggle');
     if (toggleBtn) toggleBtn.textContent = 'Show';
 
+    const roleSelect = $('user-role');
+    const ownerOpt = roleSelect.querySelector('option[value="owner"]');
+
     if (id) {
         const user = lfFindById(LF_KEYS.USERS, id);
         if (!user) { showToast('User not found.', 'error'); return; }
@@ -78,13 +85,27 @@ function openUserForm(id = null) {
         $('user-username').value = user.username;
         $('user-username').readOnly = true;
         $('user-status').value = user.status || 'Active';
-        $('user-role').value = user.role === 'rso' ? 'rso' : 'staff';
+
+        const isOwner = user.role === 'owner' ||
+            (user.linkedAuthUid && getCompanyDoc().ownerUid === user.linkedAuthUid);
+        if (isOwner) {
+            ownerOpt.hidden = false;
+            roleSelect.value = 'owner';
+            roleSelect.disabled = true;
+        } else {
+            ownerOpt.hidden = true;
+            roleSelect.disabled = false;
+            roleSelect.value = user.role === 'rso' ? 'rso' : 'staff';
+        }
+
         $('user-password-field').classList.add('hidden');
     } else {
         $('user-modal-title').textContent = 'New User';
         $('user-password-field').classList.remove('hidden');
         $('user-password').required = true;
-        $('user-role').value = 'staff';
+        ownerOpt.hidden = true;
+        roleSelect.disabled = false;
+        roleSelect.value = 'staff';
     }
 
     modal.classList.remove('hidden');
@@ -130,7 +151,7 @@ async function saveUser() {
     const fullName = sanitizeInput($('user-fullname').value);
     const email = sanitizeInput($('user-username').value).toLowerCase();
     const status = $('user-status').value;
-    const role = $('user-role').value || 'staff';
+    let role = $('user-role').disabled ? 'owner' : ($('user-role').value || 'staff');
     const password = $('user-password').value;
     const saveBtn = $('user-save-btn');
 
@@ -229,6 +250,11 @@ async function deleteUser(id) {
 
     if (fbAuth.currentUser && user.linkedAuthUid === fbAuth.currentUser.uid) {
         showToast("You can't remove your own account from here.", 'warning');
+        return;
+    }
+
+    if (user.role === 'owner' || (user.linkedAuthUid && getCompanyDoc().ownerUid === user.linkedAuthUid)) {
+        showToast("The company owner cannot be deleted.", 'warning');
         return;
     }
 
