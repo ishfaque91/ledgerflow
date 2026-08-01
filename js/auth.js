@@ -74,12 +74,14 @@ async function handleSignup() {
             createdAt: new Date().toISOString(), updatedAt: new Date().toISOString()
         });
 
-        showToast(`Welcome, ${companyName}! Your 30-day trial has started.`, 'success');
+        await cred.user.sendEmailVerification();
 
-        // Everything now genuinely exists — safe to resolve and show the app ourselves.
+        showToast('Account created! Please check your email and verify it before logging in.', 'success', 6000);
+
         signupInProgress = false;
         setBtnLoading(btn, false);
-        await resolveCompanyAndShowApp(cred.user);
+        await fbAuth.signOut();
+        showLoginScreen();
     } catch (err) {
         console.error('[Auth] Signup failed:', err.code || '(no code)', err);
 
@@ -114,12 +116,43 @@ async function handleLogin() {
 
     setBtnLoading(btn, true);
     try {
-        await fbAuth.signInWithEmailAndPassword(email, password);
-        // onAuthStateChanged below picks this up automatically.
+        const cred = await fbAuth.signInWithEmailAndPassword(email, password);
+        if (!cred.user.emailVerified) {
+            lastUnverifiedUser = cred.user;
+            await fbAuth.signOut();
+            showToast('Your email is not verified. Check your inbox or click "Resend" below.', 'warning', 6000);
+            $('login-resend-row').classList.remove('hidden');
+            setBtnLoading(btn, false);
+            return;
+        }
+        $('login-resend-row').classList.add('hidden');
     } catch (err) {
         console.error('[Auth] Login failed:', err);
         showToast(mapFirebaseError(err), 'error');
         setBtnLoading(btn, false);
+    }
+}
+
+let lastUnverifiedUser = null;
+async function resendVerificationEmail() {
+    if (lastUnverifiedUser) {
+        try {
+            await lastUnverifiedUser.sendEmailVerification();
+            showToast('Verification email sent! Check your inbox.', 'success');
+        } catch (e) {
+            const email = $('login-email').value.trim().toLowerCase();
+            const password = $('login-password').value;
+            try {
+                const cred = await fbAuth.signInWithEmailAndPassword(email, password);
+                await cred.user.sendEmailVerification();
+                await fbAuth.signOut();
+                showToast('Verification email sent! Check your inbox.', 'success');
+            } catch (e2) {
+                showToast('Could not resend. Please try logging in again.', 'error');
+            }
+        }
+    } else {
+        showToast('Please try logging in first.', 'warning');
     }
 }
 
@@ -510,9 +543,13 @@ function resetLoginBranding() {
 // ==================== INIT ====================
 document.addEventListener('DOMContentLoaded', () => {
     fbAuth.onAuthStateChanged(user => {
-        if (signupInProgress) return; // handleSignup() will resolve things itself once ready
+        if (signupInProgress) return;
 
         if (user) {
+            if (!user.emailVerified) {
+                fbAuth.signOut();
+                return;
+            }
             resolveCompanyAndShowApp(user);
         } else {
             clearCurrentCompany();

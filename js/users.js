@@ -135,15 +135,15 @@ async function createAuthAndUser(email, password, fullName, status, role) {
     try {
         const cred = await fbSecondaryAuth.createUserWithEmailAndPassword(email, password);
         uid = cred.user.uid;
+        await cred.user.sendEmailVerification();
         await fbSecondaryAuth.signOut();
     } catch (e) {
         if (e.code === 'auth/email-already-in-use') {
-            // Orphaned auth account from a previously deleted user — clean it
-            // up via the Cloud Function, then retry creation.
             const deleteAuthUser = firebase.functions().httpsCallable('deleteAuthUser');
             await deleteAuthUser({ email });
             const cred = await fbSecondaryAuth.createUserWithEmailAndPassword(email, password);
             uid = cred.user.uid;
+            await cred.user.sendEmailVerification();
             await fbSecondaryAuth.signOut();
         } else {
             throw e;
