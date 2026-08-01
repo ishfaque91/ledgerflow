@@ -76,7 +76,7 @@
                 </div>
                 <div class="field">
                     <label for="login-password">Password</label>
-                    <input type="password" id="login-password" placeholder="Enter your password" autocomplete="current-password" required>
+                    <div class="password-control"><input type="password" id="login-password" placeholder="Enter your password" autocomplete="current-password" required><button type="button" class="password-toggle" onclick="togglePwVis(this)">Show</button></div>
                 </div>
                 <button class="btn btn-primary login-submit" id="login-submit-btn" onclick="handleLogin()">
                     <span class="btn-label">Log In</span>
@@ -111,11 +111,11 @@
                 </div>
                 <div class="field">
                     <label for="signup-password">Password</label>
-                    <input type="password" id="signup-password" placeholder="Minimum 6 characters" autocomplete="new-password" required>
+                    <div class="password-control"><input type="password" id="signup-password" placeholder="Minimum 6 characters" autocomplete="new-password" required><button type="button" class="password-toggle" onclick="togglePwVis(this)">Show</button></div>
                 </div>
                 <div class="field">
                     <label for="signup-confirm-password">Confirm Password</label>
-                    <input type="password" id="signup-confirm-password" placeholder="Retype your password" autocomplete="new-password" required>
+                    <div class="password-control"><input type="password" id="signup-confirm-password" placeholder="Retype your password" autocomplete="new-password" required><button type="button" class="password-toggle" onclick="togglePwVis(this)">Show</button></div>
                 </div>
                 <button class="btn btn-primary login-submit" id="signup-submit-btn" onclick="handleSignup()">
                     <span class="btn-label">Create Account &amp; Start Trial</span>
@@ -2198,15 +2198,15 @@
                 <form id="change-password-form" onsubmit="return false;" style="display:flex; flex-direction:column; gap:1.1rem;">
                     <div class="field">
                         <label for="cp-current">Current Password <span class="req">*</span></label>
-                        <input type="password" id="cp-current" placeholder="Enter current password" required>
+                        <div class="password-control"><input type="password" id="cp-current" placeholder="Enter current password" required><button type="button" class="password-toggle" onclick="togglePwVis(this)">Show</button></div>
                     </div>
                     <div class="field">
                         <label for="cp-new">New Password <span class="req">*</span></label>
-                        <input type="password" id="cp-new" placeholder="Minimum 6 characters" required>
+                        <div class="password-control"><input type="password" id="cp-new" placeholder="Minimum 6 characters" required><button type="button" class="password-toggle" onclick="togglePwVis(this)">Show</button></div>
                     </div>
                     <div class="field">
                         <label for="cp-confirm">Confirm New Password <span class="req">*</span></label>
-                        <input type="password" id="cp-confirm" placeholder="Retype the new password" required>
+                        <div class="password-control"><input type="password" id="cp-confirm" placeholder="Retype the new password" required><button type="button" class="password-toggle" onclick="togglePwVis(this)">Show</button></div>
                     </div>
                     <button class="btn btn-primary" id="change-password-btn" onclick="saveNewPassword()" style="align-self:flex-start;">
                         <span class="btn-label">Update Password</span>

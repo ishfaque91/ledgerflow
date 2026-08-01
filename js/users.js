@@ -120,9 +120,11 @@ function closeUserForm() {
     $('user-modal').classList.add('hidden');
 }
 
-function togglePasswordVisibility() {
-    const input = $('user-password');
-    const btn = document.querySelector('#user-modal .password-toggle');
+function togglePasswordVisibility() { togglePwVis(document.querySelector('#user-modal .password-toggle')); }
+
+function togglePwVis(btn) {
+    const input = btn.parentElement.querySelector('input[type="password"], input[type="text"]');
+    if (!input) return;
     const showing = input.type === 'text';
     input.type = showing ? 'password' : 'text';
     btn.textContent = showing ? 'Show' : 'Hide';
@@ -186,13 +188,19 @@ async function saveUser() {
             await lfUpsert(LF_KEYS.USERS, created);
 
             if (role === 'rso') {
-                const existing = lfGetAll(LF_KEYS.ACCOUNTS).find(a => a.type === 'Employee/RSO' && a.linkedUserId === created.id);
-                if (!existing) {
-                    await lfUpsert(LF_KEYS.ACCOUNTS, {
-                        type: 'Employee/RSO', title: fullName + ' (RSO)',
-                        linkedUserId: created.id, openingAmount: 0, openingSide: 'Dr',
-                        mobile: '', phone: '', email: '', city: '', gst: '', ntn: '', address: ''
-                    });
+                const rsoAccounts = lfGetAll(LF_KEYS.ACCOUNTS).filter(a => a.type === 'Employee/RSO');
+                const byUserId = rsoAccounts.find(a => a.linkedUserId === created.id);
+                if (!byUserId) {
+                    const byName = rsoAccounts.find(a => a.title.toLowerCase().replace(/\s*\(rso\)\s*/i, '').trim() === fullName.toLowerCase().trim());
+                    if (byName) {
+                        await lfUpsert(LF_KEYS.ACCOUNTS, { ...byName, linkedUserId: created.id });
+                    } else {
+                        await lfUpsert(LF_KEYS.ACCOUNTS, {
+                            type: 'Employee/RSO', title: fullName + ' (RSO)',
+                            linkedUserId: created.id, openingAmount: 0, openingSide: 'Dr',
+                            mobile: '', phone: '', email: '', city: '', gst: '', ntn: '', address: ''
+                        });
+                    }
                 }
             }
 
@@ -211,13 +219,19 @@ async function saveUser() {
             await lfUpsert(LF_KEYS.USERS, updated);
 
             if (role === 'rso') {
-                const existing = lfGetAll(LF_KEYS.ACCOUNTS).find(a => a.type === 'Employee/RSO' && a.linkedUserId === id);
-                if (!existing) {
-                    await lfUpsert(LF_KEYS.ACCOUNTS, {
-                        type: 'Employee/RSO', title: fullName + ' (RSO)',
-                        linkedUserId: id, openingAmount: 0, openingSide: 'Dr',
-                        mobile: '', phone: '', email: '', city: '', gst: '', ntn: '', address: ''
-                    });
+                const rsoAccounts = lfGetAll(LF_KEYS.ACCOUNTS).filter(a => a.type === 'Employee/RSO');
+                const byUserId = rsoAccounts.find(a => a.linkedUserId === id);
+                if (!byUserId) {
+                    const byName = rsoAccounts.find(a => a.title.toLowerCase().replace(/\s*\(rso\)\s*/i, '').trim() === fullName.toLowerCase().trim());
+                    if (byName) {
+                        await lfUpsert(LF_KEYS.ACCOUNTS, { ...byName, linkedUserId: id });
+                    } else {
+                        await lfUpsert(LF_KEYS.ACCOUNTS, {
+                            type: 'Employee/RSO', title: fullName + ' (RSO)',
+                            linkedUserId: id, openingAmount: 0, openingSide: 'Dr',
+                            mobile: '', phone: '', email: '', city: '', gst: '', ntn: '', address: ''
+                        });
+                    }
                 }
             }
 
