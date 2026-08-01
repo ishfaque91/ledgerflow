@@ -59,6 +59,33 @@ const RIGHTS_SCHEMA = {
     ]
 };
 
+// Default permissions by role — created automatically when a new user is
+// added so they start with sensible access instead of seeing everything.
+// Admin can still edit these later on the User Rights screen.
+function buildDefaultPermissions(role) {
+    const perms = {};
+
+    if (role === 'rso') {
+        // RSO only sees RSO screens + Change Password
+        const rsoGroup = RIGHTS_SCHEMA['RSO / SALESMAN'];
+        rsoGroup.forEach(s => {
+            s.perms.forEach(p => { perms[`RSO / SALESMAN|${s.name}|${p}`] = true; });
+        });
+        perms['UTILITY|Change Password|View'] = true;
+    } else {
+        // Staff gets operational access: Data Entry, Vouchers, Reports,
+        // Change Password — no admin utilities or RSO screens.
+        ['DATA ENTRY', 'VOUCHERS', 'REPORTS'].forEach(group => {
+            RIGHTS_SCHEMA[group].forEach(s => {
+                s.perms.forEach(p => { perms[`${group}|${s.name}|${p}`] = true; });
+            });
+        });
+        perms['UTILITY|Change Password|View'] = true;
+    }
+
+    return perms;
+}
+
 let currentRightsUserId = '';
 
 // ==================== USER PICKER ====================
@@ -261,19 +288,18 @@ function isCurrentUserOwner() {
     return !user || user.role === 'owner';
 }
 
-// The permission check every gated action goes through. A staff user who
-// has NEVER been explicitly configured on the Rights screen (no saved
-// record at all) keeps full access — exactly today's behavior — so turning
-// this on doesn't change what anyone can already do. Access only actually
-// narrows once their owner explicitly saves a Rights configuration for
-// them; from that point on, only what's checked there is allowed.
+// The permission check every gated action goes through. If no rights
+// record exists yet, fall back to the role's default permissions so new
+// staff/RSO users start with restricted access out of the box.
 function hasRight(groupName, screenName, perm) {
     if (isCurrentUserOwner()) return true;
     const user = getCurrentUserRecord();
     if (!user) return true;
     const record = lfGetAll(LF_KEYS.RIGHTS).find(r => r.userId === user.id);
-    if (!record) return true;
-    return !!(record.permissions && record.permissions[`${groupName}|${screenName}|${perm}`]);
+    const permissions = record
+        ? (record.permissions || {})
+        : buildDefaultPermissions(user.role || 'staff');
+    return !!permissions[`${groupName}|${screenName}|${perm}`];
 }
 
 function hasPageViewRight(pageId) {

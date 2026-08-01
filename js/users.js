@@ -171,6 +171,13 @@ async function saveUser() {
                 }
             }
 
+            await lfUpsert(LF_KEYS.RIGHTS, {
+                id: created.id,
+                userId: created.id,
+                lockbackDays: 0,
+                permissions: buildDefaultPermissions(role)
+            });
+
             showToast('User created — they can log in with that email and password now.', 'success');
             logActivity('Created', 'User', fullName, { after: created, recordId: created.id });
         } else {
@@ -188,6 +195,16 @@ async function saveUser() {
                     });
                 }
             }
+
+            const roleChanged = before.role && before.role !== role;
+            const noRightsRecord = !lfGetAll(LF_KEYS.RIGHTS).find(r => r.userId === id);
+            if (roleChanged || noRightsRecord) {
+                await lfUpsert(LF_KEYS.RIGHTS, {
+                    id, userId: id, lockbackDays: 0,
+                    permissions: buildDefaultPermissions(role)
+                });
+            }
+
             showToast('User updated.', 'success');
             logActivity('Updated', 'User', fullName, { before, after: { ...before, ...updated }, recordId: id });
         }
