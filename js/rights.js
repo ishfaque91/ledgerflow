@@ -66,20 +66,26 @@ function buildDefaultPermissions(role) {
     const perms = {};
 
     if (role === 'rso') {
-        // RSO only sees RSO screens + Change Password
         const rsoGroup = RIGHTS_SCHEMA['RSO / SALESMAN'];
         rsoGroup.forEach(s => {
             s.perms.forEach(p => { perms[`RSO / SALESMAN|${s.name}|${p}`] = true; });
         });
         perms['UTILITY|Change Password|View'] = true;
     } else {
-        // Staff gets operational access: Data Entry, Vouchers, Reports,
-        // Change Password — no admin utilities or RSO screens.
-        ['DATA ENTRY', 'VOUCHERS', 'REPORTS'].forEach(group => {
+        // Staff gets Data Entry + Vouchers + basic operational reports only.
+        // Financial reports (Trial Balance, Balance Sheet, P&L, Profit on
+        // Sale, graphs) stay hidden — owner grants those explicitly.
+        ['DATA ENTRY', 'VOUCHERS'].forEach(group => {
             RIGHTS_SCHEMA[group].forEach(s => {
                 s.perms.forEach(p => { perms[`${group}|${s.name}|${p}`] = true; });
             });
         });
+        const staffReports = [
+            'Chart of Accounts', 'Account Ledger', 'Item Ledger',
+            'Load Ledger', 'Stock Report', 'Cash Book',
+            'Sale Invoices Report', 'Purchase Invoices Report'
+        ];
+        staffReports.forEach(name => { perms[`REPORTS|${name}|View`] = true; });
         perms['UTILITY|Change Password|View'] = true;
     }
 
