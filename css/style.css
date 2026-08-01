@@ -1285,12 +1285,14 @@ button { font-family: inherit; }
 .dash-tab:hover .dash-tab-arrow { color: var(--tab-accent); transform: translateX(3px); }
 
 @media (max-width: 720px) {
-    .dash-tab-grid { grid-template-columns: 1fr; gap: 12px; }
-    .dash-tab { padding: 1.05rem 1.1rem; gap: 13px; }
-    .dash-tab-icon { width: 42px; height: 42px; border-radius: 12px; }
-    .dash-tab-icon svg { width: 20px; height: 20px; }
-    .dash-tab-name { font-size: 1.02rem; }
-    .dash-tab-desc { font-size: 0.79rem; }
+    .dash-tab-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .dash-tab { padding: 0.85rem 0.7rem; gap: 8px; flex-direction: column; align-items: flex-start; }
+    .dash-tab-icon { width: 36px; height: 36px; border-radius: 10px; }
+    .dash-tab-icon svg { width: 18px; height: 18px; }
+    .dash-tab-name { font-size: 0.92rem; }
+    .dash-tab-desc { font-size: 0.72rem; }
+    .dash-tab-meta { align-self: flex-end; margin-top: auto; }
+    .dash-tab-count { font-size: 0.78rem; }
 }
 /* Only on genuinely tiny screens (below ~340px) does the description stop
    fitting alongside the icon and count — common phone widths (375px and up)

@@ -175,7 +175,48 @@ function openInvoiceForm(type, editId = null) {
     }
 
     recalcTotals();
+    $('invoice-print-btn').style.display = editId ? '' : 'none';
     $('invoice-modal').classList.remove('hidden');
+}
+
+function printInvoice() {
+    const invId = $('inv-id').value;
+    const inv = invId ? lfFindById(LF_KEYS.INVOICES, invId) : null;
+    if (!inv) { showToast('Save the invoice first before printing.', 'warning'); return; }
+
+    const config = INVOICE_CONFIG[inv.type];
+    const party = lfFindById(LF_KEYS.ACCOUNTS, inv.partyAccountId);
+    const company = getCompanyDoc();
+
+    const itemRows = (inv.items || []).filter(i => i.qty > 0).map(i => {
+        const item = lfFindById(LF_KEYS.ITEMS, i.itemId);
+        return `<tr><td>${escapeHtml(item ? item.name : i.itemId)}</td><td style="text-align:right">${i.qty}</td><td style="text-align:right">${formatCurrency(i.rate)}</td><td style="text-align:right">${formatCurrency(i.amount)}</td></tr>`;
+    }).join('');
+
+    const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${config.title} ${inv.number}</title>
+    <style>body{font-family:Arial,sans-serif;font-size:12px;margin:20px;color:#222}
+    h2{margin:0 0 4px;font-size:16px}table{width:100%;border-collapse:collapse;margin:8px 0}
+    th,td{border:1px solid #ccc;padding:5px 8px;text-align:left}th{background:#f0f0f0;font-size:11px}
+    .totals{margin:8px 0;text-align:right}.totals span{display:inline-block;min-width:120px;font-weight:700}
+    .header{display:flex;justify-content:space-between;border-bottom:2px solid #5B4FE9;padding-bottom:8px;margin-bottom:12px}
+    @media print{body{margin:10mm}}</style></head><body>
+    <div class="header"><div><h2>${escapeHtml(company.companyName || 'LedgerFlow')}</h2>
+    <small>${escapeHtml(company.phone ? '+92 ' + company.phone : '')} ${escapeHtml(company.city || '')}</small></div>
+    <div style="text-align:right"><strong>${config.title}</strong><br>${inv.number}<br>${inv.date}</div></div>
+    <p><strong>${config.partyLabel}:</strong> ${escapeHtml(inv.partyName || '')}</p>
+    ${inv.refNumber ? `<p><strong>Ref:</strong> ${escapeHtml(inv.refNumber)} ${inv.refDate ? '(' + inv.refDate + ')' : ''}</p>` : ''}
+    ${inv.hasLoad ? `<p><strong>Load:</strong> Amount: ${formatCurrency(inv.loadAmount)} | Discount: ${inv.loadDiscount}% | Qty: ${inv.loadQty.toLocaleString('en-US')}</p>` : ''}
+    ${itemRows ? `<table><thead><tr><th>Item</th><th style="text-align:right">Qty</th><th style="text-align:right">Rate</th><th style="text-align:right">Amount</th></tr></thead><tbody>${itemRows}</tbody></table>` : ''}
+    <div class="totals">${inv.hasLoad ? `Load Total: <span>${formatCurrency(inv.loadTotal || 0)}</span><br>` : ''}
+    Items Total: <span>${formatCurrency(inv.itemsTotal || 0)}</span><br>
+    <strong>Grand Total: <span>${formatCurrency(inv.grandTotal)}</span></strong><br>
+    ${inv.paymentMode && inv.paymentMode !== 'None' ? `Paid (${inv.paymentMode}): <span>${formatCurrency(inv.paymentAmount || 0)}</span><br>` : ''}
+    Balance: <span>${formatCurrency(inv.balanceAmount || 0)}</span></div>
+    <script>window.print();<\/script></body></html>`;
+
+    const w = window.open('', '_blank', 'width=400,height=600');
+    w.document.write(html);
+    w.document.close();
 }
 
 function closeInvoiceForm() {
@@ -253,7 +294,7 @@ function renderItemRows() {
     const items = lfGetAll(LF_KEYS.ITEMS).sort((a, b) => a.name.localeCompare(b.name));
 
     if (items.length === 0) {
-        container.innerHTML = `<div class="item-rows-empty">No items in your catalog yet — add some under Management &gt; Add/Edit Items.</div>`;
+        container.innerHTML = `<div class="item-rows-empty">No items in your catalog yet — add some under Sales/Purchase &gt; Add/Edit Items.</div>`;
         return;
     }
 

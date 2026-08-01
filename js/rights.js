@@ -14,13 +14,15 @@ const RIGHTS_SCHEMA = {
         { name: 'Purchase', perms: ['View', 'Edit'] },
         { name: 'Purchase Return', perms: ['View', 'Edit'] },
         { name: 'Sale', perms: ['View', 'Edit'] },
-        { name: 'Sale Return', perms: ['View', 'Edit'] }
+        { name: 'Sale Return', perms: ['View', 'Edit'] },
+        { name: 'Add/Edit Items', perms: ['View', 'Edit'] }
     ],
     'VOUCHERS': [
         { name: 'Bank Receipt', perms: ['View', 'Edit'] },
         { name: 'Bank Payment', perms: ['View', 'Edit'] },
         { name: 'Petty Cash', perms: ['View', 'Edit'] },
-        { name: 'Journal Voucher', perms: ['View', 'Edit'] }
+        { name: 'Journal Voucher', perms: ['View', 'Edit'] },
+        { name: 'Add/Edit Accounts', perms: ['Edit', 'Delete'] }
     ],
     'REPORTS': [
         { name: 'Chart of Accounts', perms: ['View'] },
@@ -37,10 +39,6 @@ const RIGHTS_SCHEMA = {
         { name: 'Profit & Loss', perms: ['View'] },
         { name: 'Profit & Loss Graph', perms: ['View'] },
         { name: 'Income & Expense Graph', perms: ['View'] }
-    ],
-    'MANAGEMENT': [
-        { name: 'Add/Edit Items', perms: ['View', 'Edit'] },
-        { name: 'Add/Edit Accounts', perms: ['Edit', 'Delete'] }
     ],
     'UTILITY': [
         { name: 'Add/Edit Users', perms: ['Add', 'Edit', 'Delete'] },
@@ -224,7 +222,8 @@ const PAGE_RIGHTS_MAP = {
     'page-profit-loss': ['REPORTS', 'Profit & Loss'],
     'page-graph-pl': ['REPORTS', 'Profit & Loss Graph'],
     'page-graph-ie': ['REPORTS', 'Income & Expense Graph'],
-    'page-items': ['MANAGEMENT', 'Add/Edit Items'],
+    'page-items': ['DATA ENTRY', 'Add/Edit Items'],
+    'page-accounts': ['VOUCHERS', 'Add/Edit Accounts'],
     'page-rights': ['UTILITY', 'User Rights'],
     'page-backup': ['UTILITY', 'Backup'],
     'page-change-password': ['UTILITY', 'Change Password'],

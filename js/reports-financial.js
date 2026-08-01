@@ -11,7 +11,8 @@
  * though Income/Expense accounts never sit directly on the Balance Sheet.
  */
 
-const ASSET_TYPES = ['Asset', 'Cash', 'Bank', 'Customer', 'Employee/RSO', 'Branch'];
+const CURRENT_ASSET_TYPES = ['Cash', 'Bank', 'Customer', 'Employee/RSO', 'Branch'];
+const FIXED_ASSET_TYPES = ['Asset'];
 const LIABILITY_TYPES = ['Liability', 'Supplier'];
 
 // ==================== ACCOUNT BALANCE AS OF A DATE ====================
@@ -174,14 +175,26 @@ function statementRowHtml(title, amount) {
     return `<div class="statement-row"><span>${escapeHtml(title)}</span><span>${formatCurrency(amount)}</span></div>`;
 }
 
+function computeClosingStock(asOfDate) {
+    const items = lfGetAll(LF_KEYS.ITEMS);
+    let totalValue = 0;
+    items.forEach(item => {
+        const entries = lfGetAll(LF_KEYS.ITEM_LEDGER)
+            .filter(e => e.itemId === item.id && (!asOfDate || e.date <= asOfDate));
+        const qty = entries.reduce((s, e) => s + e.qtyChange, 0);
+        totalValue += Math.max(0, qty) * (item.purchasePrice || 0);
+    });
+    return totalValue;
+}
+
 function renderBalanceSheet() {
     if (!isPageActive('page-balance-sheet')) return;
     updateReportHeader('page-balance-sheet');
     const asOf = $('bs-as-of').value;
     const accounts = lfGetAll(LF_KEYS.ACCOUNTS);
 
-    let totalAssets = 0, totalLiabilities = 0, totalEquity = 0;
-    const assetRows = [], liabilityRows = [], equityRows = [];
+    let totalCurrentAssets = 0, totalFixedAssets = 0, totalLiabilities = 0, totalEquity = 0;
+    const currentAssetRows = [], fixedAssetRows = [], liabilityRows = [], equityRows = [];
 
     accounts.forEach(acc => {
         const bal = computeAccountBalanceAsOf(acc.id, asOf);
@@ -191,44 +204,62 @@ function renderBalanceSheet() {
             const signed = bal.side === 'Cr' ? bal.amount : -bal.amount;
             totalEquity += signed;
             equityRows.push({ title: acc.title, amount: signed });
-        } else if (ASSET_TYPES.includes(acc.type)) {
+        } else if (CURRENT_ASSET_TYPES.includes(acc.type)) {
             const signed = bal.side === 'Dr' ? bal.amount : -bal.amount;
-            totalAssets += signed;
-            assetRows.push({ title: acc.title, amount: signed });
+            totalCurrentAssets += signed;
+            currentAssetRows.push({ title: acc.title, amount: signed });
+        } else if (FIXED_ASSET_TYPES.includes(acc.type)) {
+            const signed = bal.side === 'Dr' ? bal.amount : -bal.amount;
+            totalFixedAssets += signed;
+            fixedAssetRows.push({ title: acc.title, amount: signed });
         } else if (LIABILITY_TYPES.includes(acc.type)) {
             const signed = bal.side === 'Cr' ? bal.amount : -bal.amount;
             totalLiabilities += signed;
             liabilityRows.push({ title: acc.title, amount: signed });
         } else if (acc.type === 'Customer/Supplier') {
-            if (bal.side === 'Dr') { totalAssets += bal.amount; assetRows.push({ title: acc.title, amount: bal.amount }); }
+            if (bal.side === 'Dr') { totalCurrentAssets += bal.amount; currentAssetRows.push({ title: acc.title, amount: bal.amount }); }
             else { totalLiabilities += bal.amount; liabilityRows.push({ title: acc.title, amount: bal.amount }); }
         }
-        // Income/Expense accounts don't sit directly on the Balance Sheet —
-        // their net effect is folded into Retained Earnings below.
     });
+
+    const closingStock = Math.round(computeClosingStock(asOf) * 100) / 100;
+    if (closingStock > 0) {
+        currentAssetRows.push({ title: 'Closing Stock (Inventory)', amount: closingStock });
+        totalCurrentAssets += closingStock;
+    }
 
     const netProfit = Math.round(computeNetProfit('', asOf) * 100) / 100;
     totalEquity += netProfit;
     equityRows.push({ title: 'Retained Earnings (Net Profit)', amount: netProfit });
 
+    const totalAssets = totalCurrentAssets + totalFixedAssets;
     const totalLiabEquity = totalLiabilities + totalEquity;
     const difference = Math.round((totalAssets - totalLiabEquity) * 100) / 100;
 
     $('bs-total-assets').textContent = formatCurrency(totalAssets);
-    $('bs-total-liab-equity').textContent = formatCurrency(totalLiabEquity);
+    $('bs-total-liabilities').textContent = formatCurrency(totalLiabilities);
+    $('bs-total-equity').textContent = formatCurrency(totalEquity);
     $('bs-difference').textContent = formatCurrency(Math.abs(difference));
     $('bs-difference').className = `report-summary-value ${difference === 0 ? '' : 'is-warn'}`;
 
-    $('bs-assets-rows').innerHTML = assetRows.length
-        ? assetRows.map(r => statementRowHtml(r.title, r.amount)).join('')
-        : `<div class="statement-row"><span>No assets yet</span><span>-</span></div>`;
+    $('bs-current-assets-rows').innerHTML = currentAssetRows.length
+        ? currentAssetRows.map(r => statementRowHtml(r.title, r.amount)).join('')
+        : `<div class="statement-row"><span>None</span><span>-</span></div>`;
+    $('bs-current-assets-total').textContent = formatCurrency(totalCurrentAssets);
+
+    $('bs-fixed-assets-rows').innerHTML = fixedAssetRows.length
+        ? fixedAssetRows.map(r => statementRowHtml(r.title, r.amount)).join('')
+        : `<div class="statement-row"><span>None</span><span>-</span></div>`;
+    $('bs-fixed-assets-total').textContent = formatCurrency(totalFixedAssets);
     $('bs-assets-total').textContent = formatCurrency(totalAssets);
 
     $('bs-liabilities-rows').innerHTML = liabilityRows.length
         ? liabilityRows.map(r => statementRowHtml(r.title, r.amount)).join('')
         : `<div class="statement-row"><span>None</span><span>-</span></div>`;
+    $('bs-liabilities-total').textContent = formatCurrency(totalLiabilities);
 
     $('bs-equity-rows').innerHTML = equityRows.map(r => statementRowHtml(r.title, r.amount)).join('');
+    $('bs-equity-total').textContent = formatCurrency(totalEquity);
     $('bs-liab-equity-total').textContent = formatCurrency(totalLiabEquity);
 }
 
