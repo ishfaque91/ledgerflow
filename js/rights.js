@@ -288,12 +288,20 @@ function getCurrentUserRecord() {
 }
 
 // The owner always has full access — Rights only ever restricts staff.
-// Also true if the user record hasn't resolved yet (e.g. rights checked a
-// moment before the USERS listener's first snapshot arrives), so nothing
-// briefly blocks itself during load.
+// Three checks, any one is enough:
+//  1. No user record yet (snapshot still loading) — don't block the UI
+//  2. user.role === 'owner' (the normal path for records created with role)
+//  3. Auth UID matches the company doc's ownerUid (authoritative — covers
+//     records created before the role field existed, and can never be faked
+//     by editing a Firestore user record)
 function isCurrentUserOwner() {
+    const authUser = (typeof fbAuth !== 'undefined') ? fbAuth.currentUser : null;
     const user = getCurrentUserRecord();
-    return !user || user.role === 'owner';
+    if (!user) return true;
+    if (user.role === 'owner') return true;
+    const company = getCompanyDoc();
+    if (authUser && company.ownerUid === authUser.uid) return true;
+    return false;
 }
 
 // The permission check every gated action goes through. If no rights

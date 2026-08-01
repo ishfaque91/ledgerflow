@@ -12,8 +12,8 @@
 
 // ==================== LOCKBACK ENFORCEMENT ====================
 function getLockbackDate() {
+    if (isCurrentUserOwner()) return null;
     const user = getCurrentUserRecord();
-    if (!user || user.role === 'owner') return null;
     const record = lfGetAll(LF_KEYS.RIGHTS).find(r => r.userId === user.id);
     const days = record?.lockbackDays;
     if (!days || days <= 0) return null;
