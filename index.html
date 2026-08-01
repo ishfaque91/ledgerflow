@@ -34,6 +34,19 @@
     </symbol>
 </svg>
 
+<!-- ==================== ROTATE-DEVICE OVERLAY ====================
+     A phone's browser can't be forced out of landscape from the page
+     itself (the manifest's orientation lock only applies once the app is
+     installed and launched standalone) -- so as a fallback, block
+     interaction and ask for portrait instead of letting every layout
+     built for portrait render sideways and broken. Desktop/tablet
+     landscape is untouched; see the (max-width: 900px) guard in CSS. -->
+<div id="rotate-overlay" class="rotate-overlay" role="alert">
+    <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/><path d="M22 8l-4 4 4 4" transform="translate(-3,-6) rotate(90 12 12)"/></svg>
+    <p>Please rotate your device back to portrait</p>
+    <span>LedgerFlow is designed for portrait use only</span>
+</div>
+
 <!-- ==================== INITIAL LOADING SPLASH ====================
      Shown first while we check whether there's an active session, so
      the login form never flashes on screen for someone who's already
@@ -219,8 +232,7 @@
                     <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
                 </button>
                 <div class="nav-group-body">
-                    <a href="#" class="nav-link" data-page="page-chart-of-accounts" onclick="navigateTo('page-chart-of-accounts',this); openReportFilterModal('page-chart-of-accounts');">Chart of Accounts</a>
-                    <a href="#" class="nav-link" data-page="page-account-balances" onclick="navigateTo('page-account-balances',this); openReportFilterModal('page-account-balances');">Account Balances</a>
+                    <a href="#" class="nav-link" data-page="page-chart-of-accounts" onclick="navigateTo('page-chart-of-accounts',this); initChartOfAccountsPage();">Chart of Accounts</a>
                     <a href="#" class="nav-link" data-page="page-account-ledger" onclick="navigateTo('page-account-ledger',this); openReportFilterModal('page-account-ledger');">Account Ledger</a>
                     <a href="#" class="nav-link" data-page="page-load-ledger" onclick="navigateTo('page-load-ledger',this); openReportFilterModal('page-load-ledger');">Load Ledger</a>
                     <a href="#" class="nav-link" data-page="page-item-ledger" onclick="navigateTo('page-item-ledger',this); openReportFilterModal('page-item-ledger');">Item Ledger</a>
@@ -315,7 +327,7 @@
                         <span class="dash-tab-desc">Ledgers, stock and financial statements</span>
                     </span>
                     <span class="dash-tab-meta">
-                        <span class="dash-tab-count">15</span>
+                        <span class="dash-tab-count">14</span>
                         <svg class="dash-tab-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
                     </span>
                 </a>
@@ -394,8 +406,7 @@
             </div>
             <div class="card dash-directory-card dash-hub-card">
                 <div class="dash-directory-list">
-                        <a href="#" data-page="page-chart-of-accounts" onclick="navigateTo('page-chart-of-accounts',this); openReportFilterModal('page-chart-of-accounts');"><span class="hub-opt-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></span><span class="hub-opt-label">Chart of Accounts</span><svg class="hub-opt-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></a>
-                        <a href="#" data-page="page-account-balances" onclick="navigateTo('page-account-balances',this); openReportFilterModal('page-account-balances');"><span class="hub-opt-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></span><span class="hub-opt-label">Account Balances</span><svg class="hub-opt-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></a>
+                        <a href="#" data-page="page-chart-of-accounts" onclick="navigateTo('page-chart-of-accounts',this); initChartOfAccountsPage();"><span class="hub-opt-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></span><span class="hub-opt-label">Chart of Accounts</span><svg class="hub-opt-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></a>
                         <a href="#" data-page="page-account-ledger" onclick="navigateTo('page-account-ledger',this); openReportFilterModal('page-account-ledger');"><span class="hub-opt-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></span><span class="hub-opt-label">Account Ledger</span><svg class="hub-opt-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></a>
                         <a href="#" data-page="page-load-ledger" onclick="navigateTo('page-load-ledger',this); openReportFilterModal('page-load-ledger');"><span class="hub-opt-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></span><span class="hub-opt-label">Load Ledger</span><svg class="hub-opt-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></a>
                         <a href="#" data-page="page-item-ledger" onclick="navigateTo('page-item-ledger',this); openReportFilterModal('page-item-ledger');"><span class="hub-opt-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></span><span class="hub-opt-label">Item Ledger</span><svg class="hub-opt-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></a>
@@ -1460,7 +1471,7 @@
             <div class="page-head">
                 <div>
                     <h1>Chart of Accounts</h1>
-                    <p class="page-sub">Every account, grouped by type, with its opening balance.</p>
+                    <p class="page-sub">Every account, grouped by type, with its current balance.</p>
                 </div>
             </div>
             <div class="toolbar-row">
@@ -1474,7 +1485,7 @@
             <div class="card table-card">
                 <div class="table-scroll">
                     <table class="data-table">
-                        <thead><tr><th>Type</th><th>Title</th><th>Mobile</th><th>City</th><th class="num">Opening Balance</th></tr></thead>
+                        <thead><tr><th>Type</th><th>Title</th><th>Mobile</th><th>City</th><th class="num">Closing Balance</th></tr></thead>
                         <tbody id="coa-table-body"></tbody>
                     </table>
                 </div>
@@ -1482,32 +1493,6 @@
         </section>
 
         <!-- ============ ACCOUNT BALANCES ============ -->
-        <section id="page-account-balances" class="page">
-            <div class="page-head">
-                <div>
-                    <h1>Account Balances</h1>
-                    <p class="page-sub">Opening balance plus every ledger movement since — where every account stands right now.</p>
-                </div>
-            </div>
-            <div class="toolbar-row">
-                <div class="search-field">
-                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                    <input type="text" id="bal-search" placeholder="Search by title…" oninput="renderAccountBalances()">
-                </div>
-                <select id="bal-type-filter" class="select-chip" onchange="renderAccountBalances()"><option value="">All types</option></select>
-                <label class="check-row"><input type="checkbox" id="bal-hide-zero" onchange="renderAccountBalances()"><span>Hide zero balances</span></label>
-                <span class="count-pill" id="bal-count">0 accounts</span>
-            <div class="export-toolbar"><button class="export-btn" onclick="printCurrentReport()">Print</button><button class="export-btn" onclick="exportReportToPDF('balances-table-body', 'Account Balances', 'page-account-balances')">PDF</button><button class="export-btn" onclick="exportReportToExcel('balances-table-body', 'Account Balances', 'page-account-balances')">Excel</button></div></div>
-            <div class="card table-card">
-                <div class="table-scroll">
-                    <table class="data-table">
-                        <thead><tr><th>Title</th><th>Type</th><th class="num">Current Balance</th></tr></thead>
-                        <tbody id="balances-table-body"></tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-
         <!-- ============ ACCOUNT LEDGER ============ -->
         <section id="page-account-ledger" class="page">
             <div class="page-head">
@@ -1593,10 +1578,12 @@
             <div class="page-head">
                 <div>
                     <h1>Stock Report</h1>
-                    <p class="page-sub">Current stock on hand for every item, computed from the Item Ledger.</p>
+                    <p class="page-sub">Opening, received, issued and closing stock for every item over a chosen period.</p>
                 </div>
             </div>
-            <div class="toolbar-row">
+            <div class="report-toolbar">
+                <div class="report-field"><label>From</label><input type="date" id="stock-date-from" onchange="renderStockReport()"></div>
+                <div class="report-field"><label>To</label><input type="date" id="stock-date-to" onchange="renderStockReport()"></div>
                 <div class="search-field">
                     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                     <input type="text" id="stock-search" placeholder="Search by item name…" oninput="renderStockReport()">
@@ -1606,7 +1593,7 @@
             <div class="card table-card">
                 <div class="table-scroll">
                     <table class="data-table">
-                        <thead><tr><th>Item Name</th><th>Category</th><th>Unit</th><th class="num">Current Stock</th><th class="num">Purchase Price</th><th class="num">Sale Price</th></tr></thead>
+                        <thead><tr><th>Item Name</th><th>Category</th><th class="num">Opening</th><th class="num">In</th><th class="num">Out</th><th class="num">Closing</th><th class="num">Stock Value</th></tr></thead>
                         <tbody id="stock-report-table-body"></tbody>
                     </table>
                 </div>

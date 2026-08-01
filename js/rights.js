@@ -24,7 +24,6 @@ const RIGHTS_SCHEMA = {
     ],
     'REPORTS': [
         { name: 'Chart of Accounts', perms: ['View'] },
-        { name: 'Account Balances', perms: ['View'] },
         { name: 'Account Ledger', perms: ['View'] },
         { name: 'Item Ledger', perms: ['View'] },
         { name: 'Load Ledger', perms: ['View'] },
@@ -212,7 +211,6 @@ const PAGE_RIGHTS_MAP = {
     'page-journal': ['VOUCHERS', 'Journal Voucher'],
     'page-edit-log': ['UTILITY', 'Edit History'],
     'page-chart-of-accounts': ['REPORTS', 'Chart of Accounts'],
-    'page-account-balances': ['REPORTS', 'Account Balances'],
     'page-account-ledger': ['REPORTS', 'Account Ledger'],
     'page-load-ledger': ['REPORTS', 'Load Ledger'],
     'page-item-ledger': ['REPORTS', 'Item Ledger'],

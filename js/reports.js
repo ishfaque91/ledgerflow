@@ -48,55 +48,17 @@ function renderChartOfAccounts() {
         return;
     }
 
-    tbody.innerHTML = accounts.map(a => `
+    tbody.innerHTML = accounts.map(a => {
+        const bal = computeAccountBalance(a.id);
+        return `
         <tr>
             <td><span class="type-badge">${escapeHtml(a.type)}</span></td>
             <td><strong>${escapeHtml(a.title)}</strong></td>
             <td>${a.mobile ? '+92 ' + escapeHtml(a.mobile) : '-'}</td>
             <td>${escapeHtml(a.city) || '-'}</td>
-            <td class="num">${balanceHtml(a.openingAmount || 0, a.openingSide || 'Dr')}</td>
-        </tr>
-    `).join('');
-}
-
-// ==================== ACCOUNT BALANCES ====================
-function initAccountBalancesPage() {
-    const filter = $('bal-type-filter');
-    repopulateSelect(filter, '<option value="">All types</option>' +
-        ACCOUNT_TYPES.map(t => `<option value="${t}">${t}</option>`).join(''));
-    renderAccountBalances();
-}
-
-function renderAccountBalances() {
-    if (!isPageActive('page-account-balances')) return;
-    updateReportHeader('page-account-balances');
-    const term = ($('bal-search')?.value || '').trim().toLowerCase();
-    const typeFilter = $('bal-type-filter')?.value || '';
-    const hideZero = $('bal-hide-zero')?.checked;
-
-    let accounts = lfGetAll(LF_KEYS.ACCOUNTS);
-    if (typeFilter) accounts = accounts.filter(a => a.type === typeFilter);
-    if (term) accounts = accounts.filter(a => (a.title || '').toLowerCase().includes(term));
-
-    let rows = accounts.map(a => ({ account: a, balance: computeAccountBalance(a.id) }));
-    if (hideZero) rows = rows.filter(r => r.balance.amount > 0.004);
-
-    rows.sort((a, b) => a.account.title.localeCompare(b.account.title));
-    $('bal-count').textContent = `${rows.length} account${rows.length === 1 ? '' : 's'}`;
-
-    const tbody = $('balances-table-body');
-    if (rows.length === 0) {
-        tbody.innerHTML = `<tr class="empty-row"><td colspan="3">No matching accounts.</td></tr>`;
-        return;
-    }
-
-    tbody.innerHTML = rows.map(r => `
-        <tr>
-            <td><strong>${escapeHtml(r.account.title)}</strong></td>
-            <td><span class="type-badge">${escapeHtml(r.account.type)}</span></td>
-            <td class="num">${balanceHtml(r.balance.amount, r.balance.side)}</td>
-        </tr>
-    `).join('');
+            <td class="num">${balanceHtml(bal.amount, bal.side)}</td>
+        </tr>`;
+    }).join('');
 }
 
 // ==================== ACCOUNT LEDGER (also powers Cash Book) ====================
@@ -324,12 +286,46 @@ function renderItemLedgerReport() {
 }
 
 // ==================== STOCK REPORT ====================
+// A per-item version of the same Opening / In / Out / Closing shape the
+// Account Ledger and Item Ledger already use, rather than a bare "current
+// stock" figure with no way to see movement over a chosen window.
+function computeItemStockSummary(itemId, dateFrom, dateTo) {
+    const entries = lfGetAll(LF_KEYS.ITEM_LEDGER)
+        .filter(e => e.itemId === itemId)
+        .sort((a, b) => new Date(a.date) - new Date(b.date));
+
+    let opening = 0, qtyIn = 0, qtyOut = 0;
+    entries.forEach(e => {
+        if (dateFrom && e.date < dateFrom) { opening += e.qtyChange; return; }
+        if (dateTo && e.date > dateTo) return;
+        if (e.qtyChange >= 0) qtyIn += e.qtyChange; else qtyOut += Math.abs(e.qtyChange);
+    });
+
+    return { opening, in: qtyIn, out: qtyOut, closing: opening + qtyIn - qtyOut };
+}
+
 function initStockReportPage() { renderStockReport(); }
 
 function renderStockReport() {
     if (!isPageActive('page-stock-report')) return;
     updateReportHeader('page-stock-report');
+
+    // Defaults to the whole life of the company (same rule the graph
+    // reports use) whenever the fields are blank — not just on first open,
+    // but on every render, so resuming here after a refresh (which skips
+    // the filter modal that normally sets these) still shows real dates
+    // instead of empty inputs.
+    if ($('stock-date-from') && !$('stock-date-from').value) {
+        $('stock-date-from').value = getCompanyDoc().signupDate || new Date().toISOString().slice(0, 10);
+    }
+    if ($('stock-date-to') && !$('stock-date-to').value) {
+        $('stock-date-to').value = new Date().toISOString().slice(0, 10);
+    }
+
     const term = ($('stock-search')?.value || '').trim().toLowerCase();
+    const dateFrom = $('stock-date-from')?.value || '';
+    const dateTo = $('stock-date-to')?.value || '';
+
     let items = lfGetAll(LF_KEYS.ITEMS);
     if (term) items = items.filter(i => (i.name || '').toLowerCase().includes(term));
     items.sort((a, b) => a.name.localeCompare(b.name));
@@ -338,19 +334,22 @@ function renderStockReport() {
 
     const tbody = $('stock-report-table-body');
     if (items.length === 0) {
-        tbody.innerHTML = `<tr class="empty-row"><td colspan="6">No items yet.</td></tr>`;
+        tbody.innerHTML = `<tr class="empty-row"><td colspan="7">No items yet.</td></tr>`;
         return;
     }
-    tbody.innerHTML = items.map(i => `
+    tbody.innerHTML = items.map(i => {
+        const s = computeItemStockSummary(i.id, dateFrom, dateTo);
+        return `
         <tr>
             <td><strong>${escapeHtml(i.name)}</strong></td>
             <td>${escapeHtml(i.category) || '-'}</td>
-            <td>${escapeHtml(i.unit) || '-'}</td>
-            <td class="num">${computeItemCurrentStock(i.id).toLocaleString('en-US')}</td>
-            <td class="num">${formatCurrency(i.purchasePrice)}</td>
-            <td class="num">${formatCurrency(i.salePrice)}</td>
-        </tr>
-    `).join('');
+            <td class="num">${s.opening.toLocaleString('en-US')}</td>
+            <td class="num">${s.in ? s.in.toLocaleString('en-US') : '-'}</td>
+            <td class="num">${s.out ? s.out.toLocaleString('en-US') : '-'}</td>
+            <td class="num"><strong>${s.closing.toLocaleString('en-US')}</strong></td>
+            <td class="num">${formatCurrency(s.closing * (i.purchasePrice || 0))}</td>
+        </tr>`;
+    }).join('');
 }
 
 // ==================== SALE / PURCHASE INVOICE REGISTERS ====================

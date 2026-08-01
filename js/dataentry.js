@@ -14,7 +14,7 @@ const INVOICE_CONFIG = {
         loadAmountLabel: 'Purchase Amount', loadQtyLabel: 'Load Received',
         paymentHeading: 'Paid in Cash / Bank', balanceLabel: 'Balance payable to Supplier',
         direction: 1, ledgerPartySide: 'Cr', paymentCashSide: 'Cr',
-        allowDebitTo: false, rateField: 'purchasePrice'
+        rateField: 'purchasePrice'
     },
     PurchaseReturn: {
         title: 'Purchase Return', prefix: 'PRET', partyLabel: 'Supplier',
@@ -22,23 +22,23 @@ const INVOICE_CONFIG = {
         loadAmountLabel: 'Return Amount', loadQtyLabel: 'Load Returned',
         paymentHeading: 'Refunded in Cash / Bank', balanceLabel: 'Reduces Supplier payable by',
         direction: -1, ledgerPartySide: 'Dr', paymentCashSide: 'Dr',
-        allowDebitTo: false, rateField: 'purchasePrice'
+        rateField: 'purchasePrice'
     },
     Sale: {
         title: 'Sale', prefix: 'SAL', partyLabel: 'Customer',
-        partyTypesCustomer: ['Customer', 'Customer/Supplier'], partyTypesRSO: ['Employee/RSO'],
+        partyTypes: ['Customer', 'Customer/Supplier'],
         loadAmountLabel: 'Sale Amount', loadQtyLabel: 'Load Issued',
         paymentHeading: 'Received in Cash / Bank', balanceLabel: 'Balance receivable',
         direction: -1, ledgerPartySide: 'Dr', paymentCashSide: 'Dr',
-        allowDebitTo: true, rateField: 'salePrice'
+        rateField: 'salePrice'
     },
     SaleReturn: {
         title: 'Sale Return', prefix: 'SRET', partyLabel: 'Customer',
-        partyTypesCustomer: ['Customer', 'Customer/Supplier'], partyTypesRSO: ['Employee/RSO'],
+        partyTypes: ['Customer', 'Customer/Supplier'],
         loadAmountLabel: 'Return Amount', loadQtyLabel: 'Load Returned',
         paymentHeading: 'Refunded in Cash / Bank', balanceLabel: 'Reduces receivable by',
         direction: 1, ledgerPartySide: 'Cr', paymentCashSide: 'Cr',
-        allowDebitTo: true, rateField: 'salePrice'
+        rateField: 'salePrice'
     }
 };
 
@@ -85,7 +85,7 @@ function renderInvoiceList(type, searchTerm = '') {
         <tr>
             <td><strong>${escapeHtml(inv.number)}</strong></td>
             <td>${escapeHtml(inv.date)}</td>
-            <td>${escapeHtml(inv.partyName)}${inv.debitTo === 'RSO' ? ' <span class="type-badge">RSO</span>' : ''}</td>
+            <td>${escapeHtml(inv.partyName)}</td>
             <td>${inv.hasLoad ? inv.loadQty.toLocaleString('en-US') : '-'}</td>
             <td class="num">${formatCurrency(inv.grandTotal)}</td>
             <td class="num">${inv.balanceAmount > 0 ? formatCurrency(inv.balanceAmount) : '<span class="balance-tag is-cr">Settled</span>'}</td>
@@ -123,11 +123,6 @@ function openInvoiceForm(type, editId = null) {
     $('inv-balance-label').textContent = config.balanceLabel;
     $('inv-party-label').innerHTML = `${config.partyLabel} <span class="req">*</span>`;
 
-    $('inv-debitto-field').classList.toggle('hidden', !config.allowDebitTo);
-    if (config.allowDebitTo) {
-        form.querySelector('input[name="inv-debitto"][value="Customer"]').checked = true;
-    }
-
     populateInvoicePartyOptions();
     populatePaymentAccountOptions();
 
@@ -154,10 +149,6 @@ function openInvoiceForm(type, editId = null) {
         $('inv-ref-number').value = inv.refNumber || '';
         $('inv-ref-date').value = inv.refDate || '';
 
-        if (config.allowDebitTo && inv.debitTo) {
-            form.querySelector(`input[name="inv-debitto"][value="${inv.debitTo}"]`).checked = true;
-            onDebitToChange();
-        }
         $('inv-party').value = inv.partyAccountId;
         onInvoicePartyChange();
 
@@ -191,23 +182,11 @@ function closeInvoiceForm() {
     $('invoice-modal').classList.add('hidden');
 }
 
-// ==================== PARTY (Supplier / Customer / RSO) ====================
-function onDebitToChange() {
-    populateInvoicePartyOptions();
-}
-
+// ==================== PARTY (Supplier / Customer) ====================
 function populateInvoicePartyOptions() {
     const config = INVOICE_CONFIG[currentInvoiceType];
     const select = $('inv-party');
-    let types = config.partyTypes;
-
-    if (config.allowDebitTo) {
-        const debitTo = document.querySelector('input[name="inv-debitto"]:checked')?.value || 'Customer';
-        types = debitTo === 'RSO' ? config.partyTypesRSO : config.partyTypesCustomer;
-        $('inv-party-label').innerHTML = `${debitTo === 'RSO' ? 'RSO/Salesman' : 'Customer'} <span class="req">*</span>`;
-    }
-
-    const accounts = lfGetAll(LF_KEYS.ACCOUNTS).filter(a => types.includes(a.type));
+    const accounts = lfGetAll(LF_KEYS.ACCOUNTS).filter(a => config.partyTypes.includes(a.type));
     select.innerHTML = '<option value="">Select…</option>' +
         accounts.map(a => `<option value="${a.id}">${escapeHtml(a.title)}</option>`).join('');
     $('inv-party-balance').textContent = '';
@@ -379,7 +358,6 @@ async function saveInvoice() {
     const refNumber = sanitizeInput($('inv-ref-number').value);
     const refDate = $('inv-ref-date').value;
     const partyAccountId = $('inv-party').value;
-    const debitTo = config.allowDebitTo ? (document.querySelector('input[name="inv-debitto"]:checked')?.value || 'Customer') : null;
     const hasLoad = $('inv-has-load').checked;
     const loadAmount = hasLoad ? parseAmount($('inv-load-amount').value) : 0;
     const loadDiscount = hasLoad ? (parseFloat($('inv-load-discount').value) || 0) : 0;
@@ -472,7 +450,7 @@ async function saveInvoice() {
         // ---- Save the invoice document itself ----
         const record = {
             id: invoiceId, type: currentInvoiceType, number, date, refNumber, refDate,
-            partyAccountId, partyName: party ? party.title : '', debitTo,
+            partyAccountId, partyName: party ? party.title : '',
             hasLoad, loadAmount, loadDiscount, loadQty,
             items, itemsTotal, loadTotal, grandTotal,
             paymentMode, paymentAccountId, paymentAmount, balanceAmount,

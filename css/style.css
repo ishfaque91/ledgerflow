@@ -925,6 +925,39 @@ button { font-family: inherit; }
     tr, .statement-row { page-break-inside: avoid; }
 }
 
+/* Sets the browser's own print dialog to default to portrait, matching
+   the jsPDF exports (which now always render portrait too — see
+   exportReportToPDF). Someone can still flip it manually in the dialog,
+   but the default is no longer whatever the browser feels like. */
+@page { size: portrait; margin: 14mm 10mm; }
+
+/* ==================== ROTATE-DEVICE OVERLAY ====================
+   Phone-width landscape only — a widescreen desktop monitor is always
+   "landscape" and must never trigger this. */
+.rotate-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    z-index: 1000;
+    flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 14px;
+    padding: 2rem;
+    text-align: center;
+    background: var(--paper);
+    color: var(--ink);
+}
+.rotate-overlay svg { color: var(--teal); animation: rotateHint 1.6s ease-in-out infinite; }
+@keyframes rotateHint {
+    0%, 100% { transform: rotate(0deg); }
+    50% { transform: rotate(-90deg); }
+}
+.rotate-overlay p { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 1.15rem; margin: 0; }
+.rotate-overlay span { font-size: 0.88rem; color: var(--ink-faint); }
+
+@media (max-width: 900px) and (orientation: landscape) {
+    .rotate-overlay { display: flex; }
+}
+
 /* ==================== INITIAL LOADING SPLASH ==================== */
 .app-loading-screen {
     position: fixed; inset: 0;

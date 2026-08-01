@@ -189,8 +189,12 @@ function exportReportToPDF(containerIds, title, pageId) {
 
     const headerLines = getReportHeaderLines(pageId, title);
     const { jsPDF } = window.jspdf;
+    // Always portrait now — a wide report (Account Ledger, Cash Book, the
+    // invoice registers) shrinks its font instead of the page flipping to
+    // landscape, since a mix of portrait and landscape pages across your
+    // reports is exactly the "not portrait friendly" problem this fixes.
     const wide = rows[0].length > 5;
-    const doc = new jsPDF({ orientation: wide ? 'landscape' : 'portrait' });
+    const doc = new jsPDF({ orientation: 'portrait' });
 
     // Centre the letterhead over the printable width, and give the report
     // title (and the account/item a report is about) real visual weight so a
@@ -237,9 +241,15 @@ function exportReportToPDF(containerIds, title, pageId) {
         head: isStatement ? [['Description', 'Amount']] : undefined,
         body: rows,
         startY: y + 5,
-        styles: { fontSize: 8, cellPadding: 3 },
-        headStyles: { fillColor: [91, 79, 233], textColor: 255, fontStyle: 'bold' },
+        // A portrait page is ~180mm usable width. A 7-column table (Account
+        // Ledger, Cash Book) at the normal 8pt/3pt padding used to only fit
+        // in landscape — shrink both a step further for anything wider
+        // than 5 columns so it still fits on a portrait sheet without
+        // truncating or overlapping.
+        styles: { fontSize: wide ? 6.5 : 8, cellPadding: wide ? 1.6 : 3, overflow: 'linebreak' },
+        headStyles: { fillColor: [91, 79, 233], textColor: 255, fontStyle: 'bold', fontSize: wide ? 7 : 8 },
         columnStyles: isStatement ? { 0: { cellWidth: 'auto' }, 1: { halign: 'right', cellWidth: 45 } } : {},
+        tableWidth: 'auto',
         // Section labels come through as [label, ''] — render those as bold
         // sub-headers with a tint so the structure survives the export.
         didParseCell: (data) => {
@@ -308,12 +318,10 @@ function printCurrentReport() {
 // config, and submitting it fills in that report's own controls and runs
 // its existing render function.
 const REPORT_FILTER_CONFIG = {
-    'page-chart-of-accounts': { title: 'Chart of Accounts', fields: [] },
-    'page-account-balances': { title: 'Account Balances', fields: [] },
     'page-account-ledger': { title: 'Account Ledger', fields: ['account', 'dateRange'] },
     'page-load-ledger': { title: 'Load Ledger', fields: ['dateRange'] },
     'page-item-ledger': { title: 'Item Ledger', fields: ['item', 'dateRange'] },
-    'page-stock-report': { title: 'Stock Report', fields: [] },
+    'page-stock-report': { title: 'Stock Report', fields: ['dateRange'] },
     'page-cash-book': { title: 'Cash Book', fields: ['cashAccount', 'dateRange'] },
     'page-sale-report': { title: 'Sale Invoices Report', fields: ['dateRange'] },
     'page-purchase-report': { title: 'Purchase Invoices Report', fields: ['dateRange'] },
@@ -422,7 +430,9 @@ function submitReportFilter() {
             renderItemLedgerReport();
             break;
         case 'page-stock-report':
-            initStockReportPage();
+            $('stock-date-from').value = $('rf-date-from').value;
+            $('stock-date-to').value = $('rf-date-to').value;
+            renderStockReport();
             break;
         case 'page-cash-book':
             initCashBookPage();

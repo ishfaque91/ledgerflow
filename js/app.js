@@ -15,6 +15,22 @@ document.addEventListener('click', (e) => {
     if (anchor) e.preventDefault();
 });
 
+// ==================== PORTRAIT LOCK ====================
+// screen.orientation.lock() only actually succeeds in a fullscreen or
+// installed-PWA context (a plain browser tab always rejects it) -- but it
+// costs nothing to try, and it's what makes an installed home-screen app
+// genuinely stay portrait rather than just visually degrading via CSS
+// when someone rotates. The .rotate-overlay in the CSS is the real
+// fallback for everyone else.
+function tryLockPortrait() {
+    try {
+        screen.orientation?.lock?.('portrait').catch(() => {});
+    } catch (err) { /* not supported here — the CSS overlay covers it */ }
+}
+tryLockPortrait();
+window.addEventListener('load', tryLockPortrait);
+document.addEventListener('fullscreenchange', tryLockPortrait);
+
 // ==================== NAVIGATION ====================
 // Every real navigation PUSHES a history entry (Dashboard included), so the
 // back/forward buttons move through LedgerFlow's own pages like a normal
