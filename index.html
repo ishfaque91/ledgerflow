@@ -282,6 +282,7 @@
                     <a href="#" class="nav-link" data-page="page-users" onclick="navigateTo('page-users',this);">Add/Edit Users</a>
                     <a href="#" class="nav-link" data-page="page-rights" onclick="navigateTo('page-rights',this);">User Rights</a>
                     <a href="#" class="nav-link" data-page="page-edit-log" onclick="navigateTo('page-edit-log',this); initEditHistoryPage();">Edit History</a>
+                    <a href="#" class="nav-link" data-page="page-integrity" onclick="navigateTo('page-integrity',this); renderIntegrityCheck();">Data Integrity</a>
                     <a href="#" class="nav-link" data-page="page-backup" onclick="navigateTo('page-backup',this); renderBackupSummary();">Backup Data</a>
                     <a href="#" class="nav-link" data-page="page-change-password" onclick="navigateTo('page-change-password',this); initChangePasswordPage();">Change Password</a>
                     <a href="#" class="nav-link" data-page="page-settings" onclick="navigateTo('page-settings',this); initSettingsPage();">Settings</a>
@@ -470,6 +471,7 @@
                         <a href="#" data-page="page-users" onclick="navigateTo('page-users',this)"><span class="hub-opt-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg></span><span class="hub-opt-label">Add/Edit Users</span><svg class="hub-opt-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></a>
                         <a href="#" data-page="page-rights" onclick="navigateTo('page-rights',this)"><span class="hub-opt-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/></svg></span><span class="hub-opt-label">User Rights</span><svg class="hub-opt-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></a>
                         <a href="#" data-page="page-edit-log" onclick="navigateTo('page-edit-log',this); initEditHistoryPage();"><span class="hub-opt-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2h6a1 1 0 0 1 1 1v2H8V3a1 1 0 0 1 1-1Z"/><path d="M8 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2"/><path d="m9 14 2 2 4-4"/></svg></span><span class="hub-opt-label">Edit History</span><svg class="hub-opt-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></a>
+                        <a href="#" data-page="page-integrity" onclick="navigateTo('page-integrity',this); renderIntegrityCheck();"><span class="hub-opt-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></span><span class="hub-opt-label">Data Integrity</span><svg class="hub-opt-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></a>
                         <a href="#" data-page="page-backup" onclick="navigateTo('page-backup',this); renderBackupSummary();"><span class="hub-opt-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v6c0 1.66 4 3 9 3s9-1.34 9-3V5"/><path d="M3 11v6c0 1.66 4 3 9 3s9-1.34 9-3v-6"/></svg></span><span class="hub-opt-label">Backup Data</span><svg class="hub-opt-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></a>
                         <a href="#" data-page="page-change-password" onclick="navigateTo('page-change-password',this); initChangePasswordPage();"><span class="hub-opt-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="15" r="4"/><path d="m10.5 11.5 8-8"/><path d="m15.5 6.5 3 3"/><path d="m18 4 2 2"/></svg></span><span class="hub-opt-label">Change Password</span><svg class="hub-opt-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></a>
                         <a href="#" data-page="page-settings" onclick="navigateTo('page-settings',this); initSettingsPage();"><span class="hub-opt-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span><span class="hub-opt-label">Settings</span><svg class="hub-opt-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></a>
@@ -2111,6 +2113,23 @@
             </div>
         </section>
 
+        <!-- ============ DATA INTEGRITY ============ -->
+        <section id="page-integrity" class="page">
+            <div class="page-head">
+                <div>
+                    <h1>Data Integrity Check</h1>
+                    <p class="page-sub">Scans your books for orphaned ledger entries, Dr/Cr imbalances, and unbalanced journal vouchers.</p>
+                </div>
+                <button class="btn btn-primary" onclick="renderIntegrityCheck()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+                    <span class="btn-label">Re-scan</span>
+                </button>
+            </div>
+            <div id="integrity-results" class="integrity-container">
+                <p class="hint">Click "Re-scan" to check your data.</p>
+            </div>
+        </section>
+
         <!-- ============ BACKUP DATA ============ -->
         <section id="page-backup" class="page">
             <div class="page-head">
@@ -2696,6 +2715,7 @@
 <script src="js/users.js"></script>
 <script src="js/rights.js"></script>
 <script src="js/rso.js"></script>
+<script src="js/integrity.js"></script>
 <script src="js/dataentry.js"></script>
 <script src="js/vouchers.js"></script>
 <script src="js/reports.js"></script>

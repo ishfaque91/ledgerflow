@@ -113,9 +113,10 @@ function renderTrialBalance() {
     const asOf = $('tb-as-of').value;
     const accounts = lfGetAll(LF_KEYS.ACCOUNTS).sort((a, b) => a.type.localeCompare(b.type) || a.title.localeCompare(b.title));
 
+    const balanceMap = buildBalanceCacheAsOf(asOf);
     let totalDr = 0, totalCr = 0;
     const rows = accounts.map(a => {
-        const bal = computeAccountBalanceAsOf(a.id, asOf);
+        const bal = balanceMap[a.id] || { amount: 0, side: 'Dr' };
         if (bal.side === 'Dr') totalDr += bal.amount; else totalCr += bal.amount;
         return { account: a, balance: bal };
     }).filter(r => r.balance.amount > 0.004);
@@ -193,11 +194,12 @@ function renderBalanceSheet() {
     const asOf = $('bs-as-of').value;
     const accounts = lfGetAll(LF_KEYS.ACCOUNTS);
 
+    const balanceMap = buildBalanceCacheAsOf(asOf);
     let totalCurrentAssets = 0, totalFixedAssets = 0, totalLiabilities = 0, totalEquity = 0;
     const currentAssetRows = [], fixedAssetRows = [], liabilityRows = [], equityRows = [];
 
     accounts.forEach(acc => {
-        const bal = computeAccountBalanceAsOf(acc.id, asOf);
+        const bal = balanceMap[acc.id] || { amount: 0, side: 'Dr' };
         if (bal.amount <= 0.004) return;
 
         if (acc.type === 'Owner Equity') {

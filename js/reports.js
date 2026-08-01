@@ -48,8 +48,9 @@ function renderChartOfAccounts() {
         return;
     }
 
+    invalidateBalanceCache();
     tbody.innerHTML = accounts.map(a => {
-        const bal = computeAccountBalance(a.id);
+        const bal = getCachedAccountBalance(a.id);
         return `
         <tr>
             <td><span class="type-badge">${escapeHtml(a.type)}</span></td>
@@ -337,8 +338,23 @@ function renderStockReport() {
         tbody.innerHTML = `<tr class="empty-row"><td colspan="7">No items yet.</td></tr>`;
         return;
     }
+
+    // Pre-index item ledger by itemId so each item doesn't rescan the full list
+    const itemLedgerByItem = {};
+    lfGetAll(LF_KEYS.ITEM_LEDGER).forEach(e => {
+        if (!itemLedgerByItem[e.itemId]) itemLedgerByItem[e.itemId] = [];
+        itemLedgerByItem[e.itemId].push(e);
+    });
+
     tbody.innerHTML = items.map(i => {
-        const s = computeItemStockSummary(i.id, dateFrom, dateTo);
+        const entries = itemLedgerByItem[i.id] || [];
+        let opening = 0, qtyIn = 0, qtyOut = 0;
+        entries.forEach(e => {
+            if (dateFrom && e.date < dateFrom) { opening += e.qtyChange; return; }
+            if (dateTo && e.date > dateTo) return;
+            if (e.qtyChange >= 0) qtyIn += e.qtyChange; else qtyOut += Math.abs(e.qtyChange);
+        });
+        const s = { opening, in: qtyIn, out: qtyOut, closing: opening + qtyIn - qtyOut };
         return `
         <tr>
             <td><strong>${escapeHtml(i.name)}</strong></td>

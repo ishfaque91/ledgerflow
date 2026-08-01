@@ -107,6 +107,10 @@ function openInvoiceForm(type, editId = null) {
         showToast(`You don't have permission to ${editId ? 'edit' : 'add'} ${config.title} entries.`, 'warning');
         return;
     }
+    if (editId) {
+        const existing = lfFindById(LF_KEYS.INVOICES, editId);
+        if (existing && checkLockbackOrWarn(existing.date, 'edit this invoice')) return;
+    }
     currentInvoiceType = type;
     const form = $('invoice-form');
     form.reset();
@@ -527,6 +531,7 @@ async function removeLedgerEntriesForInvoice(invoiceId) {
 async function deleteInvoice(id) {
     const inv = lfFindById(LF_KEYS.INVOICES, id);
     if (!inv) return;
+    if (checkLockbackOrWarn(inv.date, 'delete this invoice')) return;
     if (!confirm(`Delete ${inv.number}? This also removes everything it posted to the ledgers.`)) return;
 
     try {

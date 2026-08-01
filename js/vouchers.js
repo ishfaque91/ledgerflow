@@ -116,6 +116,7 @@ function renderVoucherList(type, searchTerm = '') {
 async function deleteVoucher(id) {
     const v = lfFindById(LF_KEYS.VOUCHERS, id);
     if (!v) return;
+    if (checkLockbackOrWarn(v.date, 'delete this voucher')) return;
     if (!confirm(`Delete ${v.number}? This also removes everything it posted to the ledgers.`)) return;
 
     try {
@@ -135,6 +136,10 @@ function openBankVoucherForm(type, editId = null) {
     if (!hasRight('VOUCHERS', config.title, 'Edit')) {
         showToast(`You don't have permission to ${editId ? 'edit' : 'add'} ${config.title} entries.`, 'warning');
         return;
+    }
+    if (editId) {
+        const existing = lfFindById(LF_KEYS.VOUCHERS, editId);
+        if (existing && checkLockbackOrWarn(existing.date, 'edit this voucher')) return;
     }
     currentBankVoucherType = type;
     const form = $('bankvoucher-form');
@@ -270,6 +275,10 @@ function openPettyCashForm(editId = null) {
     if (!hasRight('VOUCHERS', 'Petty Cash', 'Edit')) {
         showToast(`You don't have permission to ${editId ? 'edit' : 'add'} Petty Cash entries.`, 'warning');
         return;
+    }
+    if (editId) {
+        const existing = lfFindById(LF_KEYS.VOUCHERS, editId);
+        if (existing && checkLockbackOrWarn(existing.date, 'edit this voucher')) return;
     }
     const form = $('pettycash-form');
     form.reset();
@@ -433,6 +442,10 @@ function openJournalForm(editId = null) {
     if (!hasRight('VOUCHERS', 'Journal Voucher', 'Edit')) {
         showToast(`You don't have permission to ${editId ? 'edit' : 'add'} Journal Vouchers.`, 'warning');
         return;
+    }
+    if (editId) {
+        const existing = lfFindById(LF_KEYS.VOUCHERS, editId);
+        if (existing && checkLockbackOrWarn(existing.date, 'edit this voucher')) return;
     }
     const form = $('journal-form');
     form.reset();
