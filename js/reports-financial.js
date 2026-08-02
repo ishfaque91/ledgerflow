@@ -185,6 +185,12 @@ function computeClosingStock(asOfDate) {
         const qty = entries.reduce((s, e) => s + e.qtyChange, 0);
         totalValue += Math.max(0, qty) * (item.purchasePrice || 0);
     });
+
+    const loadEntries = lfGetAll(LF_KEYS.LOAD_LEDGER)
+        .filter(e => !asOfDate || e.date <= asOfDate);
+    const loadValue = loadEntries.reduce((s, e) => s + (e.amountChange || 0), 0);
+    totalValue += Math.max(0, loadValue);
+
     return totalValue;
 }
 

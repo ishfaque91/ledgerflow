@@ -528,6 +528,7 @@ async function saveInvoice(printAfter = false) {
                 writes.push(lfUpsert(LF_KEYS.LOAD_LEDGER, {
                     invoiceId, date, type: currentInvoiceType, ref: number,
                     qtyChange: loadQty * config.direction,
+                    amountChange: loadAmount * config.direction,
                     note: `${config.title} ${number} — ${party ? party.title : ''}`
                 }));
             }

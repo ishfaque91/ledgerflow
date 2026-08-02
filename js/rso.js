@@ -427,9 +427,11 @@ function computeRsoStock(rsoUserId) {
     const items = lfGetAll(LF_KEYS.ITEMS);
     const stock = {};
 
+    stock['__load__'] = { itemName: 'Load (Balance)', qty: 0, rate: 1 };
     items.forEach(item => { stock[item.id] = { itemName: item.name, qty: 0, rate: item.salePrice || 0 }; });
 
     lfGetAll(LF_KEYS.RSO_LOADS).filter(l => l.rsoUserId === rsoUserId).forEach(l => {
+        if (l.hasLoad && l.loadQty > 0) stock['__load__'].qty += l.loadQty;
         (l.items || []).forEach(i => {
             if (!stock[i.itemId]) stock[i.itemId] = { itemName: i.itemName, qty: 0, rate: i.rate };
             stock[i.itemId].qty += i.qty;
@@ -437,12 +439,14 @@ function computeRsoStock(rsoUserId) {
     });
 
     lfGetAll(LF_KEYS.RSO_SALES).filter(s => s.rsoUserId === rsoUserId).forEach(s => {
+        if (s.hasLoad && s.loadQty > 0) stock['__load__'].qty -= s.loadQty;
         (s.items || []).forEach(i => {
             if (stock[i.itemId]) stock[i.itemId].qty -= i.qty;
         });
     });
 
     lfGetAll(LF_KEYS.RSO_RETURNS).filter(r => r.rsoUserId === rsoUserId).forEach(r => {
+        if (r.hasLoad && r.loadQty > 0) stock['__load__'].qty += r.loadQty;
         (r.items || []).forEach(i => {
             if (stock[i.itemId]) stock[i.itemId].qty += i.qty;
         });
@@ -832,6 +836,7 @@ async function saveRsoSale() {
             writes.push(lfUpsert(LF_KEYS.LOAD_LEDGER, {
                 invoiceId: saleId, date, type: 'RsoSale', ref: number,
                 qtyChange: -loadQty,
+                amountChange: -loadAmount,
                 note: `RSO Sale ${number} — ${customer ? (customer.shopName || customer.name) : ''}`
             }));
         }

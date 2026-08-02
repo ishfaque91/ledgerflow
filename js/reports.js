@@ -176,22 +176,23 @@ function renderCashBookReport() {
 // ==================== LOAD LEDGER ====================
 function computeLoadLedgerRows(dateFrom, dateTo) {
     const entries = lfGetAll(LF_KEYS.LOAD_LEDGER).sort((a, b) => new Date(a.date) - new Date(b.date));
-    let opening = 0;
+    let opening = 0, openingAmt = 0;
     const within = [];
 
     entries.forEach(e => {
-        if (dateFrom && e.date < dateFrom) { opening += e.qtyChange; return; }
+        if (dateFrom && e.date < dateFrom) { opening += e.qtyChange; openingAmt += (e.amountChange || 0); return; }
         if (dateTo && e.date > dateTo) return;
         within.push(e);
     });
 
-    let running = opening;
+    let running = opening, runningAmt = openingAmt;
     const rows = within.map(e => {
         running += e.qtyChange;
-        return { ...e, runningBalance: running };
+        runningAmt += (e.amountChange || 0);
+        return { ...e, runningBalance: running, runningAmount: runningAmt };
     });
 
-    return { opening, closing: rows.length ? rows[rows.length - 1].runningBalance : opening, rows };
+    return { opening, openingAmt, closing: rows.length ? rows[rows.length - 1].runningBalance : opening, closingAmt: rows.length ? rows[rows.length - 1].runningAmount : openingAmt, rows };
 }
 
 function initLoadLedgerPage() { renderLoadLedgerReport(); }
@@ -207,7 +208,7 @@ function renderLoadLedgerReport() {
 
     const tbody = $('load-ledger-table-body');
     if (result.rows.length === 0) {
-        tbody.innerHTML = `<tr class="empty-row"><td colspan="7">No load movement in this range.</td></tr>`;
+        tbody.innerHTML = `<tr class="empty-row"><td colspan="8">No load movement in this range.</td></tr>`;
         return;
     }
     tbody.innerHTML = result.rows.map(e => `
@@ -219,6 +220,7 @@ function renderLoadLedgerReport() {
             <td class="num">${e.qtyChange > 0 ? e.qtyChange.toLocaleString('en-US') : '-'}</td>
             <td class="num">${e.qtyChange < 0 ? Math.abs(e.qtyChange).toLocaleString('en-US') : '-'}</td>
             <td class="num">${e.runningBalance.toLocaleString('en-US')}</td>
+            <td class="num">${formatCurrency(Math.abs(e.amountChange || 0))}</td>
         </tr>
     `).join('');
 }
@@ -346,7 +348,34 @@ function renderStockReport() {
         itemLedgerByItem[e.itemId].push(e);
     });
 
-    tbody.innerHTML = items.map(i => {
+    const loadEntries = lfGetAll(LF_KEYS.LOAD_LEDGER);
+    let loadOpening = 0, loadIn = 0, loadOut = 0;
+    let loadAmtOpening = 0, loadAmtIn = 0, loadAmtOut = 0;
+    loadEntries.sort((a, b) => a.date.localeCompare(b.date)).forEach(e => {
+        if (dateFrom && e.date < dateFrom) {
+            loadOpening += e.qtyChange;
+            loadAmtOpening += (e.amountChange || 0);
+            return;
+        }
+        if (dateTo && e.date > dateTo) return;
+        if (e.qtyChange >= 0) { loadIn += e.qtyChange; loadAmtIn += (e.amountChange || 0); }
+        else { loadOut += Math.abs(e.qtyChange); loadAmtOut += Math.abs(e.amountChange || 0); }
+    });
+    const loadClosingQty = loadOpening + loadIn - loadOut;
+    const loadClosingAmt = loadAmtOpening + loadAmtIn - loadAmtOut;
+
+    const loadRow = `
+        <tr style="background:rgba(var(--accent-rgb, 99,102,241), 0.06);">
+            <td><strong>Load (Balance)</strong></td>
+            <td>Load</td>
+            <td class="num">${loadOpening.toLocaleString('en-US')}</td>
+            <td class="num">${loadIn ? loadIn.toLocaleString('en-US') : '-'}</td>
+            <td class="num">${loadOut ? loadOut.toLocaleString('en-US') : '-'}</td>
+            <td class="num"><strong>${loadClosingQty.toLocaleString('en-US')}</strong></td>
+            <td class="num">${formatCurrency(Math.max(0, loadClosingAmt))}</td>
+        </tr>`;
+
+    tbody.innerHTML = loadRow + items.map(i => {
         const entries = itemLedgerByItem[i.id] || [];
         let opening = 0, qtyIn = 0, qtyOut = 0;
         entries.forEach(e => {
@@ -366,6 +395,8 @@ function renderStockReport() {
             <td class="num">${formatCurrency(s.closing * (i.purchasePrice || 0))}</td>
         </tr>`;
     }).join('');
+
+    $('stock-count').textContent = `${items.length + 1} item${items.length === 0 ? '' : 's'}`;
 }
 
 // ==================== SALE / PURCHASE INVOICE REGISTERS ====================
