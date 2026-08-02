@@ -122,6 +122,8 @@ window.addEventListener('popstate', (event) => {
     }
 });
 
+let _dashData = { cash: [], bank: [], receivable: [], payable: [] };
+
 function renderDashboard() {
     const statsEl = $('dash-stats');
     if (!statsEl) return;
@@ -134,26 +136,86 @@ function renderDashboard() {
 
     const accounts = lfGetAll(LF_KEYS.ACCOUNTS);
     let cashTotal = 0, bankTotal = 0, receivables = 0, payables = 0;
+    _dashData = { cash: [], bank: [], receivable: [], payable: [] };
+
     accounts.forEach(acc => {
         const bal = computeAccountBalance(acc.id);
+        if (bal.amount <= 0.004) return;
+        const signed = bal.side === 'Dr' ? bal.amount : -bal.amount;
+
         if (acc.type === 'Cash') {
-            cashTotal += bal.side === 'Dr' ? bal.amount : -bal.amount;
+            cashTotal += signed;
+            _dashData.cash.push({ title: acc.title, amount: signed });
         } else if (acc.type === 'Bank') {
-            bankTotal += bal.side === 'Dr' ? bal.amount : -bal.amount;
-        } else if (acc.type === 'Customer') {
-            if (bal.side === 'Dr') receivables += bal.amount;
+            bankTotal += signed;
+            _dashData.bank.push({ title: acc.title, amount: signed });
+        } else if (acc.type === 'Customer' || acc.type === 'Employee/RSO') {
+            if (bal.side === 'Dr') {
+                receivables += bal.amount;
+                _dashData.receivable.push({ title: acc.title, amount: bal.amount });
+            }
         } else if (acc.type === 'Supplier') {
-            if (bal.side === 'Cr') payables += bal.amount;
+            if (bal.side === 'Cr') {
+                payables += bal.amount;
+                _dashData.payable.push({ title: acc.title, amount: bal.amount });
+            }
         } else if (acc.type === 'Customer/Supplier') {
-            if (bal.side === 'Dr') receivables += bal.amount;
-            else payables += bal.amount;
+            if (bal.side === 'Dr') {
+                receivables += bal.amount;
+                _dashData.receivable.push({ title: acc.title, amount: bal.amount });
+            } else {
+                payables += bal.amount;
+                _dashData.payable.push({ title: acc.title, amount: bal.amount });
+            }
         }
     });
+
+    _dashData.cash.sort((a, b) => b.amount - a.amount);
+    _dashData.bank.sort((a, b) => b.amount - a.amount);
+    _dashData.receivable.sort((a, b) => b.amount - a.amount);
+    _dashData.payable.sort((a, b) => b.amount - a.amount);
 
     $('dash-cash-balance').textContent = formatCurrency(cashTotal);
     $('dash-bank-balance').textContent = formatCurrency(bankTotal);
     $('dash-receivables').textContent = formatCurrency(receivables);
     $('dash-payables').textContent = formatCurrency(payables);
+
+    const panel = $('dash-detail-panel');
+    if (panel && !panel.classList.contains('hidden')) {
+        const type = panel.dataset.type;
+        if (type) showDashDetail(type);
+    }
+}
+
+function showDashDetail(type) {
+    const panel = $('dash-detail-panel');
+    if (!panel) return;
+
+    if (!panel.classList.contains('hidden') && panel.dataset.type === type) {
+        panel.classList.add('hidden');
+        panel.dataset.type = '';
+        return;
+    }
+
+    const titles = { cash: 'Cash in Hand', bank: 'Bank Balance', receivable: 'Receivables', payable: 'Payables' };
+    const rows = _dashData[type] || [];
+
+    if (rows.length === 0) {
+        panel.innerHTML = `<h3>${titles[type]} — Details</h3><p style="color:var(--ink-faint);font-size:0.85rem">No accounts with balance.</p>`;
+    } else {
+        const total = rows.reduce((s, r) => s + r.amount, 0);
+        panel.innerHTML = `<h3>${titles[type]} — Details</h3>
+            <table class="dash-detail-table">
+                <thead><tr><th>Account</th><th class="num">Amount</th></tr></thead>
+                <tbody>
+                    ${rows.map(r => `<tr><td>${escapeHtml(r.title)}</td><td class="num">${formatCurrency(r.amount)}</td></tr>`).join('')}
+                    <tr class="dash-detail-total"><td>Total</td><td class="num">${formatCurrency(total)}</td></tr>
+                </tbody>
+            </table>`;
+    }
+
+    panel.dataset.type = type;
+    panel.classList.remove('hidden');
 }
 
 function toggleGroup(headerBtn) {

@@ -301,25 +301,26 @@
             <!-- Stats cards — visible to Owner & Admin only -->
             <div id="dash-stats" class="dash-stats hidden">
                 <div class="dash-stat-row">
-                    <div class="dash-stat-card">
+                    <div class="dash-stat-card dash-card-cash" onclick="showDashDetail('cash')">
                         <span class="dash-stat-label">Cash in Hand</span>
                         <span class="dash-stat-value" id="dash-cash-balance">Rs. 0</span>
                     </div>
-                    <div class="dash-stat-card">
+                    <div class="dash-stat-card dash-card-bank" onclick="showDashDetail('bank')">
                         <span class="dash-stat-label">Bank Balance</span>
                         <span class="dash-stat-value" id="dash-bank-balance">Rs. 0</span>
                     </div>
                 </div>
                 <div class="dash-stat-row">
-                    <div class="dash-stat-card">
+                    <div class="dash-stat-card dash-card-receivable" onclick="showDashDetail('receivable')">
                         <span class="dash-stat-label">Total Receivables</span>
-                        <span class="dash-stat-value dash-stat-receivable" id="dash-receivables">Rs. 0</span>
+                        <span class="dash-stat-value" id="dash-receivables">Rs. 0</span>
                     </div>
-                    <div class="dash-stat-card">
+                    <div class="dash-stat-card dash-card-payable" onclick="showDashDetail('payable')">
                         <span class="dash-stat-label">Total Payables</span>
-                        <span class="dash-stat-value dash-stat-payable" id="dash-payables">Rs. 0</span>
+                        <span class="dash-stat-value" id="dash-payables">Rs. 0</span>
                     </div>
                 </div>
+                <div id="dash-detail-panel" class="dash-detail-panel hidden"></div>
             </div>
 
             <div class="dash-tab-grid">
