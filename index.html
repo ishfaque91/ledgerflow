@@ -1090,6 +1090,11 @@
                     <input type="hidden" id="inv-id">
                     <input type="hidden" id="inv-type">
 
+                    <label class="cancel-inline hidden" id="inv-cancel-row">
+                        <input type="checkbox" id="inv-cancelled">
+                        <span>Cancel this invoice</span>
+                    </label>
+
                     <p class="hint hidden" id="inv-entered-by-note"></p>
 
                     <div class="field-grid">
@@ -1210,17 +1215,13 @@
                 </form>
 
                 <div class="modal-foot">
-                    <label class="check-row cancel-check hidden" id="inv-cancel-row">
-                        <input type="checkbox" id="inv-cancelled" onchange="onCancelToggle(this, 'invoice')">
-                        <span>Cancel this invoice (removes ledger entries)</span>
-                    </label>
-                    <button class="btn btn-ghost" onclick="closeInvoiceForm()">Cancel</button>
-                    <button class="btn btn-ghost" id="invoice-print-btn" onclick="printInvoice()" style="display:none;">
-                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-                        Print
-                    </button>
+                    <button class="btn btn-ghost" onclick="closeInvoiceForm()">Close</button>
                     <button class="btn btn-primary" id="invoice-save-btn" onclick="saveInvoice()">
                         <span class="btn-label">Save Invoice</span>
+                        <span class="btn-spinner hidden"></span>
+                    </button>
+                    <button class="btn btn-primary" id="invoice-saveprint-btn" onclick="saveInvoice(true)">
+                        <span class="btn-label">Save &amp; Print</span>
                         <span class="btn-spinner hidden"></span>
                     </button>
                 </div>
@@ -1308,6 +1309,11 @@
                     <input type="hidden" id="bv-id">
                     <input type="hidden" id="bv-type">
 
+                    <label class="cancel-inline hidden" id="bv-cancel-row">
+                        <input type="checkbox" id="bv-cancelled">
+                        <span>Cancel this voucher</span>
+                    </label>
+
                     <p class="hint hidden" id="bv-entered-by-note"></p>
 
                     <div class="field-grid">
@@ -1357,11 +1363,7 @@
                     </div>
                 </form>
                 <div class="modal-foot">
-                    <label class="check-row cancel-check hidden" id="bv-cancel-row">
-                        <input type="checkbox" id="bv-cancelled" onchange="onCancelToggle(this, 'voucher')">
-                        <span>Cancel this voucher (removes ledger entries)</span>
-                    </label>
-                    <button class="btn btn-ghost" onclick="closeBankVoucherForm()">Cancel</button>
+                    <button class="btn btn-ghost" onclick="closeBankVoucherForm()">Close</button>
                     <button class="btn btn-primary" id="bankvoucher-save-btn" onclick="saveBankVoucher()">
                         <span class="btn-label">Save Voucher</span>
                         <span class="btn-spinner hidden"></span>
@@ -1416,6 +1418,11 @@
                 <form id="pettycash-form" class="modal-body" onsubmit="return false;">
                     <input type="hidden" id="pc-id">
 
+                    <label class="cancel-inline hidden" id="pc-cancel-row">
+                        <input type="checkbox" id="pc-cancelled">
+                        <span>Cancel this voucher</span>
+                    </label>
+
                     <p class="hint hidden" id="pc-entered-by-note"></p>
 
                     <div class="field-grid">
@@ -1452,11 +1459,7 @@
                     </div>
                 </form>
                 <div class="modal-foot">
-                    <label class="check-row cancel-check hidden" id="pc-cancel-row">
-                        <input type="checkbox" id="pc-cancelled" onchange="onCancelToggle(this, 'voucher')">
-                        <span>Cancel this voucher (removes ledger entries)</span>
-                    </label>
-                    <button class="btn btn-ghost" onclick="closePettyCashForm()">Cancel</button>
+                    <button class="btn btn-ghost" onclick="closePettyCashForm()">Close</button>
                     <button class="btn btn-primary" id="pettycash-save-btn" onclick="savePettyCash()">
                         <span class="btn-label">Save Voucher</span>
                         <span class="btn-spinner hidden"></span>
@@ -1511,6 +1514,11 @@
                 <form id="journal-form" class="modal-body" onsubmit="return false;">
                     <input type="hidden" id="jv-id">
 
+                    <label class="cancel-inline hidden" id="jv-cancel-row">
+                        <input type="checkbox" id="jv-cancelled">
+                        <span>Cancel this voucher</span>
+                    </label>
+
                     <p class="hint hidden" id="jv-entered-by-note"></p>
 
                     <div class="field-grid">
@@ -1550,11 +1558,7 @@
                     </div>
                 </form>
                 <div class="modal-foot">
-                    <label class="check-row cancel-check hidden" id="jv-cancel-row">
-                        <input type="checkbox" id="jv-cancelled" onchange="onCancelToggle(this, 'voucher')">
-                        <span>Cancel this voucher (removes ledger entries)</span>
-                    </label>
-                    <button class="btn btn-ghost" onclick="closeJournalForm()">Cancel</button>
+                    <button class="btn btn-ghost" onclick="closeJournalForm()">Close</button>
                     <button class="btn btn-primary" id="journal-save-btn" onclick="saveJournal()">
                         <span class="btn-label">Save Voucher</span>
                         <span class="btn-spinner hidden"></span>

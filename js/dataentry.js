@@ -192,7 +192,6 @@ function openInvoiceForm(type, editId = null) {
         cancelCb.checked = false;
     }
 
-    $('invoice-print-btn').style.display = editId ? '' : 'none';
     $('invoice-modal').classList.remove('hidden');
 }
 
@@ -449,7 +448,7 @@ function updateBalancePreview(grandTotal) {
 }
 
 // ==================== SAVE ====================
-async function saveInvoice() {
+async function saveInvoice(printAfter = false) {
     const config = INVOICE_CONFIG[currentInvoiceType];
     if (!hasRight('DATA ENTRY', config.title, 'Edit')) {
         showToast("You don't have permission to save this.", 'warning');
@@ -473,7 +472,7 @@ async function saveInvoice() {
         loadQty = loadAmount * (1 + loadDiscount / 100);
     }
     const items = getItemRows();
-    const saveBtn = $('invoice-save-btn');
+    const saveBtn = printAfter ? $('invoice-saveprint-btn') : $('invoice-save-btn');
 
     if (!date) { showToast('Please choose a date.', 'warning'); $('inv-date').focus(); return; }
     if (!partyAccountId) { showToast(`Please select a ${config.partyLabel}.`, 'warning'); $('inv-party').focus(); return; }
@@ -570,6 +569,9 @@ async function saveInvoice() {
             after: { ...record, enteredBy: before?.enteredBy || record.enteredBy },
             recordId: invoiceId
         });
+        if (printAfter) {
+            openPrintWindow(buildInvoicePrintData(record));
+        }
         closeInvoiceForm();
     } catch (e) {
         console.error('[DataEntry] Save failed:', e);

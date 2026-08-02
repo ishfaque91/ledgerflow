@@ -1904,6 +1904,23 @@ button { font-family: inherit; }
 }
 .cancel-check input:checked + span { color: var(--coral); }
 
+.cancel-inline {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    margin-bottom: 8px;
+    background: rgba(231, 76, 60, 0.08);
+    border: 1px solid rgba(231, 76, 60, 0.25);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+.cancel-inline input[type="checkbox"] { accent-color: #e74c3c; }
+.cancel-inline input:checked + span { color: #e74c3c; font-weight: 600; }
+
 /* ==================== MOBILE SPACING IMPROVEMENTS ==================== */
 @media (max-width: 900px) {
     .page-head { flex-direction: column; gap: 12px; align-items: flex-start; }
