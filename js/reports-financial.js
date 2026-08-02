@@ -179,18 +179,31 @@ function statementRowHtml(title, amount) {
 }
 
 function computeClosingStock(asOfDate) {
-    const activeIds = getActiveDocIds();
-
+    const invoices = lfGetAll(LF_KEYS.INVOICES).filter(i => !i.cancelled && (!asOfDate || i.date <= asOfDate));
+    const rsoLoads = lfGetAll(LF_KEYS.RSO_LOADS).filter(l => !asOfDate || l.date <= asOfDate);
     const items = lfGetAll(LF_KEYS.ITEMS);
-    let totalValue = 0;
-    items.forEach(item => {
-        const entries = lfGetAll(LF_KEYS.ITEM_LEDGER)
-            .filter(e => e.itemId === item.id && isActiveLedgerEntry(e, activeIds) && (!asOfDate || e.date <= asOfDate));
-        const qty = entries.reduce((s, e) => s + e.qtyChange, 0);
-        totalValue += Math.max(0, qty) * (item.purchasePrice || 0);
+
+    const qtyByItem = {};
+    items.forEach(item => { qtyByItem[item.id] = 0; });
+
+    invoices.forEach(inv => {
+        const dir = (inv.type === 'Purchase' || inv.type === 'SaleReturn') ? 1 : -1;
+        (inv.items || []).forEach(row => {
+            if (row.itemId in qtyByItem) qtyByItem[row.itemId] += row.qty * dir;
+        });
     });
 
-    const invoices = lfGetAll(LF_KEYS.INVOICES).filter(i => !i.cancelled && (!asOfDate || i.date <= asOfDate));
+    rsoLoads.forEach(l => {
+        (l.items || []).forEach(row => {
+            if (row.itemId in qtyByItem) qtyByItem[row.itemId] -= row.qty;
+        });
+    });
+
+    let totalValue = 0;
+    items.forEach(item => {
+        totalValue += Math.max(0, qtyByItem[item.id] || 0) * (item.purchasePrice || 0);
+    });
+
     const sumLoad = (type) => invoices.filter(i => i.type === type).reduce((s, i) => s + (i.loadTotal || 0), 0);
     const loadPurchased = sumLoad('Purchase') - sumLoad('PurchaseReturn');
     const loadSold = sumLoad('Sale') - sumLoad('SaleReturn');
