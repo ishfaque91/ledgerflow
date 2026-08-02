@@ -270,6 +270,24 @@ function applyDateFilter(list, fromId, toId) {
     return list;
 }
 
+function matchesDocNumber(docNumber, term) {
+    if (!docNumber || !term) return false;
+    const num = docNumber.toLowerCase();
+    if (num.includes(term)) return true;
+    const numericPart = num.replace(/^[a-z]+-0*/i, '');
+    const termDigits = term.replace(/^0+/, '');
+    if (termDigits && numericPart === termDigits) return true;
+    if (termDigits && numericPart.startsWith(termDigits)) return true;
+    return false;
+}
+
+function matchesAmount(amount, term) {
+    if (!term || isNaN(amount)) return false;
+    const clean = term.replace(/,/g, '');
+    if (!/^\d+\.?\d*$/.test(clean)) return false;
+    return String(Math.round(amount)) === String(Math.round(parseFloat(clean)));
+}
+
 function acctLabel(a) {
     const shortType = a.type === 'Employee/RSO' ? 'RSO' : a.type;
     if (a.title.toLowerCase().includes(shortType.toLowerCase())) return a.title;

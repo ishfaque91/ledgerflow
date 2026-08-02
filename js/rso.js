@@ -226,9 +226,10 @@ function renderRsoLoadList() {
 
     if (term) {
         loads = loads.filter(l =>
-            (l.number || '').toLowerCase().includes(term) ||
+            matchesDocNumber(l.number, term) ||
             (l.rsoName || '').toLowerCase().includes(term) ||
-            (l.date || '').includes(term)
+            (l.date || '').includes(term) ||
+            matchesAmount(l.grandTotal, term)
         );
     }
 
@@ -545,9 +546,10 @@ function renderRsoSaleList() {
 
     if (term) {
         sales = sales.filter(s =>
-            (s.number || '').toLowerCase().includes(term) ||
+            matchesDocNumber(s.number, term) ||
             (s.customerName || '').toLowerCase().includes(term) ||
-            (s.date || '').includes(term)
+            (s.date || '').includes(term) ||
+            matchesAmount(s.grandTotal, term)
         );
     }
 
@@ -916,9 +918,10 @@ function renderRsoReturnList() {
 
     if (term) {
         returns = returns.filter(r =>
-            (r.number || '').toLowerCase().includes(term) ||
+            matchesDocNumber(r.number, term) ||
             (r.customerName || '').toLowerCase().includes(term) ||
-            (r.date || '').includes(term)
+            (r.date || '').includes(term) ||
+            matchesAmount(r.grandTotal, term)
         );
     }
 
@@ -1132,7 +1135,8 @@ function renderRsoRecoveryList() {
         recoveries = recoveries.filter(r =>
             (r.customerName || '').toLowerCase().includes(term) ||
             (r.ref || '').toLowerCase().includes(term) ||
-            (r.date || '').includes(term)
+            (r.date || '').includes(term) ||
+            matchesAmount(r.amount, term)
         );
     }
 
@@ -1291,7 +1295,8 @@ function renderRsoDepositList() {
         deposits = deposits.filter(d =>
             (d.rsoName || '').toLowerCase().includes(term) ||
             (d.bankName || '').toLowerCase().includes(term) ||
-            (d.date || '').includes(term)
+            (d.date || '').includes(term) ||
+            matchesAmount(d.amount, term)
         );
     }
 

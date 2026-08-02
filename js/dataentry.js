@@ -68,9 +68,10 @@ function renderInvoiceList(type) {
 
     if (term) {
         invoices = invoices.filter(i =>
-            (i.number || '').toLowerCase().includes(term) ||
+            matchesDocNumber(i.number, term) ||
             (i.partyName || '').toLowerCase().includes(term) ||
-            (i.date || '').includes(term)
+            (i.date || '').includes(term) ||
+            matchesAmount(i.grandTotal, term)
         );
     }
 

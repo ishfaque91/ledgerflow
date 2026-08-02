@@ -45,12 +45,13 @@ function renderVoucherList(type) {
 
     if (term) {
         vouchers = vouchers.filter(v =>
-            (v.number || '').toLowerCase().includes(term) ||
+            matchesDocNumber(v.number, term) ||
             (v.partyName || '').toLowerCase().includes(term) ||
             (v.narration || '').toLowerCase().includes(term) ||
             (v.bankName || '').toLowerCase().includes(term) ||
             (v.cashAccountName || '').toLowerCase().includes(term) ||
-            (v.date || '').includes(term)
+            (v.date || '').includes(term) ||
+            matchesAmount(v.amount, term)
         );
     }
 
