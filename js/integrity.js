@@ -57,12 +57,12 @@ function getCachedAccountBalance(accountId) {
 
 function buildBalanceCacheAsOf(asOfDate) {
     const accounts = lfGetAll(LF_KEYS.ACCOUNTS);
-    const cancelledIds = getCancelledDocIds();
+    const activeIds = getActiveDocIds();
     const entries = lfGetAll(LF_KEYS.ACCOUNT_LEDGER);
 
     const byAccount = {};
     entries.forEach(e => {
-        if (cancelledIds.has(e.invoiceId)) return;
+        if (!isActiveLedgerEntry(e, activeIds)) return;
         if (asOfDate && e.date > asOfDate) return;
         if (!byAccount[e.accountId]) byAccount[e.accountId] = [];
         byAccount[e.accountId].push(e);

@@ -288,11 +288,19 @@ function matchesAmount(amount, term) {
     return String(Math.round(amount)) === String(Math.round(parseFloat(clean)));
 }
 
-function getCancelledDocIds() {
+function getActiveDocIds() {
     const ids = new Set();
-    lfGetAll(LF_KEYS.INVOICES).forEach(i => { if (i.cancelled) ids.add(i.id); });
-    lfGetAll(LF_KEYS.VOUCHERS).forEach(v => { if (v.cancelled) ids.add(v.id); });
+    lfGetAll(LF_KEYS.INVOICES).forEach(i => { if (!i.cancelled) ids.add(i.id); });
+    lfGetAll(LF_KEYS.VOUCHERS).forEach(v => { if (!v.cancelled) ids.add(v.id); });
+    lfGetAll(LF_KEYS.RSO_LOADS).forEach(r => ids.add(r.id));
+    lfGetAll(LF_KEYS.RSO_SALES).forEach(r => ids.add(r.id));
+    lfGetAll(LF_KEYS.RSO_RETURNS).forEach(r => ids.add(r.id));
+    lfGetAll(LF_KEYS.RSO_DEPOSITS).forEach(r => ids.add(r.id));
     return ids;
+}
+
+function isActiveLedgerEntry(e, activeIds) {
+    return !e.invoiceId || activeIds.has(e.invoiceId);
 }
 
 function acctLabel(a) {

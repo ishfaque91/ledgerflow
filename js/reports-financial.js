@@ -20,10 +20,10 @@ function computeAccountBalanceAsOf(accountId, asOfDate) {
     const acc = lfFindById(LF_KEYS.ACCOUNTS, accountId);
     if (!acc) return { amount: 0, side: 'Dr' };
 
-    const cancelledIds = getCancelledDocIds();
+    const activeIds = getActiveDocIds();
     let net = (acc.openingSide === 'Cr' ? -1 : 1) * (acc.openingAmount || 0);
     lfGetAll(LF_KEYS.ACCOUNT_LEDGER)
-        .filter(e => e.accountId === accountId && !cancelledIds.has(e.invoiceId) && (!asOfDate || e.date <= asOfDate))
+        .filter(e => e.accountId === accountId && isActiveLedgerEntry(e, activeIds) && (!asOfDate || e.date <= asOfDate))
         .forEach(e => { net += (e.side === 'Cr' ? -1 : 1) * e.amount; });
 
     return { amount: Math.abs(net), side: net >= 0 ? 'Dr' : 'Cr' };
@@ -32,7 +32,7 @@ function computeAccountBalanceAsOf(accountId, asOfDate) {
 // ==================== TRADING PROFIT (Load + Items, from Sale/Purchase invoices) ====================
 function computeTradingProfit(dateFrom, dateTo) {
     const invoices = lfGetAll(LF_KEYS.INVOICES).filter(i =>
-        (!dateFrom || i.date >= dateFrom) && (!dateTo || i.date <= dateTo)
+        !i.cancelled && (!dateFrom || i.date >= dateFrom) && (!dateTo || i.date <= dateTo)
     );
 
     const sumBy = (type, field) => invoices.filter(i => i.type === type).reduce((s, i) => s + (i[field] || 0), 0);
@@ -55,9 +55,9 @@ function computeTradingProfit(dateFrom, dateTo) {
 // ==================== OTHER INCOME / OPERATING EXPENSES (from Income/Expense accounts) ====================
 function computeIncomeExpense(dateFrom, dateTo) {
     const accounts = lfGetAll(LF_KEYS.ACCOUNTS);
-    const cancelledIds = getCancelledDocIds();
+    const activeIds = getActiveDocIds();
     const entries = lfGetAll(LF_KEYS.ACCOUNT_LEDGER).filter(e =>
-        !cancelledIds.has(e.invoiceId) && (!dateFrom || e.date >= dateFrom) && (!dateTo || e.date <= dateTo)
+        isActiveLedgerEntry(e, activeIds) && (!dateFrom || e.date >= dateFrom) && (!dateTo || e.date <= dateTo)
     );
 
     const incomeRows = [];
@@ -179,13 +179,13 @@ function statementRowHtml(title, amount) {
 }
 
 function computeClosingStock(asOfDate) {
-    const cancelledIds = getCancelledDocIds();
+    const activeIds = getActiveDocIds();
 
     const items = lfGetAll(LF_KEYS.ITEMS);
     let totalValue = 0;
     items.forEach(item => {
         const entries = lfGetAll(LF_KEYS.ITEM_LEDGER)
-            .filter(e => e.itemId === item.id && !cancelledIds.has(e.invoiceId) && (!asOfDate || e.date <= asOfDate));
+            .filter(e => e.itemId === item.id && isActiveLedgerEntry(e, activeIds) && (!asOfDate || e.date <= asOfDate));
         const qty = entries.reduce((s, e) => s + e.qtyChange, 0);
         totalValue += Math.max(0, qty) * (item.purchasePrice || 0);
     });
