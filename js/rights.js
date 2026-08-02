@@ -289,12 +289,7 @@ const PAGE_RIGHTS_MAP = {
     'page-rso-return': ['RSO / SALESMAN', 'RSO Return'],
     'page-rso-recovery': ['RSO / SALESMAN', 'Recovery'],
     'page-rso-deposit': ['RSO / SALESMAN', 'Cash Deposit'],
-    'page-rso-reports': ['RSO / SALESMAN', 'RSO Reports'],
-    'page-integrity': ['UTILITY', 'Data Integrity'],
-    'page-rights': ['UTILITY', 'User Rights'],
-    'page-backup': ['UTILITY', 'Backup'],
-    'page-change-password': ['UTILITY', 'Change Password'],
-    'page-settings': ['UTILITY', 'Settings']
+    'page-rso-reports': ['RSO / SALESMAN', 'RSO Reports']
 };
 
 function getCurrentUserRecord() {
