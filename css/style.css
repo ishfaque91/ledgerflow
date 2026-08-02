@@ -1193,138 +1193,70 @@ button { font-family: inherit; }
     .dash-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
-/* ==================== DASHBOARD TABS ====================
-   The dashboard is a launcher: one tab per area, each opening its own page
-   listing that area's options. Laid out two per row and styled as wide,
-   tactile buttons — icon, label, and a chevron that leans in on hover.
-   Each area carries its own accent so the five become recognisable by
-   colour, not just by reading the label every time. */
+/* ==================== DASHBOARD TABS ==================== */
 .dash-tab-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 16px;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
 }
 
-/* Per-area accents. Two tokens each (base + soft wash) so light and dark
-   themes can re-point them independently below. */
-.dash-tab[data-accent="indigo"] { --tab-accent: #5B4FE9; --tab-wash: rgba(91, 79, 233, 0.10); }
-.dash-tab[data-accent="teal"]   { --tab-accent: #0D9488; --tab-wash: rgba(13, 148, 136, 0.10); }
-.dash-tab[data-accent="violet"] { --tab-accent: #7C3AED; --tab-wash: rgba(124, 58, 237, 0.10); }
-.dash-tab[data-accent="amber"]  { --tab-accent: #C2760C; --tab-wash: rgba(194, 118, 12, 0.12); }
-.dash-tab[data-accent="slate"]  { --tab-accent: #4A5568; --tab-wash: rgba(74, 85, 104, 0.10); }
-
-[data-theme="dark"] .dash-tab[data-accent="indigo"] { --tab-accent: #8A82F5; --tab-wash: rgba(138, 130, 245, 0.16); }
-[data-theme="dark"] .dash-tab[data-accent="teal"]   { --tab-accent: #2DD4BF; --tab-wash: rgba(45, 212, 191, 0.16); }
-[data-theme="dark"] .dash-tab[data-accent="violet"] { --tab-accent: #A78BFA; --tab-wash: rgba(167, 139, 250, 0.16); }
-[data-theme="dark"] .dash-tab[data-accent="amber"]  { --tab-accent: #E0A23D; --tab-wash: rgba(224, 162, 61, 0.16); }
-[data-theme="dark"] .dash-tab[data-accent="slate"]  { --tab-accent: #9AA5B8; --tab-wash: rgba(154, 165, 184, 0.16); }
+.dash-tab[data-accent="indigo"] { --tab-bg: linear-gradient(135deg, #5B4FE9, #7B6FF2); --tab-bg-hover: linear-gradient(135deg, #4F42D9, #6C5FEB); }
+.dash-tab[data-accent="teal"]   { --tab-bg: linear-gradient(135deg, #0D9488, #14B8A6); --tab-bg-hover: linear-gradient(135deg, #0B8278, #0FA89A); }
+.dash-tab[data-accent="violet"] { --tab-bg: linear-gradient(135deg, #7C3AED, #9B5BF5); --tab-bg-hover: linear-gradient(135deg, #6D2FDB, #8B4AE8); }
+.dash-tab[data-accent="amber"]  { --tab-bg: linear-gradient(135deg, #D97706, #F59E0B); --tab-bg-hover: linear-gradient(135deg, #C26B05, #E08E06); }
+.dash-tab[data-accent="slate"]  { --tab-bg: linear-gradient(135deg, #475569, #64748B); --tab-bg-hover: linear-gradient(135deg, #3D4A5C, #5A6A7E); }
 
 .dash-tab {
-    position: relative;
     display: flex;
-    align-items: center;
-    gap: 16px;
-    padding: 1.25rem 1.35rem;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-sm);
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 1.2rem 1.1rem;
+    background: var(--tab-bg);
+    border: none;
+    border-radius: 16px;
     text-decoration: none;
-    color: inherit;
-    overflow: hidden;
-    transition: transform .18s var(--ease), box-shadow .18s var(--ease),
-                border-color .18s var(--ease), background .18s var(--ease);
-}
-/* A thin accent rail down the leading edge — the tab's colour signature,
-   which grows when you point at it. */
-.dash-tab::before {
-    content: '';
-    position: absolute;
-    left: 0; top: 0; bottom: 0;
-    width: 3px;
-    background: var(--tab-accent);
-    opacity: 0.55;
-    transition: width .18s var(--ease), opacity .18s var(--ease);
+    color: #fff;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+    transition: transform .15s ease, box-shadow .15s ease;
+    cursor: pointer;
+    min-height: 110px;
 }
 .dash-tab:hover {
-    transform: translateY(-2px);
-    border-color: var(--tab-accent);
-    box-shadow: 0 12px 28px rgba(21, 22, 28, 0.10), 0 2px 6px rgba(21, 22, 28, 0.06);
-    background: linear-gradient(100deg, var(--tab-wash), transparent 62%);
+    transform: translateY(-3px);
+    background: var(--tab-bg-hover);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.20);
 }
-.dash-tab:hover::before { width: 5px; opacity: 1; }
-.dash-tab:active { transform: translateY(0); }
-.dash-tab:focus-visible {
-    outline: none;
-    border-color: var(--tab-accent);
-    box-shadow: 0 0 0 3px var(--tab-wash);
-}
+.dash-tab:active { transform: translateY(0); box-shadow: 0 2px 8px rgba(0,0,0,0.12); }
 
 .dash-tab-icon {
     display: flex;
-    flex-shrink: 0;
-    width: 48px; height: 48px;
+    width: 40px; height: 40px;
     align-items: center; justify-content: center;
-    border-radius: 14px;
-    background: var(--tab-wash);
-    color: var(--tab-accent);
-    transition: background .18s var(--ease), color .18s var(--ease), transform .18s var(--ease);
-}
-.dash-tab-icon svg { width: 23px; height: 23px; }
-.dash-tab:hover .dash-tab-icon {
-    background: var(--tab-accent);
+    border-radius: 12px;
+    background: rgba(255,255,255,0.2);
     color: #fff;
-    transform: scale(1.05);
+    flex-shrink: 0;
 }
+.dash-tab-icon svg { width: 20px; height: 20px; }
 
-.dash-tab-text { display: flex; flex-direction: column; gap: 3px; min-width: 0; flex: 1; }
+.dash-tab-text { display: flex; flex-direction: column; gap: 2px; flex: 1; }
 .dash-tab-name {
     font-family: 'Space Grotesk', sans-serif;
-    font-weight: 700;
-    font-size: 1.12rem;
+    font-weight: 800;
+    font-size: 1.15rem;
+    color: #fff;
+    line-height: 1.2;
     letter-spacing: -0.01em;
-    color: var(--ink);
-    line-height: 1.25;
 }
 .dash-tab-desc {
-    font-size: 0.84rem;
-    color: var(--ink-faint);
-    line-height: 1.4;
+    font-size: 0.72rem;
+    color: rgba(255,255,255,0.75);
+    line-height: 1.35;
 }
 
-.dash-tab-meta { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
-/* The option count reads as a quiet numeric badge rather than shouty
-   uppercase text — it's supporting detail, not a heading. */
-.dash-tab-count {
-    min-width: 26px;
-    padding: 0.18rem 0.5rem;
-    border-radius: 999px;
-    background: var(--tab-wash);
-    color: var(--tab-accent);
-    font-size: 0.78rem;
-    font-weight: 700;
-    font-variant-numeric: tabular-nums;
-    text-align: center;
-}
-.dash-tab-arrow {
-    color: var(--ink-faint);
-    transition: transform .18s var(--ease), color .18s var(--ease);
-}
-.dash-tab:hover .dash-tab-arrow { color: var(--tab-accent); transform: translateX(3px); }
+.dash-tab-meta { display: none; }
 
-@media (max-width: 720px) {
-    .dash-tab-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-    .dash-tab { padding: 0.85rem 0.7rem; gap: 8px; flex-direction: column; align-items: flex-start; }
-    .dash-tab-icon { width: 36px; height: 36px; border-radius: 10px; }
-    .dash-tab-icon svg { width: 18px; height: 18px; }
-    .dash-tab-name { font-size: 0.92rem; }
-    .dash-tab-desc { font-size: 0.72rem; }
-    .dash-tab-meta { align-self: flex-end; margin-top: auto; }
-    .dash-tab-count { font-size: 0.78rem; }
-}
-/* Only on genuinely tiny screens (below ~340px) does the description stop
-   fitting alongside the icon and count — common phone widths (375px and up)
-   keep it, since a full-width tab has room for two short lines. */
 @media (max-width: 339px) {
     .dash-tab-desc { display: none; }
 }
