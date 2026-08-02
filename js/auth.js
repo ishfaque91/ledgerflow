@@ -156,7 +156,7 @@ async function resolveCompanyAndShowApp(user) {
             evaluateAndGateAccess();
         });
 
-        watchCollection(LF_KEYS.ACCOUNTS, () => { renderAccountList(); renderDashboard(); });
+        watchCollection(LF_KEYS.ACCOUNTS, () => { renderAccountList(); renderDashboard(); cleanupDuplicateRsoAccounts(); });
         watchCollection(LF_KEYS.ITEMS, () => renderItemList());
         watchCollection(LF_KEYS.USERS, () => { renderUserList(); populateRightsUserPicker(); applyNavRightsVisibility(); applyRsoNavVisibility(); });
         watchCollection(LF_KEYS.RIGHTS, () => { renderRightsTable(); applyNavRightsVisibility(); });

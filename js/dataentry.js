@@ -26,7 +26,7 @@ const INVOICE_CONFIG = {
     },
     Sale: {
         title: 'Sale', prefix: 'SAL', partyLabel: 'Customer',
-        partyTypes: ['Customer', 'Customer/Supplier'],
+        partyTypes: ['Customer', 'Customer/Supplier', 'Employee/RSO'],
         loadAmountLabel: 'Sale Amount', loadQtyLabel: 'Load Issued',
         paymentHeading: 'Received in Cash / Bank', balanceLabel: 'Balance receivable',
         direction: -1, ledgerPartySide: 'Dr', paymentCashSide: 'Dr',
@@ -34,7 +34,7 @@ const INVOICE_CONFIG = {
     },
     SaleReturn: {
         title: 'Sale Return', prefix: 'SRET', partyLabel: 'Customer',
-        partyTypes: ['Customer', 'Customer/Supplier'],
+        partyTypes: ['Customer', 'Customer/Supplier', 'Employee/RSO'],
         loadAmountLabel: 'Return Amount', loadQtyLabel: 'Load Returned',
         paymentHeading: 'Refunded in Cash / Bank', balanceLabel: 'Reduces receivable by',
         direction: 1, ledgerPartySide: 'Cr', paymentCashSide: 'Cr',

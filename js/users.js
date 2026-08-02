@@ -14,6 +14,30 @@
  * person's own "Change Password" page instead).
  */
 
+let _rsoCleanupDone = false;
+function cleanupDuplicateRsoAccounts() {
+    if (_rsoCleanupDone) return;
+    _rsoCleanupDone = true;
+
+    const rsoAccounts = lfGetAll(LF_KEYS.ACCOUNTS).filter(a => a.type === 'Employee/RSO');
+    const linked = rsoAccounts.filter(a => a.linkedUserId);
+
+    linked.forEach(acct => {
+        const name = acct.title.toLowerCase().replace(/\s*\(rso\)\s*/i, '').trim();
+        const dups = rsoAccounts.filter(a =>
+            a.id !== acct.id &&
+            !a.linkedUserId &&
+            a.title.toLowerCase().replace(/\s*\(rso\)\s*/i, '').trim() === name
+        );
+        dups.forEach(dup => {
+            const ledgerEntries = lfGetAll(LF_KEYS.ACCOUNT_LEDGER).filter(e => e.accountId === dup.id);
+            if (ledgerEntries.length === 0 && (dup.openingAmount || 0) === 0) {
+                lfDelete(LF_KEYS.ACCOUNTS, dup.id);
+            }
+        });
+    });
+}
+
 function renderUserList(searchTerm = '') {
     const tbody = $('user-table-body');
     if (!tbody) return;
