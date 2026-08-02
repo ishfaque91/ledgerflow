@@ -401,13 +401,17 @@ async function confirmWipeData() {
     try {
         for (const colName of WIPE_COLLECTIONS) {
             $('wipe-progress-text').textContent = `Deleting ${colName}...`;
-            await deleteSubcollection(companyRef, colName);
+            if (colName === 'USERS') {
+                await deleteUsersExceptOwner(companyRef);
+            } else {
+                await deleteSubcollection(companyRef, colName);
+            }
             completed++;
             $('wipe-progress-fill').style.width = `${Math.round((completed / WIPE_COLLECTIONS.length) * 100)}%`;
         }
 
-        $('wipe-progress-text').textContent = 'All data wiped successfully.';
-        showToast(`All data wiped for ${c.companyName}.`, 'success');
+        $('wipe-progress-text').textContent = 'All data wiped. Owner user preserved.';
+        showToast(`All data wiped for ${c.companyName}. Owner user kept.`, 'success');
         setTimeout(() => closeWipeModal(), 1200);
     } catch (e) {
         console.error('[Wipe] Error:', e);
@@ -415,6 +419,21 @@ async function confirmWipeData() {
         showToast('Wipe failed — some data may remain. Try again.', 'error');
     } finally {
         setBtnLoading(btn, false);
+    }
+}
+
+async function deleteUsersExceptOwner(companyRef) {
+    const batchSize = 200;
+    const snapshot = await companyRef.collection('USERS').get();
+    const toDelete = snapshot.docs.filter(doc => {
+        const data = doc.data();
+        return data.role !== 'owner';
+    });
+
+    for (let i = 0; i < toDelete.length; i += batchSize) {
+        const batch = fbDb.batch();
+        toDelete.slice(i, i + batchSize).forEach(doc => batch.delete(doc.ref));
+        await batch.commit();
     }
 }
 
