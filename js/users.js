@@ -14,24 +14,83 @@
  * person's own "Change Password" page instead).
  */
 
+let _rsoRepairDone = false;
+function repairRsoAccountData() {
+    if (_rsoRepairDone) return;
+    _rsoRepairDone = true;
+
+    const rsoAccounts = lfGetAll(LF_KEYS.ACCOUNTS).filter(a => a.type === 'Employee/RSO');
+    rsoAccounts.forEach(acct => {
+        if (acct.title && /\s*\(RSO\)\s*$/i.test(acct.title)) {
+            const cleanTitle = acct.title.replace(/\s*\(RSO\)\s*$/i, '').trim();
+            lfUpsert(LF_KEYS.ACCOUNTS, { ...acct, title: cleanTitle });
+        }
+    });
+
+    const invoiceKeys = [LF_KEYS.PURCHASES, LF_KEYS.PURCHASE_RETURNS, LF_KEYS.SALES, LF_KEYS.SALE_RETURNS];
+    invoiceKeys.forEach(key => {
+        lfGetAll(key).forEach(inv => {
+            if (!inv.partyAccountId) return;
+            const exists = lfFindById(LF_KEYS.ACCOUNTS, inv.partyAccountId);
+            if (exists) return;
+            const match = rsoAccounts.find(a => {
+                const name = a.title.replace(/\s*\(RSO\)\s*$/i, '').trim().toLowerCase();
+                return (inv.partyName || '').toLowerCase().trim() === name;
+            });
+            if (match) {
+                lfUpsert(key, { ...inv, partyAccountId: match.id });
+            }
+        });
+    });
+
+    const allLedger = lfGetAll(LF_KEYS.ACCOUNT_LEDGER);
+    allLedger.forEach(entry => {
+        if (!entry.accountId) return;
+        const exists = lfFindById(LF_KEYS.ACCOUNTS, entry.accountId);
+        if (exists) return;
+        const match = rsoAccounts.find(a => {
+            const name = a.title.replace(/\s*\(RSO\)\s*$/i, '').trim().toLowerCase();
+            return (entry.accountTitle || entry.partyName || '').toLowerCase().trim() === name;
+        });
+        if (match) {
+            lfUpsert(LF_KEYS.ACCOUNT_LEDGER, { ...entry, accountId: match.id });
+        }
+    });
+}
+
 let _rsoCleanupDone = false;
 function cleanupDuplicateRsoAccounts() {
     if (_rsoCleanupDone) return;
     _rsoCleanupDone = true;
+    repairRsoAccountData();
 
     const rsoAccounts = lfGetAll(LF_KEYS.ACCOUNTS).filter(a => a.type === 'Employee/RSO');
     const linked = rsoAccounts.filter(a => a.linkedUserId);
 
-    linked.forEach(acct => {
-        const name = acct.title.toLowerCase().replace(/\s*\(rso\)\s*/i, '').trim();
+    linked.forEach(keep => {
+        const baseName = keep.title.toLowerCase().replace(/\s*\(rso\)\s*/i, '').trim();
         const dups = rsoAccounts.filter(a =>
-            a.id !== acct.id &&
-            a.title.toLowerCase().replace(/\s*\(rso\)\s*/i, '').trim() === name
+            a.id !== keep.id &&
+            a.title.toLowerCase().replace(/\s*\(rso\)\s*/i, '').trim() === baseName
         );
+        if (dups.length === 0) return;
+
+        const userTitle = dups.find(d => !d.title.toLowerCase().includes('(rso)'));
+        if (userTitle) {
+            keep = { ...keep, title: userTitle.title };
+            lfUpsert(LF_KEYS.ACCOUNTS, keep);
+        }
+
         dups.forEach(dup => {
             const ledgerEntries = lfGetAll(LF_KEYS.ACCOUNT_LEDGER).filter(e => e.accountId === dup.id);
             ledgerEntries.forEach(entry => {
-                lfUpsert(LF_KEYS.ACCOUNT_LEDGER, { ...entry, accountId: acct.id });
+                lfUpsert(LF_KEYS.ACCOUNT_LEDGER, { ...entry, accountId: keep.id });
+            });
+            const invoiceKeys = [LF_KEYS.PURCHASES, LF_KEYS.PURCHASE_RETURNS, LF_KEYS.SALES, LF_KEYS.SALE_RETURNS];
+            invoiceKeys.forEach(key => {
+                lfGetAll(key).filter(inv => inv.partyAccountId === dup.id).forEach(inv => {
+                    lfUpsert(key, { ...inv, partyAccountId: keep.id });
+                });
             });
             lfDelete(LF_KEYS.ACCOUNTS, dup.id);
         });
@@ -219,7 +278,7 @@ async function saveUser() {
                         await lfUpsert(LF_KEYS.ACCOUNTS, { ...byName, linkedUserId: created.id });
                     } else {
                         await lfUpsert(LF_KEYS.ACCOUNTS, {
-                            type: 'Employee/RSO', title: fullName + ' (RSO)',
+                            type: 'Employee/RSO', title: fullName,
                             linkedUserId: created.id, openingAmount: 0, openingSide: 'Dr',
                             mobile: '', phone: '', email: '', city: '', gst: '', ntn: '', address: ''
                         });
@@ -250,7 +309,7 @@ async function saveUser() {
                         await lfUpsert(LF_KEYS.ACCOUNTS, { ...byName, linkedUserId: id });
                     } else {
                         await lfUpsert(LF_KEYS.ACCOUNTS, {
-                            type: 'Employee/RSO', title: fullName + ' (RSO)',
+                            type: 'Employee/RSO', title: fullName,
                             linkedUserId: id, openingAmount: 0, openingSide: 'Dr',
                             mobile: '', phone: '', email: '', city: '', gst: '', ntn: '', address: ''
                         });
