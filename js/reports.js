@@ -67,8 +67,9 @@ function computeAccountLedgerRows(accountId, dateFrom, dateTo) {
     const acc = lfFindById(LF_KEYS.ACCOUNTS, accountId);
     if (!acc) return null;
 
+    const cancelledIds = new Set(lfGetAll(LF_KEYS.INVOICES).filter(i => i.cancelled).map(i => i.id));
     const entries = lfGetAll(LF_KEYS.ACCOUNT_LEDGER)
-        .filter(e => e.accountId === accountId)
+        .filter(e => e.accountId === accountId && !cancelledIds.has(e.invoiceId))
         .sort((a, b) => new Date(a.date) - new Date(b.date) || (a.invoiceId || '').localeCompare(b.invoiceId || ''));
 
     let openingSigned = (acc.openingSide === 'Cr' ? -1 : 1) * (acc.openingAmount || 0);
@@ -175,7 +176,8 @@ function renderCashBookReport() {
 
 // ==================== LOAD LEDGER ====================
 function computeLoadLedgerRows(dateFrom, dateTo) {
-    const entries = lfGetAll(LF_KEYS.LOAD_LEDGER).sort((a, b) => new Date(a.date) - new Date(b.date));
+    const cancelledIds = new Set(lfGetAll(LF_KEYS.INVOICES).filter(i => i.cancelled).map(i => i.id));
+    const entries = lfGetAll(LF_KEYS.LOAD_LEDGER).filter(e => !cancelledIds.has(e.invoiceId)).sort((a, b) => new Date(a.date) - new Date(b.date));
     let opening = 0, openingAmt = 0;
     const within = [];
 
@@ -227,7 +229,8 @@ function renderLoadLedgerReport() {
 
 // ==================== ITEM LEDGER ====================
 function computeItemLedgerRows(itemId, dateFrom, dateTo) {
-    const entries = lfGetAll(LF_KEYS.ITEM_LEDGER).filter(e => e.itemId === itemId).sort((a, b) => new Date(a.date) - new Date(b.date));
+    const cancelledIds = new Set(lfGetAll(LF_KEYS.INVOICES).filter(i => i.cancelled).map(i => i.id));
+    const entries = lfGetAll(LF_KEYS.ITEM_LEDGER).filter(e => e.itemId === itemId && !cancelledIds.has(e.invoiceId)).sort((a, b) => new Date(a.date) - new Date(b.date));
     let opening = 0;
     const within = [];
 
@@ -247,7 +250,8 @@ function computeItemLedgerRows(itemId, dateFrom, dateTo) {
 }
 
 function computeItemCurrentStock(itemId) {
-    return lfGetAll(LF_KEYS.ITEM_LEDGER).filter(e => e.itemId === itemId).reduce((sum, e) => sum + e.qtyChange, 0);
+    const cancelledIds = new Set(lfGetAll(LF_KEYS.INVOICES).filter(i => i.cancelled).map(i => i.id));
+    return lfGetAll(LF_KEYS.ITEM_LEDGER).filter(e => e.itemId === itemId && !cancelledIds.has(e.invoiceId)).reduce((sum, e) => sum + e.qtyChange, 0);
 }
 
 function initItemLedgerPage(preselectItemId) {
@@ -293,8 +297,9 @@ function renderItemLedgerReport() {
 // Account Ledger and Item Ledger already use, rather than a bare "current
 // stock" figure with no way to see movement over a chosen window.
 function computeItemStockSummary(itemId, dateFrom, dateTo) {
+    const cancelledIds = new Set(lfGetAll(LF_KEYS.INVOICES).filter(i => i.cancelled).map(i => i.id));
     const entries = lfGetAll(LF_KEYS.ITEM_LEDGER)
-        .filter(e => e.itemId === itemId)
+        .filter(e => e.itemId === itemId && !cancelledIds.has(e.invoiceId))
         .sort((a, b) => new Date(a.date) - new Date(b.date));
 
     let opening = 0, qtyIn = 0, qtyOut = 0;
@@ -342,13 +347,14 @@ function renderStockReport() {
     }
 
     // Pre-index item ledger by itemId so each item doesn't rescan the full list
+    const cancelledIds = new Set(lfGetAll(LF_KEYS.INVOICES).filter(i => i.cancelled).map(i => i.id));
     const itemLedgerByItem = {};
-    lfGetAll(LF_KEYS.ITEM_LEDGER).forEach(e => {
+    lfGetAll(LF_KEYS.ITEM_LEDGER).filter(e => !cancelledIds.has(e.invoiceId)).forEach(e => {
         if (!itemLedgerByItem[e.itemId]) itemLedgerByItem[e.itemId] = [];
         itemLedgerByItem[e.itemId].push(e);
     });
 
-    const loadEntries = lfGetAll(LF_KEYS.LOAD_LEDGER);
+    const loadEntries = lfGetAll(LF_KEYS.LOAD_LEDGER).filter(e => !cancelledIds.has(e.invoiceId));
     let loadOpening = 0, loadIn = 0, loadOut = 0;
     let loadAmtOpening = 0, loadAmtIn = 0, loadAmtOut = 0;
     loadEntries.sort((a, b) => a.date.localeCompare(b.date)).forEach(e => {
