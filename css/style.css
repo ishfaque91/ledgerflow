@@ -370,6 +370,24 @@ button { font-family: inherit; }
     font-weight: 600;
 }
 
+.date-filter {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.82rem;
+    color: var(--ink-faint);
+    font-weight: 600;
+}
+.date-filter input[type="date"] {
+    border: 1px solid var(--border-strong);
+    background: var(--surface);
+    border-radius: var(--radius-md);
+    padding: 0.4rem 0.55rem;
+    font-size: 0.82rem;
+    color: var(--ink-soft);
+    font-weight: 600;
+    max-width: 140px;
+}
 .count-pill {
     margin-left: auto;
     font-size: 0.82rem;

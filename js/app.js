@@ -74,6 +74,7 @@ function navigateTo(pageId, linkEl) {
     if (parentGroup) parentGroup.classList.add('is-open');
 
     if (pageId === 'page-dashboard') renderDashboard();
+    if (pageId === 'page-rso-stock') renderRsoStockTracking();
 
     if (!isHandlingPopstate) {
         // Don't push a duplicate entry if we're already sitting on this

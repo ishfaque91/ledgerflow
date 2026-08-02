@@ -256,3 +256,16 @@ function escapeHtml(value) {
         .replace(/"/g, '&quot;')
         .replace(/'/g, '&#39;');
 }
+
+function getDateFilter(fromId, toId) {
+    const from = $(fromId)?.value || '';
+    const to = $(toId)?.value || '';
+    return { from, to };
+}
+
+function applyDateFilter(list, fromId, toId) {
+    const { from, to } = getDateFilter(fromId, toId);
+    if (from) list = list.filter(r => r.date >= from);
+    if (to) list = list.filter(r => r.date <= to);
+    return list;
+}

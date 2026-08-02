@@ -36,21 +36,25 @@ async function takeNextVoucherNumber(type) {
 }
 
 // ==================== SHARED LIST RENDERER ====================
-function renderVoucherList(type, searchTerm = '') {
+function renderVoucherList(type) {
     const tbody = $(`${type}-table-body`);
     if (!tbody) return;
 
-    const term = (searchTerm || '').trim().toLowerCase();
+    const term = ($(`${type}-search`)?.value || '').trim().toLowerCase();
     let vouchers = lfGetAll(LF_KEYS.VOUCHERS).filter(v => v.type === type);
 
     if (term) {
         vouchers = vouchers.filter(v =>
             (v.number || '').toLowerCase().includes(term) ||
             (v.partyName || '').toLowerCase().includes(term) ||
-            (v.narration || '').toLowerCase().includes(term)
+            (v.narration || '').toLowerCase().includes(term) ||
+            (v.bankName || '').toLowerCase().includes(term) ||
+            (v.cashAccountName || '').toLowerCase().includes(term) ||
+            (v.date || '').includes(term)
         );
     }
 
+    vouchers = applyDateFilter(vouchers, `${type}-from`, `${type}-to`);
     vouchers.sort((a, b) => new Date(b.date) - new Date(a.date));
     $(`${type}-count`).textContent = `${vouchers.length} voucher${vouchers.length === 1 ? '' : 's'}`;
 

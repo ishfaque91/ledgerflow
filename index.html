@@ -258,6 +258,7 @@
                     <a href="#" class="nav-link" data-page="page-rso-return" onclick="navigateTo('page-rso-return',this);">RSO Return</a>
                     <a href="#" class="nav-link" data-page="page-rso-recovery" onclick="navigateTo('page-rso-recovery',this);">Recovery</a>
                     <a href="#" class="nav-link" data-page="page-rso-deposit" onclick="navigateTo('page-rso-deposit',this);">Cash Deposit</a>
+                    <a href="#" class="nav-link" data-page="page-rso-stock" onclick="navigateTo('page-rso-stock',this);">Stock Tracking</a>
                     <a href="#" class="nav-link" data-page="page-rso-reports" onclick="navigateTo('page-rso-reports',this);">RSO Reports</a>
                 </div>
             </div>
@@ -467,6 +468,7 @@
                     <a href="#" data-page="page-rso-return" onclick="navigateTo('page-rso-return',this)"><span class="hub-opt-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/><path d="M11 10l-2 2 2 2"/></svg></span><span class="hub-opt-label">RSO Return</span><svg class="hub-opt-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></a>
                     <a href="#" data-page="page-rso-recovery" onclick="navigateTo('page-rso-recovery',this)"><span class="hub-opt-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span><span class="hub-opt-label">Recovery</span><svg class="hub-opt-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></a>
                     <a href="#" data-page="page-rso-deposit" onclick="navigateTo('page-rso-deposit',this)"><span class="hub-opt-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg></span><span class="hub-opt-label">Cash Deposit</span><svg class="hub-opt-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></a>
+                    <a href="#" data-page="page-rso-stock" onclick="navigateTo('page-rso-stock',this)"><span class="hub-opt-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg></span><span class="hub-opt-label">Stock Tracking</span><svg class="hub-opt-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></a>
                     <a href="#" data-page="page-rso-reports" onclick="navigateTo('page-rso-reports',this)"><span class="hub-opt-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></span><span class="hub-opt-label">RSO Reports</span><svg class="hub-opt-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></a>
                 </div>
             </div>
@@ -953,7 +955,12 @@
             <div class="toolbar-row">
                 <div class="search-field">
                     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                    <input type="text" id="Purchase-search" placeholder="Search by invoice no. or supplier…" oninput="renderInvoiceList('Purchase', this.value)">
+                    <input type="text" id="Purchase-search" placeholder="Search by invoice no. or supplier…" oninput="renderInvoiceList('Purchase')">
+                </div>
+                <div class="date-filter">
+                    <input type="date" id="Purchase-from" onchange="renderInvoiceList('Purchase')">
+                    <span>to</span>
+                    <input type="date" id="Purchase-to" onchange="renderInvoiceList('Purchase')">
                 </div>
                 <span class="count-pill" id="Purchase-count">0 invoices</span>
             </div>
@@ -982,7 +989,12 @@
             <div class="toolbar-row">
                 <div class="search-field">
                     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                    <input type="text" id="PurchaseReturn-search" placeholder="Search by invoice no. or supplier…" oninput="renderInvoiceList('PurchaseReturn', this.value)">
+                    <input type="text" id="PurchaseReturn-search" placeholder="Search by invoice no. or supplier…" oninput="renderInvoiceList('PurchaseReturn')">
+                </div>
+                <div class="date-filter">
+                    <input type="date" id="PurchaseReturn-from" onchange="renderInvoiceList('PurchaseReturn')">
+                    <span>to</span>
+                    <input type="date" id="PurchaseReturn-to" onchange="renderInvoiceList('PurchaseReturn')">
                 </div>
                 <span class="count-pill" id="PurchaseReturn-count">0 invoices</span>
             </div>
@@ -1011,7 +1023,12 @@
             <div class="toolbar-row">
                 <div class="search-field">
                     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                    <input type="text" id="Sale-search" placeholder="Search by invoice no. or party…" oninput="renderInvoiceList('Sale', this.value)">
+                    <input type="text" id="Sale-search" placeholder="Search by invoice no. or party…" oninput="renderInvoiceList('Sale')">
+                </div>
+                <div class="date-filter">
+                    <input type="date" id="Sale-from" onchange="renderInvoiceList('Sale')">
+                    <span>to</span>
+                    <input type="date" id="Sale-to" onchange="renderInvoiceList('Sale')">
                 </div>
                 <span class="count-pill" id="Sale-count">0 invoices</span>
             </div>
@@ -1040,7 +1057,12 @@
             <div class="toolbar-row">
                 <div class="search-field">
                     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                    <input type="text" id="SaleReturn-search" placeholder="Search by invoice no. or party…" oninput="renderInvoiceList('SaleReturn', this.value)">
+                    <input type="text" id="SaleReturn-search" placeholder="Search by invoice no. or party…" oninput="renderInvoiceList('SaleReturn')">
+                </div>
+                <div class="date-filter">
+                    <input type="date" id="SaleReturn-from" onchange="renderInvoiceList('SaleReturn')">
+                    <span>to</span>
+                    <input type="date" id="SaleReturn-to" onchange="renderInvoiceList('SaleReturn')">
                 </div>
                 <span class="count-pill" id="SaleReturn-count">0 invoices</span>
             </div>
@@ -1220,7 +1242,12 @@
             <div class="toolbar-row">
                 <div class="search-field">
                     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                    <input type="text" id="BankReceipt-search" placeholder="Search by voucher no. or party…" oninput="renderVoucherList('BankReceipt', this.value)">
+                    <input type="text" id="BankReceipt-search" placeholder="Search by voucher no. or party…" oninput="renderVoucherList('BankReceipt')">
+                </div>
+                <div class="date-filter">
+                    <input type="date" id="BankReceipt-from" onchange="renderVoucherList('BankReceipt')">
+                    <span>to</span>
+                    <input type="date" id="BankReceipt-to" onchange="renderVoucherList('BankReceipt')">
                 </div>
                 <span class="count-pill" id="BankReceipt-count">0 vouchers</span>
             </div>
@@ -1249,7 +1276,12 @@
             <div class="toolbar-row">
                 <div class="search-field">
                     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                    <input type="text" id="BankPayment-search" placeholder="Search by voucher no. or party…" oninput="renderVoucherList('BankPayment', this.value)">
+                    <input type="text" id="BankPayment-search" placeholder="Search by voucher no. or party…" oninput="renderVoucherList('BankPayment')">
+                </div>
+                <div class="date-filter">
+                    <input type="date" id="BankPayment-from" onchange="renderVoucherList('BankPayment')">
+                    <span>to</span>
+                    <input type="date" id="BankPayment-to" onchange="renderVoucherList('BankPayment')">
                 </div>
                 <span class="count-pill" id="BankPayment-count">0 vouchers</span>
             </div>
@@ -1353,7 +1385,12 @@
             <div class="toolbar-row">
                 <div class="search-field">
                     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                    <input type="text" id="PettyCash-search" placeholder="Search by voucher no…" oninput="renderVoucherList('PettyCash', this.value)">
+                    <input type="text" id="PettyCash-search" placeholder="Search by voucher no…" oninput="renderVoucherList('PettyCash')">
+                </div>
+                <div class="date-filter">
+                    <input type="date" id="PettyCash-from" onchange="renderVoucherList('PettyCash')">
+                    <span>to</span>
+                    <input type="date" id="PettyCash-to" onchange="renderVoucherList('PettyCash')">
                 </div>
                 <span class="count-pill" id="PettyCash-count">0 vouchers</span>
             </div>
@@ -1443,7 +1480,12 @@
             <div class="toolbar-row">
                 <div class="search-field">
                     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                    <input type="text" id="Journal-search" placeholder="Search by voucher no. or narration…" oninput="renderVoucherList('Journal', this.value)">
+                    <input type="text" id="Journal-search" placeholder="Search by voucher no. or narration…" oninput="renderVoucherList('Journal')">
+                </div>
+                <div class="date-filter">
+                    <input type="date" id="Journal-from" onchange="renderVoucherList('Journal')">
+                    <span>to</span>
+                    <input type="date" id="Journal-to" onchange="renderVoucherList('Journal')">
                 </div>
                 <span class="count-pill" id="Journal-count">0 vouchers</span>
             </div>
@@ -2299,7 +2341,12 @@
             <div class="toolbar-row">
                 <div class="search-field">
                     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                    <input type="text" id="rso-load-search" placeholder="Search…" oninput="renderRsoLoadList(this.value)">
+                    <input type="text" id="rso-load-search" placeholder="Search…" oninput="renderRsoLoadList()">
+                </div>
+                <div class="date-filter">
+                    <input type="date" id="rso-load-from" onchange="renderRsoLoadList()">
+                    <span>to</span>
+                    <input type="date" id="rso-load-to" onchange="renderRsoLoadList()">
                 </div>
                 <span class="count-pill" id="rso-load-count">0 loads</span>
             </div>
@@ -2348,7 +2395,12 @@
             <div class="toolbar-row">
                 <div class="search-field">
                     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                    <input type="text" id="rso-sale-search" placeholder="Search…" oninput="renderRsoSaleList(this.value)">
+                    <input type="text" id="rso-sale-search" placeholder="Search…" oninput="renderRsoSaleList()">
+                </div>
+                <div class="date-filter">
+                    <input type="date" id="rso-sale-from" onchange="renderRsoSaleList()">
+                    <span>to</span>
+                    <input type="date" id="rso-sale-to" onchange="renderRsoSaleList()">
                 </div>
                 <span class="count-pill" id="rso-sale-count">0 sales</span>
             </div>
@@ -2422,7 +2474,12 @@
             <div class="toolbar-row">
                 <div class="search-field">
                     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                    <input type="text" id="rso-return-search" placeholder="Search…" oninput="renderRsoReturnList(this.value)">
+                    <input type="text" id="rso-return-search" placeholder="Search…" oninput="renderRsoReturnList()">
+                </div>
+                <div class="date-filter">
+                    <input type="date" id="rso-return-from" onchange="renderRsoReturnList()">
+                    <span>to</span>
+                    <input type="date" id="rso-return-to" onchange="renderRsoReturnList()">
                 </div>
                 <span class="count-pill" id="rso-return-count">0 returns</span>
             </div>
@@ -2475,7 +2532,12 @@
             <div class="toolbar-row">
                 <div class="search-field">
                     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                    <input type="text" id="rso-recovery-search" placeholder="Search…" oninput="renderRsoRecoveryList(this.value)">
+                    <input type="text" id="rso-recovery-search" placeholder="Search…" oninput="renderRsoRecoveryList()">
+                </div>
+                <div class="date-filter">
+                    <input type="date" id="rso-recovery-from" onchange="renderRsoRecoveryList()">
+                    <span>to</span>
+                    <input type="date" id="rso-recovery-to" onchange="renderRsoRecoveryList()">
                 </div>
                 <span class="count-pill" id="rso-recovery-count">0 recoveries</span>
             </div>
@@ -2529,7 +2591,12 @@
             <div class="toolbar-row">
                 <div class="search-field">
                     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                    <input type="text" id="rso-deposit-search" placeholder="Search…" oninput="renderRsoDepositList(this.value)">
+                    <input type="text" id="rso-deposit-search" placeholder="Search…" oninput="renderRsoDepositList()">
+                </div>
+                <div class="date-filter">
+                    <input type="date" id="rso-deposit-from" onchange="renderRsoDepositList()">
+                    <span>to</span>
+                    <input type="date" id="rso-deposit-to" onchange="renderRsoDepositList()">
                 </div>
                 <span class="count-pill" id="rso-deposit-count">0 deposits</span>
             </div>
@@ -2563,6 +2630,22 @@
                 </div>
             </div>
         </div>
+
+        <!-- ============ RSO: STOCK TRACKING ============ -->
+        <section id="page-rso-stock" class="page">
+            <div class="page-head">
+                <div><h1>RSO Stock Tracking</h1><p class="page-sub">Current stock balance for each RSO — issued minus sold minus returned.</p></div>
+            </div>
+            <div class="toolbar-row" id="rso-stock-rso-filter" style="display:none">
+                <div class="field" style="margin:0;min-width:200px">
+                    <select id="rso-stock-rso-select" class="select-chip" onchange="renderRsoStockTracking()">
+                        <option value="">All RSOs</option>
+                    </select>
+                </div>
+                <span class="count-pill" id="rso-stock-count">0 RSOs</span>
+            </div>
+            <div id="rso-stock-tracking-body"></div>
+        </section>
 
         <!-- ============ RSO: REPORTS ============ -->
         <section id="page-rso-reports" class="page">

@@ -213,11 +213,11 @@ async function deleteRsoCustomer(id) {
 }
 
 // ==================== RSO LOAD (Admin issues stock to RSO) ====================
-function renderRsoLoadList(searchTerm = '') {
+function renderRsoLoadList() {
     const tbody = $('rso-load-table-body');
     if (!tbody) return;
 
-    const term = (searchTerm || '').trim().toLowerCase();
+    const term = ($('rso-load-search')?.value || '').trim().toLowerCase();
     let loads = lfGetAll(LF_KEYS.RSO_LOADS);
 
     if (isRsoUser()) {
@@ -227,10 +227,12 @@ function renderRsoLoadList(searchTerm = '') {
     if (term) {
         loads = loads.filter(l =>
             (l.number || '').toLowerCase().includes(term) ||
-            (l.rsoName || '').toLowerCase().includes(term)
+            (l.rsoName || '').toLowerCase().includes(term) ||
+            (l.date || '').includes(term)
         );
     }
 
+    loads = applyDateFilter(loads, 'rso-load-from', 'rso-load-to');
     loads.sort((a, b) => new Date(b.date) - new Date(a.date));
     $('rso-load-count').textContent = `${loads.length} load${loads.length === 1 ? '' : 's'}`;
 
@@ -449,12 +451,88 @@ function computeRsoStock(rsoUserId) {
     return stock;
 }
 
+// ==================== RSO STOCK TRACKING PAGE ====================
+function renderRsoStockTracking() {
+    const container = $('rso-stock-tracking-body');
+    if (!container) return;
+
+    const filterBar = $('rso-stock-rso-filter');
+
+    if (isRsoUser()) {
+        if (filterBar) filterBar.style.display = 'none';
+        const rsoUserId = getCurrentRsoUserId();
+        const user = getCurrentUserRecord();
+        const stock = computeRsoStock(rsoUserId);
+        container.innerHTML = buildRsoStockCard(user.displayName || user.name || 'My Stock', stock);
+        return;
+    }
+
+    if (filterBar) filterBar.style.display = '';
+    const sel = $('rso-stock-rso-select');
+    const rsoUsers = getAllRsoUsers();
+
+    const currentVal = sel.value;
+    sel.innerHTML = '<option value="">All RSOs</option>' +
+        rsoUsers.map(u => `<option value="${u.id}">${escapeHtml(u.displayName || u.name)}</option>`).join('');
+    sel.value = currentVal;
+
+    const selectedRso = sel.value;
+
+    if (selectedRso) {
+        const u = lfFindById(LF_KEYS.USERS, selectedRso);
+        const stock = computeRsoStock(selectedRso);
+        container.innerHTML = buildRsoStockCard(u ? (u.displayName || u.name) : 'RSO', stock);
+        $('rso-stock-count').textContent = '1 RSO';
+    } else {
+        const visibleRsos = rsoUsers.filter(u => {
+            const stock = computeRsoStock(u.id);
+            return Object.values(stock).some(s => s.qty !== 0);
+        });
+        if (visibleRsos.length === 0) {
+            container.innerHTML = '<p class="hint">No RSOs have stock currently.</p>';
+            $('rso-stock-count').textContent = '0 RSOs';
+            return;
+        }
+        container.innerHTML = visibleRsos.map(u => {
+            const stock = computeRsoStock(u.id);
+            return buildRsoStockCard(u.displayName || u.name, stock);
+        }).join('');
+        $('rso-stock-count').textContent = `${visibleRsos.length} RSO${visibleRsos.length === 1 ? '' : 's'}`;
+    }
+}
+
+function buildRsoStockCard(rsoName, stock) {
+    const entries = Object.entries(stock).filter(([, s]) => s.qty !== 0);
+    let totalValue = 0;
+    entries.forEach(([, s]) => { totalValue += s.qty * s.rate; });
+
+    let html = `<div class="card" style="margin-bottom:1rem">
+        <h3 style="margin:0 0 0.7rem;font-size:1rem;color:var(--ink)">${escapeHtml(rsoName)}</h3>`;
+
+    if (entries.length === 0) {
+        html += '<p class="hint">No stock in hand.</p></div>';
+        return html;
+    }
+
+    html += `<div class="table-scroll"><table class="data-table">
+        <thead><tr><th>Item</th><th class="num">Qty</th><th class="num">Rate</th><th class="num">Value</th></tr></thead><tbody>`;
+
+    entries.forEach(([, s]) => {
+        const value = s.qty * s.rate;
+        html += `<tr><td>${escapeHtml(s.itemName)}</td><td class="num">${s.qty}</td><td class="num">${formatCurrency(s.rate)}</td><td class="num">${formatCurrency(value)}</td></tr>`;
+    });
+
+    html += `<tr class="statement-total"><td colspan="3"><strong>Total Stock Value</strong></td><td class="num"><strong>${formatCurrency(totalValue)}</strong></td></tr>`;
+    html += '</tbody></table></div></div>';
+    return html;
+}
+
 // ==================== RSO SALE ====================
-function renderRsoSaleList(searchTerm = '') {
+function renderRsoSaleList() {
     const tbody = $('rso-sale-table-body');
     if (!tbody) return;
 
-    const term = (searchTerm || '').trim().toLowerCase();
+    const term = ($('rso-sale-search')?.value || '').trim().toLowerCase();
     let sales = lfGetAll(LF_KEYS.RSO_SALES);
 
     if (isRsoUser()) {
@@ -464,10 +542,12 @@ function renderRsoSaleList(searchTerm = '') {
     if (term) {
         sales = sales.filter(s =>
             (s.number || '').toLowerCase().includes(term) ||
-            (s.customerName || '').toLowerCase().includes(term)
+            (s.customerName || '').toLowerCase().includes(term) ||
+            (s.date || '').includes(term)
         );
     }
 
+    sales = applyDateFilter(sales, 'rso-sale-from', 'rso-sale-to');
     sales.sort((a, b) => new Date(b.date) - new Date(a.date));
     $('rso-sale-count').textContent = `${sales.length} sale${sales.length === 1 ? '' : 's'}`;
 
@@ -818,11 +898,11 @@ async function deleteRsoSale(id) {
 }
 
 // ==================== RSO SALE RETURN ====================
-function renderRsoReturnList(searchTerm = '') {
+function renderRsoReturnList() {
     const tbody = $('rso-return-table-body');
     if (!tbody) return;
 
-    const term = (searchTerm || '').trim().toLowerCase();
+    const term = ($('rso-return-search')?.value || '').trim().toLowerCase();
     let returns = lfGetAll(LF_KEYS.RSO_RETURNS);
 
     if (isRsoUser()) {
@@ -832,10 +912,12 @@ function renderRsoReturnList(searchTerm = '') {
     if (term) {
         returns = returns.filter(r =>
             (r.number || '').toLowerCase().includes(term) ||
-            (r.customerName || '').toLowerCase().includes(term)
+            (r.customerName || '').toLowerCase().includes(term) ||
+            (r.date || '').includes(term)
         );
     }
 
+    returns = applyDateFilter(returns, 'rso-return-from', 'rso-return-to');
     returns.sort((a, b) => new Date(b.date) - new Date(a.date));
     $('rso-return-count').textContent = `${returns.length} return${returns.length === 1 ? '' : 's'}`;
 
@@ -1028,11 +1110,11 @@ async function deleteRsoReturn(id) {
 }
 
 // ==================== RSO RECOVERY (customer payments) ====================
-function renderRsoRecoveryList(searchTerm = '') {
+function renderRsoRecoveryList() {
     const tbody = $('rso-recovery-table-body');
     if (!tbody) return;
 
-    const term = (searchTerm || '').trim().toLowerCase();
+    const term = ($('rso-recovery-search')?.value || '').trim().toLowerCase();
     let recoveries = lfGetAll(LF_KEYS.RSO_RECOVERIES);
 
     if (isRsoUser()) {
@@ -1044,10 +1126,12 @@ function renderRsoRecoveryList(searchTerm = '') {
     if (term) {
         recoveries = recoveries.filter(r =>
             (r.customerName || '').toLowerCase().includes(term) ||
-            (r.ref || '').toLowerCase().includes(term)
+            (r.ref || '').toLowerCase().includes(term) ||
+            (r.date || '').includes(term)
         );
     }
 
+    recoveries = applyDateFilter(recoveries, 'rso-recovery-from', 'rso-recovery-to');
     recoveries.sort((a, b) => new Date(b.date) - new Date(a.date));
     $('rso-recovery-count').textContent = `${recoveries.length} recover${recoveries.length === 1 ? 'y' : 'ies'}`;
 
@@ -1187,11 +1271,11 @@ async function deleteRsoRecovery(id) {
 }
 
 // ==================== RSO DEPOSIT (RSO deposits cash to company) ====================
-function renderRsoDepositList(searchTerm = '') {
+function renderRsoDepositList() {
     const tbody = $('rso-deposit-table-body');
     if (!tbody) return;
 
-    const term = (searchTerm || '').trim().toLowerCase();
+    const term = ($('rso-deposit-search')?.value || '').trim().toLowerCase();
     let deposits = lfGetAll(LF_KEYS.RSO_DEPOSITS);
 
     if (isRsoUser()) {
@@ -1201,10 +1285,12 @@ function renderRsoDepositList(searchTerm = '') {
     if (term) {
         deposits = deposits.filter(d =>
             (d.rsoName || '').toLowerCase().includes(term) ||
-            (d.bankName || '').toLowerCase().includes(term)
+            (d.bankName || '').toLowerCase().includes(term) ||
+            (d.date || '').includes(term)
         );
     }
 
+    deposits = applyDateFilter(deposits, 'rso-deposit-from', 'rso-deposit-to');
     deposits.sort((a, b) => new Date(b.date) - new Date(a.date));
     $('rso-deposit-count').textContent = `${deposits.length} deposit${deposits.length === 1 ? '' : 's'}`;
 

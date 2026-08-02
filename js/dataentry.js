@@ -59,20 +59,22 @@ function computeAccountBalance(accountId) {
 }
 
 // ==================== LIST / RENDER ====================
-function renderInvoiceList(type, searchTerm = '') {
+function renderInvoiceList(type) {
     const tbody = $(`${type}-table-body`);
     if (!tbody) return;
 
-    const term = (searchTerm || '').trim().toLowerCase();
+    const term = ($(`${type}-search`)?.value || '').trim().toLowerCase();
     let invoices = lfGetAll(LF_KEYS.INVOICES).filter(i => i.type === type);
 
     if (term) {
         invoices = invoices.filter(i =>
             (i.number || '').toLowerCase().includes(term) ||
-            (i.partyName || '').toLowerCase().includes(term)
+            (i.partyName || '').toLowerCase().includes(term) ||
+            (i.date || '').includes(term)
         );
     }
 
+    invoices = applyDateFilter(invoices, `${type}-from`, `${type}-to`);
     invoices.sort((a, b) => new Date(b.date) - new Date(a.date));
     $(`${type}-count`).textContent = `${invoices.length} invoice${invoices.length === 1 ? '' : 's'}`;
 
