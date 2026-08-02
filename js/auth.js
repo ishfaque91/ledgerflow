@@ -129,6 +129,31 @@ function handleLogout() {
     showToast('Logged out.', 'info', 1500);
 }
 
+// ==================== RECOVER OWNER MAPPING ====================
+async function recoverOwnerMapping(authUser) {
+    try {
+        const companySnap = await fbDb.collection('companies')
+            .where('ownerUid', '==', authUser.uid).limit(1).get();
+
+        if (companySnap.empty) return false;
+
+        const companyDoc = companySnap.docs[0];
+        const companyData = companyDoc.data();
+
+        await fbDb.collection('users').doc(authUser.uid).set({
+            companyId: companyDoc.id,
+            email: authUser.email,
+            fullName: companyData.companyName || authUser.email,
+            role: 'owner'
+        });
+        console.log('[Auth] Top-level user mapping was missing — recreated from company doc.');
+        return true;
+    } catch (e) {
+        console.error('[Auth] Could not recover owner mapping:', e);
+        return false;
+    }
+}
+
 // ==================== ENSURE OWNER USER EXISTS ====================
 async function ensureOwnerUserExists(companyId, authUser, fullName) {
     try {
@@ -159,17 +184,16 @@ async function ensureOwnerUserExists(companyId, authUser, fullName) {
 // ==================== RESOLVE COMPANY + GATE ACCESS ====================
 async function resolveCompanyAndShowApp(user) {
     try {
-        const mapSnap = await fbDb.collection('users').doc(user.uid).get();
+        let mapSnap = await fbDb.collection('users').doc(user.uid).get();
         if (!mapSnap.exists) {
-            // Usually an account left behind by a signup that failed part-way
-            // before the rollback in handleSignup() existed. The login is real
-            // but has no company, so it can never get in — it has to be
-            // removed from Firebase Console > Authentication > Users, after
-            // which that email is free to sign up again.
-            showToast("This login was never finished setting up and has no company. Contact support to have it removed so you can sign up again.", 'error', 7000);
-            await fbAuth.signOut();
-            showLoginScreen();
-            return;
+            const recovered = await recoverOwnerMapping(user);
+            if (!recovered) {
+                showToast("This login was never finished setting up and has no company. Contact support to have it removed so you can sign up again.", 'error', 7000);
+                await fbAuth.signOut();
+                showLoginScreen();
+                return;
+            }
+            mapSnap = await fbDb.collection('users').doc(user.uid).get();
         }
 
         const { companyId, fullName } = mapSnap.data();
