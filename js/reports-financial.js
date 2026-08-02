@@ -186,10 +186,11 @@ function computeClosingStock(asOfDate) {
         totalValue += Math.max(0, qty) * (item.purchasePrice || 0);
     });
 
-    const loadEntries = lfGetAll(LF_KEYS.LOAD_LEDGER)
-        .filter(e => !asOfDate || e.date <= asOfDate);
-    const loadValue = loadEntries.reduce((s, e) => s + (e.amountChange || 0), 0);
-    totalValue += Math.max(0, loadValue);
+    const invoices = lfGetAll(LF_KEYS.INVOICES).filter(i => !i.cancelled && (!asOfDate || i.date <= asOfDate));
+    const sumLoad = (type) => invoices.filter(i => i.type === type).reduce((s, i) => s + (i.loadTotal || 0), 0);
+    const loadPurchased = sumLoad('Purchase') - sumLoad('PurchaseReturn');
+    const loadSold = sumLoad('Sale') - sumLoad('SaleReturn');
+    totalValue += Math.max(0, loadPurchased - loadSold);
 
     return totalValue;
 }
