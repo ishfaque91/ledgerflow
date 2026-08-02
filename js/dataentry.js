@@ -25,16 +25,16 @@ const INVOICE_CONFIG = {
         rateField: 'purchasePrice'
     },
     Sale: {
-        title: 'Sale', prefix: 'SAL', partyLabel: 'Customer',
-        partyTypes: ['Customer', 'Customer/Supplier', 'Employee/RSO'],
+        title: 'Sale', prefix: 'SAL', partyLabel: 'RSO',
+        partyTypes: ['Employee/RSO'],
         loadAmountLabel: 'Sale Amount', loadQtyLabel: 'Load Issued',
         paymentHeading: 'Received in Cash / Bank', balanceLabel: 'Balance receivable',
         direction: -1, ledgerPartySide: 'Dr', paymentCashSide: 'Dr',
         rateField: 'salePrice'
     },
     SaleReturn: {
-        title: 'Sale Return', prefix: 'SRET', partyLabel: 'Customer',
-        partyTypes: ['Customer', 'Customer/Supplier', 'Employee/RSO'],
+        title: 'Sale Return', prefix: 'SRET', partyLabel: 'RSO',
+        partyTypes: ['Employee/RSO'],
         loadAmountLabel: 'Return Amount', loadQtyLabel: 'Load Returned',
         paymentHeading: 'Refunded in Cash / Bank', balanceLabel: 'Reduces receivable by',
         direction: 1, ledgerPartySide: 'Cr', paymentCashSide: 'Cr',

@@ -26,14 +26,14 @@ function cleanupDuplicateRsoAccounts() {
         const name = acct.title.toLowerCase().replace(/\s*\(rso\)\s*/i, '').trim();
         const dups = rsoAccounts.filter(a =>
             a.id !== acct.id &&
-            !a.linkedUserId &&
             a.title.toLowerCase().replace(/\s*\(rso\)\s*/i, '').trim() === name
         );
         dups.forEach(dup => {
             const ledgerEntries = lfGetAll(LF_KEYS.ACCOUNT_LEDGER).filter(e => e.accountId === dup.id);
-            if (ledgerEntries.length === 0 && (dup.openingAmount || 0) === 0) {
-                lfDelete(LF_KEYS.ACCOUNTS, dup.id);
-            }
+            ledgerEntries.forEach(entry => {
+                lfUpsert(LF_KEYS.ACCOUNT_LEDGER, { ...entry, accountId: acct.id });
+            });
+            lfDelete(LF_KEYS.ACCOUNTS, dup.id);
         });
     });
 }
