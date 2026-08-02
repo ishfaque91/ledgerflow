@@ -1261,25 +1261,13 @@ button { font-family: inherit; }
     .dash-tab-desc { display: none; }
 }
 
-/* ==================== HUB PAGE OPTIONS ====================
-   The page behind a dashboard tab. Its options use the same horizontal
-   button language as the tabs themselves, and inherit the accent of the
-   area you came from — so opening "Reports" keeps you in violet the whole
-   way down, rather than every screen resetting to the same teal. */
-.page[data-accent="indigo"] { --tab-accent: #5B4FE9; --tab-wash: rgba(91, 79, 233, 0.10); }
-.page[data-accent="teal"]   { --tab-accent: #0D9488; --tab-wash: rgba(13, 148, 136, 0.10); }
-.page[data-accent="violet"] { --tab-accent: #7C3AED; --tab-wash: rgba(124, 58, 237, 0.10); }
-.page[data-accent="amber"]  { --tab-accent: #C2760C; --tab-wash: rgba(194, 118, 12, 0.12); }
-.page[data-accent="slate"]  { --tab-accent: #4A5568; --tab-wash: rgba(74, 85, 104, 0.10); }
+/* ==================== HUB PAGE OPTIONS ==================== */
+.page[data-accent="indigo"] { --tab-accent: #5B4FE9; --tab-bg: linear-gradient(135deg, #5B4FE9, #7B6FF2); --tab-bg-hover: linear-gradient(135deg, #4F42D9, #6C5FEB); }
+.page[data-accent="teal"]   { --tab-accent: #0D9488; --tab-bg: linear-gradient(135deg, #0D9488, #14B8A6); --tab-bg-hover: linear-gradient(135deg, #0B8278, #0FA89A); }
+.page[data-accent="violet"] { --tab-accent: #7C3AED; --tab-bg: linear-gradient(135deg, #7C3AED, #9B5BF5); --tab-bg-hover: linear-gradient(135deg, #6D2FDB, #8B4AE8); }
+.page[data-accent="amber"]  { --tab-accent: #C2760C; --tab-bg: linear-gradient(135deg, #D97706, #F59E0B); --tab-bg-hover: linear-gradient(135deg, #C26B05, #E08E06); }
+.page[data-accent="slate"]  { --tab-accent: #4A5568; --tab-bg: linear-gradient(135deg, #475569, #64748B); --tab-bg-hover: linear-gradient(135deg, #3D4A5C, #5A6A7E); }
 
-[data-theme="dark"] .page[data-accent="indigo"] { --tab-accent: #8A82F5; --tab-wash: rgba(138, 130, 245, 0.16); }
-[data-theme="dark"] .page[data-accent="teal"]   { --tab-accent: #2DD4BF; --tab-wash: rgba(45, 212, 191, 0.16); }
-[data-theme="dark"] .page[data-accent="violet"] { --tab-accent: #A78BFA; --tab-wash: rgba(167, 139, 250, 0.16); }
-[data-theme="dark"] .page[data-accent="amber"]  { --tab-accent: #E0A23D; --tab-wash: rgba(224, 162, 61, 0.16); }
-[data-theme="dark"] .page[data-accent="slate"]  { --tab-accent: #9AA5B8; --tab-wash: rgba(154, 165, 184, 0.16); }
-
-/* The hub card is just a container now — the tiles carry their own surface,
-   so drop the double-card look. */
 .dash-hub-card {
     padding: 0;
     background: transparent;
@@ -1287,92 +1275,76 @@ button { font-family: inherit; }
     box-shadow: none;
 }
 .dash-hub-card .dash-directory-list {
-    grid-template-columns: repeat(auto-fill, minmax(268px, 1fr));
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     gap: 12px;
 }
 .dash-hub-card .dash-directory-list a {
-    position: relative;
-    flex-direction: row;
-    align-items: center;
-    gap: 13px;
-    padding: 0.95rem 1.05rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 1rem 1rem;
+    background: var(--tab-bg);
+    border: none;
+    border-radius: 14px;
+    color: #fff;
+    text-decoration: none;
+    font-size: 0.88rem;
+    font-weight: 700;
     text-align: left;
-    font-size: 0.92rem;
-    border-radius: var(--radius-md);
+    box-shadow: 0 3px 12px rgba(0,0,0,0.13);
+    transition: transform .15s ease, box-shadow .15s ease;
+    min-height: 80px;
     overflow: hidden;
 }
-.dash-hub-card .dash-directory-list a::before {
-    content: '';
-    position: absolute;
-    left: 0; top: 0; bottom: 0;
-    width: 3px;
-    background: var(--tab-accent);
-    opacity: 0;
-    transition: opacity .18s var(--ease);
+.dash-hub-card .dash-directory-list a::before { display: none; }
+.dash-hub-card .dash-directory-list a:hover {
+    transform: translateY(-2px);
+    background: var(--tab-bg-hover);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.18);
+    border-color: transparent;
 }
-.dash-hub-card .dash-directory-list a:hover::before { opacity: 1; }
+.dash-hub-card .dash-directory-list a:active { transform: translateY(0); }
 
 .hub-opt-icon {
     display: flex;
     flex-shrink: 0;
-    width: 38px; height: 38px;
+    width: 34px; height: 34px;
     align-items: center; justify-content: center;
-    border-radius: 11px;
-    background: var(--tab-wash);
-    color: var(--tab-accent);
-    transition: background .18s var(--ease), color .18s var(--ease);
+    border-radius: 10px;
+    background: rgba(255,255,255,0.2);
+    color: #fff;
 }
-/* The legacy stacked-tile rules (.dash-directory-list a svg) sit later in
-   this file and give the icon its own round tinted badge. Inside a hub the
-   badge is the wrapping .hub-opt-icon instead, so out-specify those rules
-   and strip the treatment off the svg itself — otherwise you get a badge
-   inside a badge, and a gradient fill fighting the accent on hover. */
 .dash-hub-card .dash-directory-list a .hub-opt-icon svg,
 .dash-hub-card .dash-directory-list a:hover .hub-opt-icon svg {
-    width: 19px; height: 19px;
+    width: 17px; height: 17px;
     padding: 0;
     background: none;
     border-radius: 0;
     color: inherit;
 }
+.dash-hub-card .dash-directory-list a:hover .hub-opt-icon {
+    background: rgba(255,255,255,0.3);
+    color: #fff;
+}
 .hub-opt-label {
     flex: 1;
     min-width: 0;
-    font-weight: 600;
-    color: var(--ink);
-    line-height: 1.35;
-}
-.hub-opt-arrow {
-    flex-shrink: 0;
-    color: var(--ink-faint);
-    opacity: 0;
-    transform: translateX(-4px);
-    transition: opacity .18s var(--ease), transform .18s var(--ease), color .18s var(--ease);
-}
-
-.dash-hub-card .dash-directory-list a:hover {
-    border-color: var(--tab-accent);
-    background: linear-gradient(100deg, var(--tab-wash), transparent 70%);
-}
-.dash-hub-card .dash-directory-list a:hover .hub-opt-icon {
-    background: var(--tab-accent);
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 0.95rem;
     color: #fff;
+    line-height: 1.25;
 }
-.dash-hub-card .dash-directory-list a:hover .hub-opt-arrow {
-    opacity: 1;
-    transform: translateX(0);
-    color: var(--tab-accent);
-}
-.dash-hub-card .dash-directory-list a:focus-visible {
-    outline: none;
-    border-color: var(--tab-accent);
-    box-shadow: 0 0 0 3px var(--tab-wash);
-}
+.hub-opt-arrow { display: none; }
 
-/* The "Back to Dashboard" control shouldn't compete with the options. */
 .page[data-accent] .page-head .btn-ghost { align-self: flex-start; }
 
 @media (max-width: 560px) {
+    .dash-hub-card .dash-directory-list { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 339px) {
     .dash-hub-card .dash-directory-list { grid-template-columns: 1fr; }
 }
 
@@ -1393,7 +1365,7 @@ button { font-family: inherit; }
     gap: 8px;
 }
 .dash-directory-card h3 svg { flex-shrink: 0; color: var(--teal); }
-.dash-directory-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+.dash-directory-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
 .dash-directory-list a {
     display: flex;
     flex-direction: column;
@@ -1434,9 +1406,6 @@ button { font-family: inherit; }
 }
 
 @media (max-width: 480px) {
-    /* Each .dash-directory-card is already full-width by the 900px rule
-       above, but the shortcut tiles inside it stayed 2-up — cramped for
-       labels like "Purchase Invoices Report" at phone width. */
     .dash-directory-list { grid-template-columns: 1fr; }
 }
 
