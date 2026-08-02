@@ -1,20 +1,14 @@
-/**
- * LedgerFlow Super Admin - Firebase-backed logic.
- *
- * Login is real Firebase Authentication (same project as the client app).
- * After logging in, we check that this user's uid has a document in the
- * top-level `superAdmins` collection — that's what actually grants access
- * (both here in the UI, and for real in Firestore's Security Rules, which
- * is what actually stops anyone else from reading or changing companies).
- *
- * Companies are created only through the client app's own self-signup —
- * this panel reads and manages status on the top-level `companies`
- * collection, but never creates new ones from scratch (a company created
- * here wouldn't have a matching login for anyone to actually use).
- */
-
 let companiesCache = [];
 let companiesUnsub = null;
+let currentDetailId = null;
+
+const WIPE_COLLECTIONS = [
+    'ACCOUNTS', 'ITEMS', 'USERS', 'RIGHTS', 'INVOICES',
+    'ACCOUNT_LEDGER', 'LOAD_LEDGER', 'ITEM_LEDGER',
+    'VOUCHERS', 'EDIT_LOG', 'SETTINGS',
+    'RSO_CUSTOMERS', 'RSO_SALES', 'RSO_RETURNS',
+    'RSO_RECOVERIES', 'RSO_LOADS', 'RSO_DEPOSITS'
+];
 
 function setBtnLoading(btn, isLoading) {
     if (!btn) return;
@@ -63,6 +57,10 @@ function watchCompanies() {
         snapshot => {
             companiesCache = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
             renderCompanyList($('sap-search')?.value || '');
+            if (currentDetailId) {
+                const still = companiesCache.find(c => c.id === currentDetailId);
+                if (still) renderDetailView(still);
+            }
         },
         err => {
             console.error('[SuperAdmin] Companies listener failed:', err);
@@ -76,7 +74,7 @@ function stopWatchingCompanies() {
     companiesCache = [];
 }
 
-// ==================== LIST / RENDER ====================
+// ==================== LIST VIEW ====================
 function renderCompanyList(search = '') {
     const term = (search || '').trim().toLowerCase();
     const statusFilter = $('sap-status-filter')?.value || '';
@@ -93,45 +91,28 @@ function renderCompanyList(search = '') {
 
     $('sap-list-count').textContent = `${companies.length} compan${companies.length === 1 ? 'y' : 'ies'}`;
 
-    const tbody = $('sap-table-body');
+    const grid = $('sap-company-grid');
     if (companies.length === 0) {
-        tbody.innerHTML = `<tr class="empty-row"><td colspan="6">No companies yet — they'll appear here automatically once someone signs up.</td></tr>`;
+        grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:3rem 1rem; color:var(--ink-faint);">
+            <p style="font-size:1.1rem; font-weight:600;">No companies found</p>
+            <p style="font-size:0.85rem;">They'll appear here automatically once someone signs up.</p>
+        </div>`;
     } else {
-        tbody.innerHTML = companies.map(c => {
+        grid.innerHTML = companies.map(c => {
             const status = getStatusDisplay(c);
-            const trialEnd = getTrialEndDate(c).toISOString().slice(0, 10);
-            return `
-            <tr>
-                <td><strong>${escapeHtml(c.companyName)}</strong>${c.planLabel ? ' <span class="type-badge">' + escapeHtml(c.planLabel) + '</span>' : ''}</td>
-                <td>${escapeHtml(c.ownerEmail) || '-'}${c.ownerPhone ? '<br><span class="hint">+92 ' + escapeHtml(c.ownerPhone) + '</span>' : ''}</td>
-                <td><span class="status-badge ${status.cls}">${status.label}</span></td>
-                <td>${escapeHtml(c.signupDate)}</td>
-                <td>${trialEnd}</td>
-                <td>
-                    <div class="row-actions">
-                        ${renderStatusActionButtons(c)}
-                        <button class="btn-outline-text" onclick="openCompanyForm('${c.id}')">Edit</button>
-                        <button class="btn-danger-text" onclick="deleteCompany('${c.id}')">Delete</button>
-                    </div>
-                </td>
-            </tr>`;
+            return `<div class="company-card" onclick="openDetailView('${c.id}')">
+                <div class="company-card-name">${escapeHtml(c.companyName)}</div>
+                <div class="company-card-email">${escapeHtml(c.ownerEmail || '—')}</div>
+                <div class="company-card-bottom">
+                    <span class="status-badge ${status.cls}">${status.label}</span>
+                    <svg class="company-card-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                </div>
+            </div>`;
         }).join('');
     }
 
     renderSummary(companiesCache);
     renderExpiringBanner(companiesCache);
-}
-
-function renderStatusActionButtons(c) {
-    if (c.status === 'active') {
-        return `<button class="btn-outline-text" onclick="openDurationModal('${c.id}','renew')">Renew</button>
-                <button class="btn-danger-text" onclick="suspendCompany('${c.id}')">Suspend</button>`;
-    }
-    let html = `<button class="btn-outline-text" onclick="openDurationModal('${c.id}','activate')">Activate</button>`;
-    if (c.status !== 'suspended') {
-        html += `<button class="btn-outline-text" onclick="extendTrial('${c.id}')">+30d Trial</button>`;
-    }
-    return html;
 }
 
 function renderSummary(companies) {
@@ -153,17 +134,140 @@ function renderExpiringBanner(companies) {
     banner.classList.remove('hidden');
     soon.sort((a, b) => a.daysLeft - b.daysLeft);
     $('sap-expiring-list').innerHTML = soon.map(({ c, daysLeft }) => `
-        <div class="statement-row">
+        <div class="statement-row" style="cursor:pointer;" onclick="openDetailView('${c.id}')">
             <span>${escapeHtml(c.companyName)}</span>
             <span class="${daysLeft < 0 ? 'days-left-tag is-soon' : 'days-left-tag'}">${daysLeft < 0 ? Math.abs(daysLeft) + 'd overdue' : daysLeft + 'd left'}</span>
         </div>
     `).join('');
 }
 
-// ==================== STATUS ACTIONS ====================
-// ==================== ACTIVATE / RENEW (with a real duration) ====================
+// ==================== DETAIL VIEW ====================
+function showListView() {
+    currentDetailId = null;
+    $('list-view').style.display = '';
+    $('detail-view').classList.remove('is-active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function openDetailView(id) {
+    const c = companiesCache.find(x => x.id === id);
+    if (!c) { showToast('Company not found.', 'error'); return; }
+    currentDetailId = id;
+    $('list-view').style.display = 'none';
+    renderDetailView(c);
+    $('detail-view').classList.add('is-active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function renderDetailView(c) {
+    const status = getStatusDisplay(c);
+    const trialEnd = getTrialEndDate(c).toISOString().slice(0, 10);
+    const daysLeft = getDaysLeft(c);
+
+    $('detail-company-name').textContent = c.companyName || '—';
+    const badge = $('detail-status-badge');
+    badge.className = `status-badge ${status.cls}`;
+    badge.textContent = status.label;
+
+    $('detail-info-grid').innerHTML = `
+        <div class="detail-info-card">
+            <div class="detail-info-label">Owner Email</div>
+            <div class="detail-info-value">${escapeHtml(c.ownerEmail || '—')}</div>
+        </div>
+        <div class="detail-info-card">
+            <div class="detail-info-label">Phone</div>
+            <div class="detail-info-value">${c.ownerPhone ? '+92 ' + escapeHtml(c.ownerPhone) : '—'}</div>
+        </div>
+        <div class="detail-info-card">
+            <div class="detail-info-label">City</div>
+            <div class="detail-info-value">${escapeHtml(c.city || '—')}</div>
+        </div>
+        <div class="detail-info-card">
+            <div class="detail-info-label">Signup Date</div>
+            <div class="detail-info-value">${escapeHtml(c.signupDate || '—')}</div>
+        </div>
+        <div class="detail-info-card">
+            <div class="detail-info-label">Expires</div>
+            <div class="detail-info-value">${trialEnd}${daysLeft >= 0 ? ` (${daysLeft}d left)` : ` (${Math.abs(daysLeft)}d overdue)`}</div>
+        </div>
+        <div class="detail-info-card">
+            <div class="detail-info-label">Plan</div>
+            <div class="detail-info-value">${escapeHtml(c.planLabel || '—')}</div>
+        </div>`;
+
+    // SVG icons for action cards
+    const icons = {
+        activate: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',
+        renew: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>',
+        suspend: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>',
+        extend: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
+        edit: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>',
+        wipe: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>',
+        delete: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>'
+    };
+
+    let actionsHtml = '';
+
+    if (c.status === 'active') {
+        actionsHtml += `
+            <div class="action-card action-renew" onclick="openDurationModal('${c.id}','renew')">
+                <div class="action-card-icon">${icons.renew}</div>
+                <div class="action-card-title">Renew</div>
+                <div class="action-card-desc">Extend the subscription period</div>
+            </div>
+            <div class="action-card action-suspend" onclick="suspendCompany('${c.id}')">
+                <div class="action-card-icon">${icons.suspend}</div>
+                <div class="action-card-title">Suspend</div>
+                <div class="action-card-desc">Lock out until reactivated</div>
+            </div>`;
+    } else {
+        actionsHtml += `
+            <div class="action-card action-activate" onclick="openDurationModal('${c.id}','activate')">
+                <div class="action-card-icon">${icons.activate}</div>
+                <div class="action-card-title">Activate</div>
+                <div class="action-card-desc">Start a paid subscription</div>
+            </div>`;
+        if (c.status !== 'suspended') {
+            actionsHtml += `
+                <div class="action-card action-extend" onclick="extendTrial('${c.id}')">
+                    <div class="action-card-icon">${icons.extend}</div>
+                    <div class="action-card-title">Extend Trial</div>
+                    <div class="action-card-desc">Add 30 more trial days</div>
+                </div>`;
+        }
+    }
+
+    actionsHtml += `
+        <div class="action-card action-edit" onclick="openCompanyForm('${c.id}')">
+            <div class="action-card-icon">${icons.edit}</div>
+            <div class="action-card-title">Edit Details</div>
+            <div class="action-card-desc">Update company information</div>
+        </div>
+        <div class="action-card action-wipe" onclick="openWipeModal('${c.id}')">
+            <div class="action-card-icon">${icons.wipe}</div>
+            <div class="action-card-title">Wipe Data</div>
+            <div class="action-card-desc">Delete all company data permanently</div>
+        </div>
+        <div class="action-card action-delete" onclick="deleteCompany('${c.id}')">
+            <div class="action-card-icon">${icons.delete}</div>
+            <div class="action-card-title">Remove Company</div>
+            <div class="action-card-desc">Remove from admin list only</div>
+        </div>`;
+
+    $('detail-actions').innerHTML = actionsHtml;
+
+    const notesSection = $('detail-notes-section');
+    if (c.notes) {
+        notesSection.classList.remove('hidden');
+        $('detail-notes-text').textContent = c.notes;
+    } else {
+        notesSection.classList.add('hidden');
+    }
+}
+
+// ==================== ACTIVATE / RENEW ====================
 let durationModalCompanyId = null;
-let durationModalMode = null; // 'activate' | 'renew'
+let durationModalMode = null;
 
 function openDurationModal(id, mode) {
     const c = companiesCache.find(x => x.id === id);
@@ -190,9 +294,6 @@ async function confirmDuration() {
     setBtnLoading(btn, true);
 
     try {
-        // Renewing extends from whichever is later — their current expiry (if
-        // still in the future) or today (if it already lapsed) — so renewing
-        // early stacks on top, and renewing after a lapse starts fresh from now.
         const base = (durationModalMode === 'renew' && c.activeUntil && new Date(c.activeUntil) > new Date())
             ? new Date(c.activeUntil)
             : new Date();
@@ -247,13 +348,86 @@ async function extendTrial(id) {
 async function deleteCompany(id) {
     const c = companiesCache.find(x => x.id === id);
     if (!c) return;
-    if (!confirm(`Delete ${c.companyName}? This removes their company record permanently (their login and data remain — this only removes them from this admin list).`)) return;
+    if (!confirm(`Remove ${c.companyName} from the admin list?\n\nThis only removes the company record — their login and data remain in Firebase.`)) return;
     try {
         await fbDb.collection('companies').doc(id).delete();
         showToast('Company record removed.', 'success');
+        showListView();
     } catch (e) {
         console.error(e);
         showToast('Could not delete — please try again.', 'error');
+    }
+}
+
+// ==================== WIPE DATA ====================
+let wipeTargetId = null;
+
+function openWipeModal(id) {
+    const c = companiesCache.find(x => x.id === id);
+    if (!c) return;
+    wipeTargetId = id;
+    $('wipe-confirm-name').textContent = c.companyName;
+    $('wipe-confirm-input').value = '';
+    $('wipe-progress').classList.add('hidden');
+    $('wipe-progress-fill').style.width = '0%';
+    $('wipe-confirm-btn').disabled = false;
+    $('wipe-modal').classList.remove('hidden');
+    setTimeout(() => $('wipe-confirm-input')?.focus(), 80);
+}
+
+function closeWipeModal() {
+    $('wipe-modal').classList.add('hidden');
+    wipeTargetId = null;
+}
+
+async function confirmWipeData() {
+    const c = companiesCache.find(x => x.id === wipeTargetId);
+    if (!c) return;
+
+    const typed = $('wipe-confirm-input').value.trim();
+    if (typed !== c.companyName) {
+        showToast('Company name does not match. Type it exactly to confirm.', 'warning');
+        $('wipe-confirm-input').focus();
+        return;
+    }
+
+    const btn = $('wipe-confirm-btn');
+    setBtnLoading(btn, true);
+    $('wipe-progress').classList.remove('hidden');
+
+    const companyRef = fbDb.collection('companies').doc(c.id);
+    let completed = 0;
+
+    try {
+        for (const colName of WIPE_COLLECTIONS) {
+            $('wipe-progress-text').textContent = `Deleting ${colName}...`;
+            await deleteSubcollection(companyRef, colName);
+            completed++;
+            $('wipe-progress-fill').style.width = `${Math.round((completed / WIPE_COLLECTIONS.length) * 100)}%`;
+        }
+
+        $('wipe-progress-text').textContent = 'All data wiped successfully.';
+        showToast(`All data wiped for ${c.companyName}.`, 'success');
+        setTimeout(() => closeWipeModal(), 1200);
+    } catch (e) {
+        console.error('[Wipe] Error:', e);
+        $('wipe-progress-text').textContent = `Error: ${e.message}`;
+        showToast('Wipe failed — some data may remain. Try again.', 'error');
+    } finally {
+        setBtnLoading(btn, false);
+    }
+}
+
+async function deleteSubcollection(companyRef, collectionName) {
+    const batchSize = 200;
+    let snapshot = await companyRef.collection(collectionName).limit(batchSize).get();
+
+    while (snapshot.size > 0) {
+        const batch = fbDb.batch();
+        snapshot.docs.forEach(doc => batch.delete(doc.ref));
+        await batch.commit();
+        if (snapshot.size < batchSize) break;
+        snapshot = await companyRef.collection(collectionName).limit(batchSize).get();
     }
 }
 
@@ -323,7 +497,6 @@ async function handleLogin() {
     setBtnLoading(btn, true);
     try {
         await fbAuth.signInWithEmailAndPassword(email, password);
-        // onAuthStateChanged below picks this up and checks Super Admin access.
     } catch (e) {
         console.error('[SuperAdmin] Login failed:', e);
         showToast('Incorrect email or password.', 'error');
