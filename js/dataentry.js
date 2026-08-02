@@ -10,7 +10,7 @@
 const INVOICE_CONFIG = {
     Purchase: {
         title: 'Purchase', prefix: 'PUR', partyLabel: 'Supplier',
-        partyTypes: ['Supplier', 'Customer/Supplier'],
+        partyTypes: ['Supplier', 'Customer/Supplier', 'Owner Equity'],
         loadAmountLabel: 'Purchase Amount', loadQtyLabel: 'Load Received',
         paymentHeading: 'Paid in Cash / Bank', balanceLabel: 'Balance payable to Supplier',
         direction: 1, ledgerPartySide: 'Cr', paymentCashSide: 'Cr',
@@ -18,7 +18,7 @@ const INVOICE_CONFIG = {
     },
     PurchaseReturn: {
         title: 'Purchase Return', prefix: 'PRET', partyLabel: 'Supplier',
-        partyTypes: ['Supplier', 'Customer/Supplier'],
+        partyTypes: ['Supplier', 'Customer/Supplier', 'Owner Equity'],
         loadAmountLabel: 'Return Amount', loadQtyLabel: 'Load Returned',
         paymentHeading: 'Refunded in Cash / Bank', balanceLabel: 'Reduces Supplier payable by',
         direction: -1, ledgerPartySide: 'Dr', paymentCashSide: 'Dr',
