@@ -129,6 +129,33 @@ function handleLogout() {
     showToast('Logged out.', 'info', 1500);
 }
 
+// ==================== ENSURE OWNER USER EXISTS ====================
+async function ensureOwnerUserExists(companyId, authUser, fullName) {
+    try {
+        const usersRef = fbDb.collection('companies').doc(companyId).collection('USERS');
+        const ownerSnap = await usersRef.where('linkedAuthUid', '==', authUser.uid).limit(1).get();
+        if (!ownerSnap.empty) return;
+
+        const companyDoc = await fbDb.collection('companies').doc(companyId).get();
+        const companyData = companyDoc.exists ? companyDoc.data() : {};
+        const isOwner = companyData.ownerUid === authUser.uid;
+        if (!isOwner) return;
+
+        await usersRef.add({
+            fullName: fullName || companyData.ownerEmail || authUser.email,
+            username: authUser.email,
+            status: 'Active',
+            linkedAuthUid: authUser.uid,
+            role: 'owner',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+        });
+        console.log('[Auth] Owner user record was missing — recreated.');
+    } catch (e) {
+        console.error('[Auth] Could not ensure owner user exists:', e);
+    }
+}
+
 // ==================== RESOLVE COMPANY + GATE ACCESS ====================
 async function resolveCompanyAndShowApp(user) {
     try {
@@ -149,6 +176,8 @@ async function resolveCompanyAndShowApp(user) {
         setCurrentCompany(companyId);
         $('active-user-chip').textContent = fullName || user.email;
         $('account-user-email').textContent = user.email || '—';
+
+        await ensureOwnerUserExists(companyId, user, fullName);
 
         watchCompanyDoc(() => {
             applyTheme(lfGetSettings().theme);
