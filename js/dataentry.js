@@ -50,7 +50,7 @@ function computeAccountBalance(accountId) {
     const acc = lfFindById(LF_KEYS.ACCOUNTS, accountId);
     if (!acc) return { amount: 0, side: 'Dr' };
 
-    const cancelledIds = new Set(lfGetAll(LF_KEYS.INVOICES).filter(i => i.cancelled).map(i => i.id));
+    const cancelledIds = getCancelledDocIds();
     let net = (acc.openingSide === 'Cr' ? -1 : 1) * (acc.openingAmount || 0);
     lfGetAll(LF_KEYS.ACCOUNT_LEDGER)
         .filter(e => e.accountId === accountId && !cancelledIds.has(e.invoiceId))

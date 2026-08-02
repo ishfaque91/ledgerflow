@@ -57,7 +57,7 @@ function getCachedAccountBalance(accountId) {
 
 function buildBalanceCacheAsOf(asOfDate) {
     const accounts = lfGetAll(LF_KEYS.ACCOUNTS);
-    const cancelledIds = new Set(lfGetAll(LF_KEYS.INVOICES).filter(i => i.cancelled).map(i => i.id));
+    const cancelledIds = getCancelledDocIds();
     const entries = lfGetAll(LF_KEYS.ACCOUNT_LEDGER);
 
     const byAccount = {};

@@ -20,7 +20,7 @@ function computeAccountBalanceAsOf(accountId, asOfDate) {
     const acc = lfFindById(LF_KEYS.ACCOUNTS, accountId);
     if (!acc) return { amount: 0, side: 'Dr' };
 
-    const cancelledIds = new Set(lfGetAll(LF_KEYS.INVOICES).filter(i => i.cancelled).map(i => i.id));
+    const cancelledIds = getCancelledDocIds();
     let net = (acc.openingSide === 'Cr' ? -1 : 1) * (acc.openingAmount || 0);
     lfGetAll(LF_KEYS.ACCOUNT_LEDGER)
         .filter(e => e.accountId === accountId && !cancelledIds.has(e.invoiceId) && (!asOfDate || e.date <= asOfDate))
@@ -55,7 +55,7 @@ function computeTradingProfit(dateFrom, dateTo) {
 // ==================== OTHER INCOME / OPERATING EXPENSES (from Income/Expense accounts) ====================
 function computeIncomeExpense(dateFrom, dateTo) {
     const accounts = lfGetAll(LF_KEYS.ACCOUNTS);
-    const cancelledIds = new Set(lfGetAll(LF_KEYS.INVOICES).filter(i => i.cancelled).map(i => i.id));
+    const cancelledIds = getCancelledDocIds();
     const entries = lfGetAll(LF_KEYS.ACCOUNT_LEDGER).filter(e =>
         !cancelledIds.has(e.invoiceId) && (!dateFrom || e.date >= dateFrom) && (!dateTo || e.date <= dateTo)
     );
@@ -179,9 +179,7 @@ function statementRowHtml(title, amount) {
 }
 
 function computeClosingStock(asOfDate) {
-    const cancelledIds = new Set(
-        lfGetAll(LF_KEYS.INVOICES).filter(i => i.cancelled).map(i => i.id)
-    );
+    const cancelledIds = getCancelledDocIds();
 
     const items = lfGetAll(LF_KEYS.ITEMS);
     let totalValue = 0;

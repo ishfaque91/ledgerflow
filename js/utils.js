@@ -288,6 +288,13 @@ function matchesAmount(amount, term) {
     return String(Math.round(amount)) === String(Math.round(parseFloat(clean)));
 }
 
+function getCancelledDocIds() {
+    const ids = new Set();
+    lfGetAll(LF_KEYS.INVOICES).forEach(i => { if (i.cancelled) ids.add(i.id); });
+    lfGetAll(LF_KEYS.VOUCHERS).forEach(v => { if (v.cancelled) ids.add(v.id); });
+    return ids;
+}
+
 function acctLabel(a) {
     const shortType = a.type === 'Employee/RSO' ? 'RSO' : a.type;
     if (a.title.toLowerCase().includes(shortType.toLowerCase())) return a.title;
