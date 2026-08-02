@@ -76,7 +76,6 @@ function renderVoucherList(type) {
                 <td>
                     <div class="row-actions">
                         <button class="btn-outline-text" onclick="openBankVoucherForm('${type}','${v.id}')">Edit</button>
-                        <button class="btn-danger-text" onclick="deleteVoucher('${v.id}')">Delete</button>
                     </div>
                 </td>
             </tr>
@@ -93,7 +92,6 @@ function renderVoucherList(type) {
                 <td>
                     <div class="row-actions">
                         <button class="btn-outline-text" onclick="openPettyCashForm('${v.id}')">Edit</button>
-                        <button class="btn-danger-text" onclick="deleteVoucher('${v.id}')">Delete</button>
                     </div>
                 </td>
             </tr>
@@ -110,28 +108,10 @@ function renderVoucherList(type) {
                 <td>
                     <div class="row-actions">
                         <button class="btn-outline-text" onclick="openJournalForm('${v.id}')">Edit</button>
-                        <button class="btn-danger-text" onclick="deleteVoucher('${v.id}')">Delete</button>
                     </div>
                 </td>
             </tr>
         `).join('');
-    }
-}
-
-async function deleteVoucher(id) {
-    const v = lfFindById(LF_KEYS.VOUCHERS, id);
-    if (!v) return;
-    if (checkLockbackOrWarn(v.date, 'delete this voucher')) return;
-    if (!confirm(`Delete ${v.number}? This also removes everything it posted to the ledgers.`)) return;
-
-    try {
-        await removeLedgerEntriesForInvoice(id);
-        await lfDelete(LF_KEYS.VOUCHERS, id);
-        showToast('Voucher deleted.', 'success');
-        logActivity('Deleted', v.type, v.number, { before: v, recordId: id });
-    } catch (e) {
-        console.error('[Vouchers] Delete failed:', e);
-        showToast('Could not delete — please try again.', 'error');
     }
 }
 

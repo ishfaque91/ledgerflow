@@ -97,7 +97,6 @@ function renderInvoiceList(type) {
             <td>
                 <div class="row-actions">
                     <button class="btn-outline-text" onclick="openInvoiceForm('${type}','${inv.id}')">Edit</button>
-                    <button class="btn-danger-text" onclick="deleteInvoice('${inv.id}')">Delete</button>
                 </div>
             </td>
         </tr>
@@ -590,23 +589,6 @@ async function removeLedgerEntriesForInvoice(invoiceId) {
         lfDeleteWhereInvoiceId(LF_KEYS.LOAD_LEDGER, invoiceId),
         lfDeleteWhereInvoiceId(LF_KEYS.ITEM_LEDGER, invoiceId)
     ]);
-}
-
-async function deleteInvoice(id) {
-    const inv = lfFindById(LF_KEYS.INVOICES, id);
-    if (!inv) return;
-    if (checkLockbackOrWarn(inv.date, 'delete this invoice')) return;
-    if (!confirm(`Delete ${inv.number}? This also removes everything it posted to the ledgers.`)) return;
-
-    try {
-        await removeLedgerEntriesForInvoice(id);
-        await lfDelete(LF_KEYS.INVOICES, id);
-        showToast('Invoice deleted.', 'success');
-        logActivity('Deleted', inv.type, inv.number, { before: inv, recordId: id });
-    } catch (e) {
-        console.error('[DataEntry] Delete failed:', e);
-        showToast('Could not delete — please try again.', 'error');
-    }
 }
 
 // ==================== CANCEL TOGGLE (shared by invoices + vouchers) ====================
