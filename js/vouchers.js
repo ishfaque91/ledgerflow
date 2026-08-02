@@ -156,7 +156,7 @@ function openBankVoucherForm(type, editId = null) {
     $('bv-party-label').innerHTML = `${config.partyLabel} <span class="req">*</span>`;
 
     const bankAccounts = lfGetAll(LF_KEYS.ACCOUNTS).filter(a => a.type === 'Cash' || a.type === 'Bank');
-    $('bv-bank-account').innerHTML = bankAccounts.map(a => `<option value="${a.id}">${escapeHtml(a.title)} (${a.type})</option>`).join('');
+    $('bv-bank-account').innerHTML = bankAccounts.map(a => `<option value="${a.id}">${escapeHtml(acctLabel(a))}</option>`).join('');
 
     const partyAccounts = lfGetAll(LF_KEYS.ACCOUNTS).filter(a => a.type !== 'Cash' && a.type !== 'Bank');
     $('bv-party-account').innerHTML = '<option value="">Select…</option>' +

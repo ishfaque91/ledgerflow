@@ -424,7 +424,7 @@ function recalcTotals() {
 function populatePaymentAccountOptions() {
     const select = $('inv-payment-account');
     const accounts = lfGetAll(LF_KEYS.ACCOUNTS).filter(a => a.type === 'Cash' || a.type === 'Bank');
-    select.innerHTML = accounts.map(a => `<option value="${a.id}">${escapeHtml(a.title)} (${a.type})</option>`).join('');
+    select.innerHTML = accounts.map(a => `<option value="${a.id}">${escapeHtml(acctLabel(a))}</option>`).join('');
 }
 
 function onPaymentModeChange() {

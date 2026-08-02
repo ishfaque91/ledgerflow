@@ -118,7 +118,7 @@ function renderLedgerRowsIntoTable(rows, tbodyId, colCount) {
 function initAccountLedgerPage(preselectAccountId) {
     const select = $('al-account');
     const accounts = lfGetAll(LF_KEYS.ACCOUNTS).sort((a, b) => a.title.localeCompare(b.title));
-    repopulateSelect(select, accounts.map(a => `<option value="${a.id}">${escapeHtml(a.title)} (${a.type})</option>`).join(''));
+    repopulateSelect(select, accounts.map(a => `<option value="${a.id}">${escapeHtml(acctLabel(a))}</option>`).join(''));
     if (preselectAccountId) select.value = preselectAccountId;
     renderAccountLedgerReport();
 }
@@ -148,7 +148,7 @@ function renderAccountLedgerReport() {
 function initCashBookPage() {
     const select = $('cb-account');
     const accounts = lfGetAll(LF_KEYS.ACCOUNTS).filter(a => a.type === 'Cash' || a.type === 'Bank').sort((a, b) => a.title.localeCompare(b.title));
-    repopulateSelect(select, accounts.map(a => `<option value="${a.id}">${escapeHtml(a.title)} (${a.type})</option>`).join(''));
+    repopulateSelect(select, accounts.map(a => `<option value="${a.id}">${escapeHtml(acctLabel(a))}</option>`).join(''));
     renderCashBookReport();
 }
 

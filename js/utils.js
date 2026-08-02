@@ -269,3 +269,9 @@ function applyDateFilter(list, fromId, toId) {
     if (to) list = list.filter(r => r.date <= to);
     return list;
 }
+
+function acctLabel(a) {
+    const shortType = a.type === 'Employee/RSO' ? 'RSO' : a.type;
+    if (a.title.toLowerCase().includes(shortType.toLowerCase())) return a.title;
+    return `${a.title} (${shortType})`;
+}

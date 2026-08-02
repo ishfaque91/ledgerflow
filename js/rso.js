@@ -1329,7 +1329,7 @@ function openRsoDepositForm(editId = null) {
     }
 
     const bankAccounts = lfGetAll(LF_KEYS.ACCOUNTS).filter(a => a.type === 'Cash' || a.type === 'Bank');
-    $('rso-dep-bank').innerHTML = bankAccounts.map(a => `<option value="${a.id}">${escapeHtml(a.title)} (${a.type})</option>`).join('');
+    $('rso-dep-bank').innerHTML = bankAccounts.map(a => `<option value="${a.id}">${escapeHtml(acctLabel(a))}</option>`).join('');
 
     if (editId) {
         const d = lfFindById(LF_KEYS.RSO_DEPOSITS, editId);

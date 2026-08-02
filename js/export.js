@@ -348,7 +348,7 @@ function openReportFilterModal(pageId) {
         $('rf-field-account').classList.remove('hidden');
         const accounts = lfGetAll(LF_KEYS.ACCOUNTS).sort((a, b) => a.title.localeCompare(b.title));
         $('rf-account').innerHTML = '<option value="">Select an account…</option>' +
-            accounts.map(a => `<option value="${a.id}">${escapeHtml(a.title)} (${a.type})</option>`).join('');
+            accounts.map(a => `<option value="${a.id}">${escapeHtml(acctLabel(a))}</option>`).join('');
     }
     if (config.fields.includes('item')) {
         $('rf-field-item').classList.remove('hidden');
@@ -360,7 +360,7 @@ function openReportFilterModal(pageId) {
         $('rf-field-cash-account').classList.remove('hidden');
         const accts = lfGetAll(LF_KEYS.ACCOUNTS).filter(a => a.type === 'Cash' || a.type === 'Bank').sort((a, b) => a.title.localeCompare(b.title));
         $('rf-cash-account').innerHTML = '<option value="">Select an account…</option>' +
-            accts.map(a => `<option value="${a.id}">${escapeHtml(a.title)} (${a.type})</option>`).join('');
+            accts.map(a => `<option value="${a.id}">${escapeHtml(acctLabel(a))}</option>`).join('');
     }
     if (config.fields.includes('dateRange')) {
         $('rf-field-date-range').classList.remove('hidden');
