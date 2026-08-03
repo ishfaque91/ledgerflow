@@ -74,6 +74,16 @@ function navigateTo(pageId, linkEl) {
     if (parentGroup) parentGroup.classList.add('is-open');
 
     if (pageId === 'page-dashboard') renderDashboard();
+    if (pageId.startsWith('page-dash-')) {
+        if (typeof isCurrentUserOwner === 'function' && !isCurrentUserOwner()) {
+            showToast("You don't have permission to view this page.", 'warning');
+            navigateTo('page-dashboard');
+            return;
+        }
+        renderDashboard();
+        const dtype = pageId.replace('page-dash-', '');
+        renderDashDetailPage(dtype);
+    }
     if (pageId === 'page-rso-stock') renderRsoStockTracking();
 
     if (!isHandlingPopstate) {
@@ -180,42 +190,47 @@ function renderDashboard() {
     $('dash-receivables').textContent = formatCurrency(receivables);
     $('dash-payables').textContent = formatCurrency(payables);
 
-    const panel = $('dash-detail-panel');
-    if (panel && !panel.classList.contains('hidden')) {
-        const type = panel.dataset.type;
-        if (type) showDashDetail(type);
-    }
+    ['cash', 'bank', 'receivable', 'payable'].forEach(type => {
+        const card = $('dash-' + type + '-detail-card');
+        if (card && document.getElementById('page-dash-' + type)?.classList.contains('active')) {
+            renderDashDetailPage(type);
+        }
+    });
 }
 
-function showDashDetail(type) {
-    const panel = $('dash-detail-panel');
-    if (!panel) return;
-
-    if (!panel.classList.contains('hidden') && panel.dataset.type === type) {
-        panel.classList.add('hidden');
-        panel.dataset.type = '';
-        return;
-    }
+function renderDashDetailPage(type) {
+    const card = $('dash-' + type + '-detail-card');
+    if (!card) return;
 
     const titles = { cash: 'Cash in Hand', bank: 'Bank Balance', receivable: 'Receivables', payable: 'Payables' };
     const rows = _dashData[type] || [];
 
     if (rows.length === 0) {
-        panel.innerHTML = `<h3>${titles[type]} — Details</h3><p style="color:var(--ink-faint);font-size:0.85rem">No accounts with balance.</p>`;
+        card.innerHTML = `<p style="color:var(--ink-faint);padding:1rem;font-size:0.9rem">No accounts with balance.</p>`;
     } else {
         const total = rows.reduce((s, r) => s + r.amount, 0);
-        panel.innerHTML = `<h3>${titles[type]} — Details</h3>
+        card.innerHTML = `
             <table class="dash-detail-table">
-                <thead><tr><th>Account</th><th class="num">Amount</th></tr></thead>
+                <thead><tr><th>#</th><th>Account</th><th class="num">Amount</th></tr></thead>
                 <tbody>
-                    ${rows.map(r => `<tr><td>${escapeHtml(r.title)}</td><td class="num">${formatCurrency(r.amount)}</td></tr>`).join('')}
-                    <tr class="dash-detail-total"><td>Total</td><td class="num">${formatCurrency(total)}</td></tr>
+                    ${rows.map((r, i) => `<tr><td style="color:var(--ink-faint);width:30px">${i + 1}</td><td>${escapeHtml(r.title)}</td><td class="num">${formatCurrency(r.amount)}</td></tr>`).join('')}
+                    <tr class="dash-detail-total"><td></td><td>Total</td><td class="num">${formatCurrency(total)}</td></tr>
                 </tbody>
             </table>`;
     }
+}
 
-    panel.dataset.type = type;
-    panel.classList.remove('hidden');
+function shareDashDetailWhatsApp(type) {
+    const titles = { cash: 'Cash in Hand', bank: 'Bank Balance', receivable: 'Total Receivables', payable: 'Total Payables' };
+    const rows = _dashData[type] || [];
+    if (rows.length === 0) { showToast('No data to share', 'warning'); return; }
+
+    const total = rows.reduce((s, r) => s + r.amount, 0);
+    let text = `*${titles[type]}*\n\n`;
+    rows.forEach((r, i) => { text += `${i + 1}. ${r.title}: ${formatCurrency(r.amount)}\n`; });
+    text += `\n*Total: ${formatCurrency(total)}*`;
+
+    window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
 }
 
 function toggleGroup(headerBtn) {

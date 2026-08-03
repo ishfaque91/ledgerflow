@@ -1218,6 +1218,15 @@ button { font-family: inherit; }
 .dash-detail-total td { font-weight: 800; border-top: 2px solid var(--border); font-size: 0.9rem; }
 @keyframes dashFadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
 
+.dash-section-heading {
+    font-size: 0.82rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
+    color: var(--ink-faint); margin: 0 0 10px; padding: 0;
+}
+.btn-whatsapp { color: #25D366 !important; border-color: #25D366 !important; gap: 4px; display: inline-flex; align-items: center; }
+.btn-whatsapp:hover { background: #25D366 !important; color: #fff !important; }
+.btn-whatsapp svg { flex-shrink: 0; }
+.page-head-actions { display: flex; gap: 8px; align-items: center; }
+
 .dash-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -1246,8 +1255,8 @@ button { font-family: inherit; }
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 10px;
-    padding: 1.2rem 1.1rem;
+    gap: 8px;
+    padding: 0.85rem 1rem;
     background: var(--tab-bg);
     border: none;
     border-radius: 16px;
@@ -1256,7 +1265,7 @@ button { font-family: inherit; }
     box-shadow: 0 4px 14px rgba(0,0,0,0.15);
     transition: transform .15s ease, box-shadow .15s ease;
     cursor: pointer;
-    min-height: 110px;
+    min-height: 72px;
 }
 .dash-tab:hover {
     transform: translateY(-3px);
@@ -1267,20 +1276,20 @@ button { font-family: inherit; }
 
 .dash-tab-icon {
     display: flex;
-    width: 40px; height: 40px;
+    width: 34px; height: 34px;
     align-items: center; justify-content: center;
-    border-radius: 12px;
+    border-radius: 10px;
     background: rgba(255,255,255,0.2);
     color: #fff;
     flex-shrink: 0;
 }
-.dash-tab-icon svg { width: 20px; height: 20px; }
+.dash-tab-icon svg { width: 18px; height: 18px; }
 
 .dash-tab-text { display: flex; flex-direction: column; gap: 2px; flex: 1; }
 .dash-tab-name {
     font-family: 'Space Grotesk', sans-serif;
     font-weight: 800;
-    font-size: 1.15rem;
+    font-size: 1rem;
     color: #fff;
     line-height: 1.2;
     letter-spacing: -0.01em;
@@ -1942,7 +1951,9 @@ button { font-family: inherit; }
 /* ==================== MOBILE SPACING IMPROVEMENTS ==================== */
 @media (max-width: 900px) {
     .page-head { flex-direction: column; gap: 12px; align-items: flex-start; }
-    .page-head .btn { width: 100%; justify-content: center; }
+    .page-head > .btn { width: 100%; justify-content: center; }
+    .page-head-actions { width: 100%; }
+    .page-head-actions .btn { flex: 1; justify-content: center; }
     .toolbar-row { gap: 8px; }
     .search-field { min-width: 0; max-width: 100%; }
     .data-table { font-size: 0.82rem; }
