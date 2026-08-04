@@ -312,6 +312,32 @@ function printCurrentReport() {
     window.print();
 }
 
+function shareReportWhatsApp(containerIds, title, pageId) {
+    const rows = extractReportRows(containerIds);
+    if (!rows.length) { showToast('Nothing to share yet.', 'warning'); return; }
+
+    const headerLines = getReportHeaderLines(pageId, title).filter(l => l !== '');
+    let text = `*${headerLines.join('\n')}*\n\n`;
+
+    const summaryRow = document.querySelector(`#${pageId} .report-summary-row`);
+    if (summaryRow) {
+        const cards = summaryRow.querySelectorAll('.report-summary-card');
+        cards.forEach(c => {
+            const label = c.querySelector('.report-summary-label')?.textContent || '';
+            const value = c.querySelector('.report-summary-value')?.textContent || '';
+            if (label && value) text += `${label}: *${value}*\n`;
+        });
+        text += '\n';
+    }
+
+    const maxRows = 50;
+    const shown = rows.slice(0, maxRows);
+    shown.forEach(r => { text += r.join(' | ') + '\n'; });
+    if (rows.length > maxRows) text += `\n... and ${rows.length - maxRows} more rows`;
+
+    window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
+}
+
 // ==================== SHARED REPORT FILTER MODAL ====================
 // One modal, reused by every report — which fields it shows (Account,
 // Item, Cash Account, a date range, or an "as of" date) is driven by this

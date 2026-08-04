@@ -1189,12 +1189,13 @@ button { font-family: inherit; }
 }
 
 /* ==================== DASHBOARD ==================== */
-.dash-stats { margin-bottom: 20px; }
+.dash-stats { margin-bottom: 12px; }
 .dash-stat-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
 .dash-stat-card {
-    border-radius: var(--radius); padding: 1rem 1.1rem;
-    display: flex; flex-direction: column; gap: 4px;
+    border-radius: 12px; padding: 0.6rem 0.9rem;
+    display: flex; align-items: center; gap: 10px;
     cursor: pointer; transition: transform 0.15s, box-shadow 0.15s; border: none;
+    min-height: 0;
 }
 .dash-stat-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.12); }
 .dash-stat-card:active { transform: translateY(0); }
@@ -1202,8 +1203,8 @@ button { font-family: inherit; }
 .dash-card-bank { background: linear-gradient(135deg, #2563eb, #3b82f6); }
 .dash-card-receivable { background: linear-gradient(135deg, #d97706, #f59e0b); }
 .dash-card-payable { background: linear-gradient(135deg, #dc2626, #ef4444); }
-.dash-stat-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: rgba(255,255,255,0.8); }
-.dash-stat-value { font-family: 'Space Grotesk', sans-serif; font-size: 1.25rem; font-weight: 800; color: #fff; }
+.dash-stat-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: rgba(255,255,255,0.85); }
+.dash-stat-value { font-family: 'Space Grotesk', sans-serif; font-size: 1rem; font-weight: 800; color: #fff; }
 .dash-detail-panel {
     background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
     padding: 1rem; margin-top: 4px; animation: dashFadeIn 0.2s;
@@ -1225,6 +1226,10 @@ button { font-family: inherit; }
 .btn-whatsapp { color: #25D366 !important; border-color: #25D366 !important; gap: 4px; display: inline-flex; align-items: center; }
 .btn-whatsapp:hover { background: #25D366 !important; color: #fff !important; }
 .btn-whatsapp svg { flex-shrink: 0; }
+.btn-wa-row { color: #25D366 !important; border-color: #25D366 !important; padding: 3px 6px !important; min-width: 0 !important; }
+.btn-wa-row:hover { background: #25D366 !important; color: #fff !important; }
+.export-btn-wa { background: #25D366; color: #fff; border: none; border-radius: 4px; padding: 4px 10px; font-size: 0.75rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; }
+.export-btn-wa:hover { background: #1EBE57; }
 .page-head-actions { display: flex; gap: 8px; align-items: center; }
 
 .dash-grid {
@@ -1253,19 +1258,19 @@ button { font-family: inherit; }
 
 .dash-tab {
     display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
-    padding: 0.85rem 1rem;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    padding: 0.6rem 0.9rem;
     background: var(--tab-bg);
     border: none;
-    border-radius: 16px;
+    border-radius: 12px;
     text-decoration: none;
     color: #fff;
     box-shadow: 0 4px 14px rgba(0,0,0,0.15);
     transition: transform .15s ease, box-shadow .15s ease;
     cursor: pointer;
-    min-height: 72px;
+    min-height: 0;
 }
 .dash-tab:hover {
     transform: translateY(-3px);
@@ -1276,28 +1281,28 @@ button { font-family: inherit; }
 
 .dash-tab-icon {
     display: flex;
-    width: 34px; height: 34px;
+    width: 30px; height: 30px;
     align-items: center; justify-content: center;
-    border-radius: 10px;
+    border-radius: 8px;
     background: rgba(255,255,255,0.2);
     color: #fff;
     flex-shrink: 0;
 }
-.dash-tab-icon svg { width: 18px; height: 18px; }
+.dash-tab-icon svg { width: 16px; height: 16px; }
 
-.dash-tab-text { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+.dash-tab-text { display: flex; flex-direction: column; gap: 1px; flex: 1; }
 .dash-tab-name {
     font-family: 'Space Grotesk', sans-serif;
     font-weight: 800;
-    font-size: 1rem;
+    font-size: 0.88rem;
     color: #fff;
     line-height: 1.2;
     letter-spacing: -0.01em;
 }
 .dash-tab-desc {
-    font-size: 0.72rem;
+    font-size: 0.65rem;
     color: rgba(255,255,255,0.75);
-    line-height: 1.35;
+    line-height: 1.3;
 }
 
 .dash-tab-meta { display: none; }

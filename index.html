@@ -1652,7 +1652,7 @@
                 </div>
                 <select id="coa-type-filter" class="select-chip" onchange="renderChartOfAccounts()"><option value="">All types</option></select>
                 <span class="count-pill" id="coa-count">0 accounts</span>
-            <div class="export-toolbar"><button class="export-btn" onclick="printCurrentReport()">Print</button><button class="export-btn" onclick="exportReportToPDF('coa-table-body', 'Chart of Accounts', 'page-chart-of-accounts')">PDF</button><button class="export-btn" onclick="exportReportToExcel('coa-table-body', 'Chart of Accounts', 'page-chart-of-accounts')">Excel</button></div></div>
+            <div class="export-toolbar"><button class="export-btn" onclick="printCurrentReport()">Print</button><button class="export-btn" onclick="exportReportToPDF('coa-table-body', 'Chart of Accounts', 'page-chart-of-accounts')">PDF</button><button class="export-btn" onclick="exportReportToExcel('coa-table-body', 'Chart of Accounts', 'page-chart-of-accounts')">Excel</button><button class="export-btn-wa" onclick="shareReportWhatsApp('coa-table-body', 'Chart of Accounts', 'page-chart-of-accounts')">WhatsApp</button></div></div>
             <div class="card table-card">
                 <div class="table-scroll">
                     <table class="data-table">
@@ -1676,7 +1676,7 @@
                 <div class="report-field"><label>Account</label><select id="al-account" onchange="renderAccountLedgerReport()"></select></div>
                 <div class="report-field"><label>From</label><input type="date" id="al-date-from" onchange="renderAccountLedgerReport()"></div>
                 <div class="report-field"><label>To</label><input type="date" id="al-date-to" onchange="renderAccountLedgerReport()"></div>
-            <div class="export-toolbar"><button class="export-btn" onclick="printCurrentReport()">Print</button><button class="export-btn" onclick="exportReportToPDF('account-ledger-table-body', 'Account Ledger', 'page-account-ledger')">PDF</button><button class="export-btn" onclick="exportReportToExcel('account-ledger-table-body', 'Account Ledger', 'page-account-ledger')">Excel</button></div></div>
+            <div class="export-toolbar"><button class="export-btn" onclick="printCurrentReport()">Print</button><button class="export-btn" onclick="exportReportToPDF('account-ledger-table-body', 'Account Ledger', 'page-account-ledger')">PDF</button><button class="export-btn" onclick="exportReportToExcel('account-ledger-table-body', 'Account Ledger', 'page-account-ledger')">Excel</button><button class="export-btn-wa" onclick="shareReportWhatsApp('account-ledger-table-body', 'Account Ledger', 'page-account-ledger')">WhatsApp</button></div></div>
             <div class="report-summary-row">
                 <div class="report-summary-card"><span class="report-summary-label">Opening Balance</span><span class="report-summary-value" id="al-opening">Rs. 0</span></div>
                 <div class="report-summary-card"><span class="report-summary-label">Closing Balance</span><span class="report-summary-value" id="al-closing">Rs. 0</span></div>
@@ -1702,7 +1702,7 @@
             <div class="report-toolbar">
                 <div class="report-field"><label>From</label><input type="date" id="ll-date-from" onchange="renderLoadLedgerReport()"></div>
                 <div class="report-field"><label>To</label><input type="date" id="ll-date-to" onchange="renderLoadLedgerReport()"></div>
-            <div class="export-toolbar"><button class="export-btn" onclick="printCurrentReport()">Print</button><button class="export-btn" onclick="exportReportToPDF('load-ledger-table-body', 'Load Ledger', 'page-load-ledger')">PDF</button><button class="export-btn" onclick="exportReportToExcel('load-ledger-table-body', 'Load Ledger', 'page-load-ledger')">Excel</button></div></div>
+            <div class="export-toolbar"><button class="export-btn" onclick="printCurrentReport()">Print</button><button class="export-btn" onclick="exportReportToPDF('load-ledger-table-body', 'Load Ledger', 'page-load-ledger')">PDF</button><button class="export-btn" onclick="exportReportToExcel('load-ledger-table-body', 'Load Ledger', 'page-load-ledger')">Excel</button><button class="export-btn-wa" onclick="shareReportWhatsApp('load-ledger-table-body', 'Load Ledger', 'page-load-ledger')">WhatsApp</button></div></div>
             <div class="report-summary-row">
                 <div class="report-summary-card"><span class="report-summary-label">Opening Balance</span><span class="report-summary-value" id="ll-opening">0</span></div>
                 <div class="report-summary-card"><span class="report-summary-label">Closing Balance</span><span class="report-summary-value" id="ll-closing">0</span></div>
@@ -1729,7 +1729,7 @@
                 <div class="report-field"><label>Item</label><select id="il-item" onchange="renderItemLedgerReport()"></select></div>
                 <div class="report-field"><label>From</label><input type="date" id="il-date-from" onchange="renderItemLedgerReport()"></div>
                 <div class="report-field"><label>To</label><input type="date" id="il-date-to" onchange="renderItemLedgerReport()"></div>
-            <div class="export-toolbar"><button class="export-btn" onclick="printCurrentReport()">Print</button><button class="export-btn" onclick="exportReportToPDF('item-ledger-table-body', 'Item Ledger', 'page-item-ledger')">PDF</button><button class="export-btn" onclick="exportReportToExcel('item-ledger-table-body', 'Item Ledger', 'page-item-ledger')">Excel</button></div></div>
+            <div class="export-toolbar"><button class="export-btn" onclick="printCurrentReport()">Print</button><button class="export-btn" onclick="exportReportToPDF('item-ledger-table-body', 'Item Ledger', 'page-item-ledger')">PDF</button><button class="export-btn" onclick="exportReportToExcel('item-ledger-table-body', 'Item Ledger', 'page-item-ledger')">Excel</button><button class="export-btn-wa" onclick="shareReportWhatsApp('item-ledger-table-body', 'Item Ledger', 'page-item-ledger')">WhatsApp</button></div></div>
             <div class="report-summary-row">
                 <div class="report-summary-card"><span class="report-summary-label">Opening Stock</span><span class="report-summary-value" id="il-opening">0</span></div>
                 <div class="report-summary-card"><span class="report-summary-label">Closing Stock</span><span class="report-summary-value" id="il-closing">0</span></div>
@@ -1760,7 +1760,7 @@
                     <input type="text" id="stock-search" placeholder="Search by item name…" oninput="renderStockReport()">
                 </div>
                 <span class="count-pill" id="stock-count">0 items</span>
-            <div class="export-toolbar"><button class="export-btn" onclick="printCurrentReport()">Print</button><button class="export-btn" onclick="exportReportToPDF('stock-report-table-body', 'Stock Report', 'page-stock-report')">PDF</button><button class="export-btn" onclick="exportReportToExcel('stock-report-table-body', 'Stock Report', 'page-stock-report')">Excel</button></div></div>
+            <div class="export-toolbar"><button class="export-btn" onclick="printCurrentReport()">Print</button><button class="export-btn" onclick="exportReportToPDF('stock-report-table-body', 'Stock Report', 'page-stock-report')">PDF</button><button class="export-btn" onclick="exportReportToExcel('stock-report-table-body', 'Stock Report', 'page-stock-report')">Excel</button><button class="export-btn-wa" onclick="shareReportWhatsApp('stock-report-table-body', 'Stock Report', 'page-stock-report')">WhatsApp</button></div></div>
             <div class="card table-card">
                 <div class="table-scroll">
                     <table class="data-table">
@@ -1783,7 +1783,7 @@
                 <div class="report-field"><label>Account</label><select id="cb-account" onchange="renderCashBookReport()"></select></div>
                 <div class="report-field"><label>From</label><input type="date" id="cb-date-from" onchange="renderCashBookReport()"></div>
                 <div class="report-field"><label>To</label><input type="date" id="cb-date-to" onchange="renderCashBookReport()"></div>
-            <div class="export-toolbar"><button class="export-btn" onclick="printCurrentReport()">Print</button><button class="export-btn" onclick="exportReportToPDF('cash-book-table-body', 'Cash Book', 'page-cash-book')">PDF</button><button class="export-btn" onclick="exportReportToExcel('cash-book-table-body', 'Cash Book', 'page-cash-book')">Excel</button></div></div>
+            <div class="export-toolbar"><button class="export-btn" onclick="printCurrentReport()">Print</button><button class="export-btn" onclick="exportReportToPDF('cash-book-table-body', 'Cash Book', 'page-cash-book')">PDF</button><button class="export-btn" onclick="exportReportToExcel('cash-book-table-body', 'Cash Book', 'page-cash-book')">Excel</button><button class="export-btn-wa" onclick="shareReportWhatsApp('cash-book-table-body', 'Cash Book', 'page-cash-book')">WhatsApp</button></div></div>
             <div class="report-summary-row">
                 <div class="report-summary-card"><span class="report-summary-label">Opening Balance</span><span class="report-summary-value" id="cb-opening">Rs. 0</span></div>
                 <div class="report-summary-card"><span class="report-summary-label">Closing Balance</span><span class="report-summary-value" id="cb-closing">Rs. 0</span></div>
@@ -1813,7 +1813,7 @@
                     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                     <input type="text" id="Sale-report-search" placeholder="Search by invoice no. or party…" oninput="renderInvoiceReport('Sale')">
                 </div>
-            <div class="export-toolbar"><button class="export-btn" onclick="printCurrentReport()">Print</button><button class="export-btn" onclick="exportReportToPDF('Sale-report-table-body', 'Sale Invoices Report', 'page-sale-report')">PDF</button><button class="export-btn" onclick="exportReportToExcel('Sale-report-table-body', 'Sale Invoices Report', 'page-sale-report')">Excel</button></div></div>
+            <div class="export-toolbar"><button class="export-btn" onclick="printCurrentReport()">Print</button><button class="export-btn" onclick="exportReportToPDF('Sale-report-table-body', 'Sale Invoices Report', 'page-sale-report')">PDF</button><button class="export-btn" onclick="exportReportToExcel('Sale-report-table-body', 'Sale Invoices Report', 'page-sale-report')">Excel</button><button class="export-btn-wa" onclick="shareReportWhatsApp('Sale-report-table-body', 'Sale Invoices Report', 'page-sale-report')">WhatsApp</button></div></div>
             <div class="report-summary-row">
                 <div class="report-summary-card"><span class="report-summary-label">Invoices</span><span class="report-summary-value" id="Sale-report-count">0</span></div>
                 <div class="report-summary-card"><span class="report-summary-label">Total Sale Amount</span><span class="report-summary-value" id="Sale-report-total">Rs. 0</span></div>
@@ -1843,7 +1843,7 @@
                     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                     <input type="text" id="Purchase-report-search" placeholder="Search by invoice no. or supplier…" oninput="renderInvoiceReport('Purchase')">
                 </div>
-            <div class="export-toolbar"><button class="export-btn" onclick="printCurrentReport()">Print</button><button class="export-btn" onclick="exportReportToPDF('Purchase-report-table-body', 'Purchase Invoices Report', 'page-purchase-report')">PDF</button><button class="export-btn" onclick="exportReportToExcel('Purchase-report-table-body', 'Purchase Invoices Report', 'page-purchase-report')">Excel</button></div></div>
+            <div class="export-toolbar"><button class="export-btn" onclick="printCurrentReport()">Print</button><button class="export-btn" onclick="exportReportToPDF('Purchase-report-table-body', 'Purchase Invoices Report', 'page-purchase-report')">PDF</button><button class="export-btn" onclick="exportReportToExcel('Purchase-report-table-body', 'Purchase Invoices Report', 'page-purchase-report')">Excel</button><button class="export-btn-wa" onclick="shareReportWhatsApp('Purchase-report-table-body', 'Purchase Invoices Report', 'page-purchase-report')">WhatsApp</button></div></div>
             <div class="report-summary-row">
                 <div class="report-summary-card"><span class="report-summary-label">Invoices</span><span class="report-summary-value" id="Purchase-report-count">0</span></div>
                 <div class="report-summary-card"><span class="report-summary-label">Total Purchase Amount</span><span class="report-summary-value" id="Purchase-report-total">Rs. 0</span></div>
@@ -1868,7 +1868,7 @@
             </div>
             <div class="report-toolbar">
                 <div class="report-field"><label>As of</label><input type="date" id="tb-as-of" onchange="renderTrialBalance()"></div>
-            <div class="export-toolbar"><button class="export-btn" onclick="printCurrentReport()">Print</button><button class="export-btn" onclick="exportReportToPDF('tb-table-body', 'Trial Balance', 'page-trial-balance')">PDF</button><button class="export-btn" onclick="exportReportToExcel('tb-table-body', 'Trial Balance', 'page-trial-balance')">Excel</button></div></div>
+            <div class="export-toolbar"><button class="export-btn" onclick="printCurrentReport()">Print</button><button class="export-btn" onclick="exportReportToPDF('tb-table-body', 'Trial Balance', 'page-trial-balance')">PDF</button><button class="export-btn" onclick="exportReportToExcel('tb-table-body', 'Trial Balance', 'page-trial-balance')">Excel</button><button class="export-btn-wa" onclick="shareReportWhatsApp('tb-table-body', 'Trial Balance', 'page-trial-balance')">WhatsApp</button></div></div>
             <div class="card table-card">
                 <div class="table-scroll">
                     <table class="data-table">
@@ -1890,7 +1890,7 @@
             </div>
             <div class="report-toolbar">
                 <div class="report-field"><label>As of</label><input type="date" id="bs-as-of" onchange="renderBalanceSheet()"></div>
-            <div class="export-toolbar"><button class="export-btn" onclick="printCurrentReport()">Print</button><button class="export-btn" onclick="exportReportToPDF('bs-report-container', 'Balance Sheet', 'page-balance-sheet')">PDF</button><button class="export-btn" onclick="exportReportToExcel('bs-report-container', 'Balance Sheet', 'page-balance-sheet')">Excel</button></div></div>
+            <div class="export-toolbar"><button class="export-btn" onclick="printCurrentReport()">Print</button><button class="export-btn" onclick="exportReportToPDF('bs-report-container', 'Balance Sheet', 'page-balance-sheet')">PDF</button><button class="export-btn" onclick="exportReportToExcel('bs-report-container', 'Balance Sheet', 'page-balance-sheet')">Excel</button><button class="export-btn-wa" onclick="shareReportWhatsApp('bs-report-container', 'Balance Sheet', 'page-balance-sheet')">WhatsApp</button></div></div>
             <div class="report-summary-row">
                 <div class="report-summary-card"><span class="report-summary-label">Total Assets</span><span class="report-summary-value" id="bs-total-assets">Rs. 0</span></div>
                 <div class="report-summary-card"><span class="report-summary-label">Total Liabilities</span><span class="report-summary-value" id="bs-total-liabilities">Rs. 0</span></div>
@@ -2047,6 +2047,7 @@
                     <button class="export-btn" onclick="printCurrentReport()">Print</button>
                     <button class="export-btn" onclick="exportGraphToPDF('page-graph-pl','Profit &amp; Loss Graph','gpl-table-body',['gpl-chart-monthly','gpl-chart-composition'])">PDF</button>
                     <button class="export-btn" onclick="exportReportToExcel('gpl-table-body','Profit &amp; Loss Graph','page-graph-pl')">Excel</button>
+                    <button class="export-btn-wa" onclick="shareReportWhatsApp('gpl-table-body','Profit &amp; Loss Graph','page-graph-pl')">WhatsApp</button>
                 </div>
             </div>
 
@@ -2093,6 +2094,7 @@
                     <button class="export-btn" onclick="printCurrentReport()">Print</button>
                     <button class="export-btn" onclick="exportGraphToPDF('page-graph-ie','Income &amp; Expense Graph','gie-table-body',['gie-chart-monthly','gie-chart-expense-breakdown'])">PDF</button>
                     <button class="export-btn" onclick="exportReportToExcel('gie-table-body','Income &amp; Expense Graph','page-graph-ie')">Excel</button>
+                    <button class="export-btn-wa" onclick="shareReportWhatsApp('gie-table-body','Income &amp; Expense Graph','page-graph-ie')">WhatsApp</button>
                 </div>
             </div>
 
@@ -2135,7 +2137,7 @@
             <div class="report-toolbar">
                 <div class="report-field"><label>From</label><input type="date" id="pos-date-from" onchange="renderProfitOnSale()"></div>
                 <div class="report-field"><label>To</label><input type="date" id="pos-date-to" onchange="renderProfitOnSale()"></div>
-            <div class="export-toolbar"><button class="export-btn" onclick="printCurrentReport()">Print</button><button class="export-btn" onclick="exportReportToPDF('pos-report-container', 'Profit on Sale', 'page-profit-on-sale')">PDF</button><button class="export-btn" onclick="exportReportToExcel('pos-report-container', 'Profit on Sale', 'page-profit-on-sale')">Excel</button></div></div>
+            <div class="export-toolbar"><button class="export-btn" onclick="printCurrentReport()">Print</button><button class="export-btn" onclick="exportReportToPDF('pos-report-container', 'Profit on Sale', 'page-profit-on-sale')">PDF</button><button class="export-btn" onclick="exportReportToExcel('pos-report-container', 'Profit on Sale', 'page-profit-on-sale')">Excel</button><button class="export-btn-wa" onclick="shareReportWhatsApp('pos-report-container', 'Profit on Sale', 'page-profit-on-sale')">WhatsApp</button></div></div>
             <div class="card statement-section" id="pos-report-container">
                 <div class="statement-subtitle">Load</div>
                 <div class="statement-row"><span>Sales</span><span id="pos-load-sales">Rs. 0</span></div>
@@ -2163,7 +2165,7 @@
             <div class="report-toolbar">
                 <div class="report-field"><label>From</label><input type="date" id="pl-date-from" onchange="renderProfitAndLoss()"></div>
                 <div class="report-field"><label>To</label><input type="date" id="pl-date-to" onchange="renderProfitAndLoss()"></div>
-            <div class="export-toolbar"><button class="export-btn" onclick="printCurrentReport()">Print</button><button class="export-btn" onclick="exportReportToPDF('pl-report-container', 'Profit and Loss', 'page-profit-loss')">PDF</button><button class="export-btn" onclick="exportReportToExcel('pl-report-container', 'Profit and Loss', 'page-profit-loss')">Excel</button></div></div>
+            <div class="export-toolbar"><button class="export-btn" onclick="printCurrentReport()">Print</button><button class="export-btn" onclick="exportReportToPDF('pl-report-container', 'Profit and Loss', 'page-profit-loss')">PDF</button><button class="export-btn" onclick="exportReportToExcel('pl-report-container', 'Profit and Loss', 'page-profit-loss')">Excel</button><button class="export-btn-wa" onclick="shareReportWhatsApp('pl-report-container', 'Profit and Loss', 'page-profit-loss')">WhatsApp</button></div></div>
             <div class="statement-grid" id="pl-report-container">
                 <div class="card statement-section">
                     <h3>Trading Profit</h3>
