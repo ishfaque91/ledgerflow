@@ -192,7 +192,7 @@ function computeClosingStock(asOfDate) {
         });
     });
 
-    rsoLoads.forEach(l => {
+    rsoLoads.filter(l => !l.sourceInvoiceId).forEach(l => {
         (l.items || []).forEach(row => {
             if (row.itemId in qtyByItem) qtyByItem[row.itemId] -= row.qty;
         });
