@@ -769,16 +769,17 @@ button { font-family: inherit; }
 /* Petty Cash lines */
 .pc-line {
     display: grid;
-    grid-template-columns: 1.6fr 1fr 1.6fr 34px;
+    grid-template-columns: 1fr 120px 34px;
     gap: 8px;
-    padding: 8px 10px;
+    padding: 10px 10px;
     align-items: center;
     border-bottom: 1px solid var(--border);
+    min-height: 52px;
 }
 .pc-line:last-child { border-bottom: none; }
-.pc-line-head { background: var(--paper); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-faint); font-weight: 700; }
+.pc-line-head { background: var(--paper); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-faint); font-weight: 700; min-height: unset; padding: 6px 10px; }
 .pc-line select, .pc-line input {
-    border: 1px solid var(--border-strong); border-radius: 6px; padding: 0.4rem 0.5rem; font-size: 0.86rem; width: 100%;
+    border: 1px solid var(--border-strong); border-radius: 6px; padding: 0.5rem 0.6rem; font-size: 0.88rem; width: 100%;
 }
 
 /* Journal Voucher lines */
@@ -803,7 +804,7 @@ button { font-family: inherit; }
    spacing so everything still fits without horizontal overflow. */
 @media (max-width: 480px) {
     .item-row, .item-row-head { grid-template-columns: 1.7fr 0.7fr 0.9fr 0.9fr; gap: 5px; padding: 8px 6px; }
-    .pc-line, .pc-line-head { grid-template-columns: 1.2fr 0.9fr 1.2fr 34px; gap: 5px; padding: 8px 6px; }
+    .pc-line, .pc-line-head { grid-template-columns: 1fr 100px 34px; gap: 5px; padding: 8px 6px; }
     .jv-line, .jv-line-head { grid-template-columns: 1.5fr 0.85fr 0.85fr 34px; gap: 5px; padding: 8px 6px; }
     .item-row select, .item-row input,
     .pc-line select, .pc-line input,
