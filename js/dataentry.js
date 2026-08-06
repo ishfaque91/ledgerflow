@@ -15,6 +15,7 @@ const INVOICE_CONFIG = {
         loadAmountLabel: 'Purchase Amount', loadQtyLabel: 'Load Received',
         paymentHeading: 'Paid in Cash / Bank', balanceLabel: 'Balance payable to Party',
         direction: 1, ledgerPartySide: 'Cr', paymentCashSide: 'Cr',
+        tradingSide: 'Dr', tradingAccount: 'purchases',
         rateField: 'purchasePrice'
     },
     PurchaseReturn: {
@@ -23,6 +24,7 @@ const INVOICE_CONFIG = {
         loadAmountLabel: 'Return Amount', loadQtyLabel: 'Load Returned',
         paymentHeading: 'Refunded in Cash / Bank', balanceLabel: 'Reduces Party payable by',
         direction: -1, ledgerPartySide: 'Dr', paymentCashSide: 'Dr',
+        tradingSide: 'Cr', tradingAccount: 'purchases',
         rateField: 'purchasePrice'
     },
     Sale: {
@@ -31,6 +33,7 @@ const INVOICE_CONFIG = {
         loadAmountLabel: 'Sale Amount', loadQtyLabel: 'Load Issued',
         paymentHeading: 'Received in Cash / Bank', balanceLabel: 'Balance receivable',
         direction: -1, ledgerPartySide: 'Dr', paymentCashSide: 'Dr',
+        tradingSide: 'Cr', tradingAccount: 'sales',
         rateField: 'salePrice'
     },
     SaleReturn: {
@@ -39,12 +42,33 @@ const INVOICE_CONFIG = {
         loadAmountLabel: 'Return Amount', loadQtyLabel: 'Load Returned',
         paymentHeading: 'Refunded in Cash / Bank', balanceLabel: 'Reduces receivable by',
         direction: 1, ledgerPartySide: 'Cr', paymentCashSide: 'Cr',
+        tradingSide: 'Dr', tradingAccount: 'sales',
         rateField: 'salePrice'
     }
 };
 
 let currentInvoiceType = 'Purchase';
 let itemRowCounter = 0;
+
+const SYSTEM_ACCOUNTS = {
+    purchases: { title: 'Purchases', type: 'Expense', flag: 'sys-purchases', side: 'Dr' },
+    sales:     { title: 'Sales',     type: 'Income',  flag: 'sys-sales',     side: 'Cr' }
+};
+
+async function getOrCreateSystemAccount(key) {
+    const spec = SYSTEM_ACCOUNTS[key];
+    const existing = lfGetAll(LF_KEYS.ACCOUNTS).find(a => a.systemAccount === spec.flag);
+    if (existing) return existing.id;
+
+    const record = {
+        type: spec.type, title: spec.title, systemAccount: spec.flag,
+        mobile: '', phone: '', email: '', city: '', gst: '', ntn: '', address: '',
+        openingAmount: 0, openingSide: spec.side
+    };
+    await lfUpsert(LF_KEYS.ACCOUNTS, record);
+    const created = lfGetAll(LF_KEYS.ACCOUNTS).find(a => a.systemAccount === spec.flag);
+    return created ? created.id : record.id;
+}
 
 // ==================== ACCOUNT BALANCE (opening + every ledger movement since) ====================
 function computeAccountBalance(accountId) {
@@ -366,7 +390,7 @@ function closeInvoiceForm() {
 function populateInvoicePartyOptions() {
     const config = INVOICE_CONFIG[currentInvoiceType];
     const select = $('inv-party');
-    const allAccounts = lfGetAll(LF_KEYS.ACCOUNTS);
+    const allAccounts = lfGetAll(LF_KEYS.ACCOUNTS).filter(a => !a.systemAccount);
     const accounts = config.partyTypes ? allAccounts.filter(a => config.partyTypes.includes(a.type)) : allAccounts;
     select.innerHTML = '<option value="">Select…</option>' +
         accounts.map(a => `<option value="${a.id}">${escapeHtml(a.title)} (${a.type})</option>`).join('');
@@ -604,6 +628,15 @@ async function saveInvoice(printAfter = false) {
                 }));
             }
 
+            if (grandTotal > 0) {
+                const tradingAccId = await getOrCreateSystemAccount(config.tradingAccount);
+                writes.push(lfUpsert(LF_KEYS.ACCOUNT_LEDGER, {
+                    invoiceId, accountId: tradingAccId, date, type: currentInvoiceType,
+                    ref: number, side: config.tradingSide, amount: grandTotal,
+                    note: `${config.title} ${number}`
+                }));
+            }
+
             if (hasLoad && loadQty > 0) {
                 writes.push(lfUpsert(LF_KEYS.LOAD_LEDGER, {
                     invoiceId, date, type: currentInvoiceType, ref: number,
@@ -737,19 +770,49 @@ async function backfillRsoLoadsFromInvoices() {
     return count;
 }
 
-async function cleanupOePurchasesEntries() {
-    const entries = lfGetAll(LF_KEYS.ACCOUNT_LEDGER).filter(e =>
+async function backfillTradingEntries() {
+    const oldOeEntries = lfGetAll(LF_KEYS.ACCOUNT_LEDGER).filter(e =>
         e.note && e.note.includes('Owner Equity contribution')
     );
-    for (const e of entries) { await lfDelete(LF_KEYS.ACCOUNT_LEDGER, e.id); }
-
-    const sysAcc = lfGetAll(LF_KEYS.ACCOUNTS).find(a => a.systemAccount === 'oe-purchases');
-    if (sysAcc) {
-        const hasOtherEntries = lfGetAll(LF_KEYS.ACCOUNT_LEDGER).some(e => e.accountId === sysAcc.id);
-        if (!hasOtherEntries) await lfDelete(LF_KEYS.ACCOUNTS, sysAcc.id);
+    for (const e of oldOeEntries) { await lfDelete(LF_KEYS.ACCOUNT_LEDGER, e.id); }
+    const oldOeAcc = lfGetAll(LF_KEYS.ACCOUNTS).find(a => a.systemAccount === 'oe-purchases');
+    if (oldOeAcc) {
+        const hasEntries = lfGetAll(LF_KEYS.ACCOUNT_LEDGER).some(e => e.accountId === oldOeAcc.id);
+        if (!hasEntries) await lfDelete(LF_KEYS.ACCOUNTS, oldOeAcc.id);
     }
 
-    if (entries.length > 0 || sysAcc) console.log(`[OE Cleanup] Removed obsolete Purchases account and ${entries.length} Dr entries.`);
+    const invoices = lfGetAll(LF_KEYS.INVOICES).filter(i => !i.cancelled);
+    const ledger = lfGetAll(LF_KEYS.ACCOUNT_LEDGER);
+
+    const purchasesAccId = await getOrCreateSystemAccount('purchases');
+    const salesAccId = await getOrCreateSystemAccount('sales');
+
+    const tradingAccIdFor = (type) =>
+        (type === 'Purchase' || type === 'PurchaseReturn') ? purchasesAccId : salesAccId;
+
+    let count = 0;
+    for (const inv of invoices) {
+        const cfg = INVOICE_CONFIG[inv.type];
+        if (!cfg) continue;
+        if (!inv.grandTotal || inv.grandTotal <= 0) continue;
+
+        const accId = tradingAccIdFor(inv.type);
+        const alreadyPosted = ledger.some(e =>
+            e.invoiceId === inv.id && e.accountId === accId
+        );
+        if (alreadyPosted) continue;
+
+        await lfUpsert(LF_KEYS.ACCOUNT_LEDGER, {
+            invoiceId: inv.id, accountId: accId, date: inv.date, type: inv.type,
+            ref: inv.number, side: cfg.tradingSide, amount: inv.grandTotal,
+            note: `${cfg.title} ${inv.number}`
+        });
+        count++;
+    }
+    if (count > 0) {
+        console.log(`[Trading] Backfilled ${count} trading entries (Purchases/Sales).`);
+        showToast(`Added ${count} trading account entries for existing invoices.`, 'success');
+    }
 }
 
 // ==================== CANCEL TOGGLE (shared by invoices + vouchers) ====================

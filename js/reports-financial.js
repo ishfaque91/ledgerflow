@@ -78,13 +78,13 @@ function computeIncomeExpense(dateFrom, dateTo) {
         return drIsPositive ? signed : -signed;
     };
 
-    accounts.filter(a => a.type === 'Income').forEach(a => {
+    accounts.filter(a => a.type === 'Income' && !a.systemAccount).forEach(a => {
         const net = entries.filter(e => e.accountId === a.id)
             .reduce((s, e) => s + (e.side === 'Cr' ? e.amount : -e.amount), openingFor(a, false));
         if (net !== 0) incomeRows.push({ title: a.title, amount: net });
     });
 
-    accounts.filter(a => a.type === 'Expense').forEach(a => {
+    accounts.filter(a => a.type === 'Expense' && !a.systemAccount).forEach(a => {
         const net = entries.filter(e => e.accountId === a.id)
             .reduce((s, e) => s + (e.side === 'Dr' ? e.amount : -e.amount), openingFor(a, true));
         if (net !== 0) expenseRows.push({ title: a.title, amount: net });
@@ -153,21 +153,16 @@ function renderTrialBalance() {
             <td class="num"><strong>${formatCurrency(totalCr)}</strong></td>
         </tr>`;
     if (diff !== 0) {
-        const tradingProfit = Math.round(computeTradingProfit('', asOf).totalProfit * 100) / 100;
-        const explainedByTrading = Math.abs(diff - tradingProfit) < 0.01;
         footHtml += `
         <tr>
             <td colspan="2">Difference</td>
-            <td class="num" colspan="2" style="color:${explainedByTrading ? 'var(--ink-soft)' : 'var(--garnet)'}; font-weight:700;">${formatCurrency(Math.abs(diff))} ${diff > 0 ? '(Debit heavy)' : '(Credit heavy)'}</td>
-        </tr>`;
-        if (explainedByTrading) {
-            footHtml += `
+            <td class="num" colspan="2" style="color:var(--garnet); font-weight:700;">${formatCurrency(Math.abs(diff))} ${diff > 0 ? '(Debit heavy)' : '(Credit heavy)'}</td>
+        </tr>
         <tr>
             <td colspan="4" style="color:var(--ink-faint); font-size:0.82rem; font-weight:500;">
-                This matches your trading profit of ${formatCurrency(tradingProfit)} — expected, because sales and purchases record their profit on the invoice itself rather than as a ledger entry. See Profit &amp; Loss for the full picture.
+                Trial Balance should be zero. A non-zero difference indicates missing or incorrect entries.
             </td>
         </tr>`;
-        }
     }
     $('tb-table-foot').innerHTML = footHtml;
 }
