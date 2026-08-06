@@ -778,8 +778,9 @@ button { font-family: inherit; }
 }
 .pc-line:last-child { border-bottom: none; }
 .pc-line-head { background: var(--paper); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-faint); font-weight: 700; min-height: unset; padding: 6px 10px; }
+#pc-lines { min-height: 200px; }
 .pc-line select, .pc-line input {
-    border: 1px solid var(--border-strong); border-radius: 6px; padding: 0.5rem 0.6rem; font-size: 0.88rem; width: 100%;
+    border: 1px solid var(--border-strong); border-radius: 6px; padding: 0.65rem 0.6rem; font-size: 0.92rem; width: 100%; min-height: 44px;
 }
 
 /* Journal Voucher lines */

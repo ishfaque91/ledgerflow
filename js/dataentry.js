@@ -7,32 +7,6 @@
  * party and running in the opposite ledger direction.
  */
 
-const OE_PURCHASES_ACCOUNT_TITLE = 'Purchases';
-
-async function getOrCreatePurchasesAccount() {
-    const byFlag = lfGetAll(LF_KEYS.ACCOUNTS).find(a => a.systemAccount === 'oe-purchases');
-    if (byFlag) return byFlag.id;
-
-    const byTitle = lfGetAll(LF_KEYS.ACCOUNTS).find(
-        a => a.title === OE_PURCHASES_ACCOUNT_TITLE && a.type === 'Asset'
-    );
-    if (byTitle) {
-        byTitle.systemAccount = 'oe-purchases';
-        await lfUpsert(LF_KEYS.ACCOUNTS, byTitle);
-        return byTitle.id;
-    }
-
-    const record = {
-        type: 'Asset',
-        title: OE_PURCHASES_ACCOUNT_TITLE,
-        systemAccount: 'oe-purchases',
-        mobile: '', phone: '', email: '', city: '', gst: '', ntn: '', address: '',
-        openingAmount: 0, openingSide: 'Dr'
-    };
-    await lfUpsert(LF_KEYS.ACCOUNTS, record);
-    const created = lfGetAll(LF_KEYS.ACCOUNTS).find(a => a.systemAccount === 'oe-purchases');
-    return created ? created.id : record.id;
-}
 
 const INVOICE_CONFIG = {
     Purchase: {
@@ -630,17 +604,6 @@ async function saveInvoice(printAfter = false) {
                 }));
             }
 
-            if ((currentInvoiceType === 'Purchase' || currentInvoiceType === 'PurchaseReturn') &&
-                party && party.type === 'Owner Equity' && grandTotal > 0) {
-                const purchasesAccId = await getOrCreatePurchasesAccount();
-                const oeSide = currentInvoiceType === 'Purchase' ? 'Dr' : 'Cr';
-                writes.push(lfUpsert(LF_KEYS.ACCOUNT_LEDGER, {
-                    invoiceId, accountId: purchasesAccId, date, type: currentInvoiceType,
-                    ref: number, side: oeSide, amount: grandTotal,
-                    note: `${config.title} ${number} — Owner Equity contribution`
-                }));
-            }
-
             if (hasLoad && loadQty > 0) {
                 writes.push(lfUpsert(LF_KEYS.LOAD_LEDGER, {
                     invoiceId, date, type: currentInvoiceType, ref: number,
@@ -774,37 +737,12 @@ async function backfillRsoLoadsFromInvoices() {
     return count;
 }
 
-async function backfillOwnerEquityDebitEntries() {
-    const invoices = lfGetAll(LF_KEYS.INVOICES).filter(i =>
-        !i.cancelled && (i.type === 'Purchase' || i.type === 'PurchaseReturn')
+async function cleanupOePurchasesEntries() {
+    const entries = lfGetAll(LF_KEYS.ACCOUNT_LEDGER).filter(e =>
+        e.note && e.note.includes('Owner Equity contribution')
     );
-    const ledgerEntries = lfGetAll(LF_KEYS.ACCOUNT_LEDGER);
-
-    let count = 0;
-    for (const inv of invoices) {
-        const party = lfFindById(LF_KEYS.ACCOUNTS, inv.partyAccountId);
-        if (!party || party.type !== 'Owner Equity') continue;
-        if (!inv.grandTotal || inv.grandTotal <= 0) continue;
-
-        const hasDebit = ledgerEntries.some(e =>
-            e.invoiceId === inv.id && e.note && e.note.includes('Owner Equity contribution')
-        );
-        if (hasDebit) continue;
-
-        const purchasesAccId = await getOrCreatePurchasesAccount();
-        const side = inv.type === 'Purchase' ? 'Dr' : 'Cr';
-        await lfUpsert(LF_KEYS.ACCOUNT_LEDGER, {
-            invoiceId: inv.id, accountId: purchasesAccId, date: inv.date, type: inv.type,
-            ref: inv.number, side, amount: inv.grandTotal,
-            note: `${inv.type === 'Purchase' ? 'Purchase' : 'Purchase Return'} ${inv.number} — Owner Equity contribution`
-        });
-        count++;
-    }
-    if (count > 0) {
-        console.log(`[OE Sync] Backfilled ${count} debit entry/entries for Owner Equity purchases.`);
-        showToast(`Added ${count} missing debit entry/entries for Owner Equity purchases.`, 'success');
-    }
-    return count;
+    for (const e of entries) { await lfDelete(LF_KEYS.ACCOUNT_LEDGER, e.id); }
+    if (entries.length > 0) console.log(`[OE Cleanup] Removed ${entries.length} obsolete Purchases Dr entries.`);
 }
 
 // ==================== CANCEL TOGGLE (shared by invoices + vouchers) ====================

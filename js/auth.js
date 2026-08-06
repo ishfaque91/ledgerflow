@@ -249,7 +249,7 @@ async function resolveCompanyAndShowApp(user) {
 
         setTimeout(() => {
             if (typeof backfillRsoLoadsFromInvoices === 'function') backfillRsoLoadsFromInvoices();
-            if (typeof backfillOwnerEquityDebitEntries === 'function') backfillOwnerEquityDebitEntries();
+            if (typeof cleanupOePurchasesEntries === 'function') cleanupOePurchasesEntries();
         }, 2000);
     } catch (err) {
         console.error('[Auth] Resolving company failed:', err);
