@@ -203,10 +203,21 @@ function computeClosingStock(asOfDate) {
         totalValue += Math.max(0, qtyByItem[item.id] || 0) * (item.purchasePrice || 0);
     });
 
-    const sumLoad = (type) => invoices.filter(i => i.type === type).reduce((s, i) => s + (i.loadTotal || 0), 0);
-    const loadPurchased = sumLoad('Purchase') - sumLoad('PurchaseReturn');
-    const loadSold = sumLoad('Sale') - sumLoad('SaleReturn');
-    totalValue += Math.max(0, loadPurchased - loadSold);
+    let loadPurchasedQty = 0, loadPurchasedValue = 0;
+    invoices.forEach(inv => {
+        if (!inv.hasLoad || !inv.loadQty) return;
+        if (inv.type === 'Purchase') { loadPurchasedQty += inv.loadQty; loadPurchasedValue += (inv.loadTotal || 0); }
+        else if (inv.type === 'PurchaseReturn') { loadPurchasedQty -= inv.loadQty; loadPurchasedValue -= (inv.loadTotal || 0); }
+    });
+    let loadSoldQty = 0;
+    invoices.forEach(inv => {
+        if (!inv.hasLoad || !inv.loadQty) return;
+        if (inv.type === 'Sale') loadSoldQty += inv.loadQty;
+        else if (inv.type === 'SaleReturn') loadSoldQty -= inv.loadQty;
+    });
+    const loadRemainingQty = Math.max(0, loadPurchasedQty - loadSoldQty);
+    const loadAvgCost = loadPurchasedQty > 0 ? loadPurchasedValue / loadPurchasedQty : 0;
+    totalValue += loadRemainingQty * loadAvgCost;
 
     return totalValue;
 }
