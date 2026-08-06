@@ -81,14 +81,18 @@ function computeGraphSeries(from, to) {
     const rows = buckets.map(b => {
         const trading = computeTradingProfit(b.start, b.end);
         const ie = computeIncomeExpense(b.start, b.end);
-        const net = trading.totalProfit + ie.totalIncome - ie.totalExpense;
+        const closingStock = computeClosingStock(b.end);
+        const openingStock = computeClosingStock(dayBefore(b.start));
+        const totalPurchases = trading.loadPurchases + trading.itemsPurchases;
+        const totalSales = trading.loadSales + trading.itemsSales;
+        const cogs = openingStock + totalPurchases - closingStock;
+        const grossProfit = totalSales - cogs;
+        const net = grossProfit + ie.totalIncome - ie.totalExpense;
         return {
             label: b.label,
             start: b.start,
             end: b.end,
-            tradingProfit: round2(trading.totalProfit),
-            loadProfit: round2(trading.loadProfit),
-            itemsProfit: round2(trading.itemsProfit),
+            grossProfit: round2(grossProfit),
             otherIncome: round2(ie.totalIncome),
             expenses: round2(ie.totalExpense),
             netProfit: round2(net)
@@ -97,15 +101,12 @@ function computeGraphSeries(from, to) {
 
     const sum = (f) => round2(rows.reduce((s, r) => s + r[f], 0));
     const totals = {
-        tradingProfit: sum('tradingProfit'),
-        loadProfit: sum('loadProfit'),
-        itemsProfit: sum('itemsProfit'),
+        grossProfit: sum('grossProfit'),
         otherIncome: sum('otherIncome'),
         expenses: sum('expenses'),
         netProfit: sum('netProfit')
     };
 
-    // Per-account breakdown across the whole range, for the composition charts.
     const ieAll = computeIncomeExpense(from, to);
 
     return { from, to, rows, totals, incomeRows: ieAll.incomeRows, expenseRows: ieAll.expenseRows };
@@ -117,12 +118,9 @@ function round2(n) { return Math.round((n + Number.EPSILON) * 100) / 100; }
 // add up to the same figure the range-wide calculation gives. If they ever
 // diverge the chart is lying, so say so loudly rather than drawing it.
 function verifyGraphTotals(series) {
-    const wholeTrading = computeTradingProfit(series.from, series.to).totalProfit;
-    const wholeIE = computeIncomeExpense(series.from, series.to);
+    const wholeNet = round2(computeNetProfit(series.from, series.to));
     const checks = [
-        ['Trading profit', series.totals.tradingProfit, round2(wholeTrading)],
-        ['Other income', series.totals.otherIncome, round2(wholeIE.totalIncome)],
-        ['Expenses', series.totals.expenses, round2(wholeIE.totalExpense)]
+        ['Net profit', series.totals.netProfit, wholeNet]
     ];
     const mismatches = checks.filter(([, bucketed, whole]) => Math.abs(bucketed - whole) > 0.05);
     if (mismatches.length) {
@@ -209,7 +207,7 @@ function renderProfitLossGraph() {
     verifyGraphTotals(series);
     const t = series.totals;
 
-    $('gpl-trading').textContent = formatCurrency(t.tradingProfit);
+    $('gpl-trading').textContent = formatCurrency(t.grossProfit);
     $('gpl-income').textContent = formatCurrency(t.otherIncome);
     $('gpl-expense').textContent = formatCurrency(t.expenses);
     $('gpl-net').textContent = formatCurrency(Math.abs(t.netProfit));
@@ -224,7 +222,7 @@ function renderProfitLossGraph() {
         data: {
             labels,
             datasets: [
-                { label: 'Trading Profit', data: series.rows.map(r => r.tradingProfit), backgroundColor: p.indigo, borderRadius: 4, order: 2 },
+                { label: 'Gross Profit', data: series.rows.map(r => r.grossProfit), backgroundColor: p.indigo, borderRadius: 4, order: 2 },
                 { label: 'Other Income', data: series.rows.map(r => r.otherIncome), backgroundColor: p.credit, borderRadius: 4, order: 2 },
                 { label: 'Expenses', data: series.rows.map(r => -r.expenses), backgroundColor: p.garnet, borderRadius: 4, order: 2 },
                 { label: 'Net Profit', data: series.rows.map(r => r.netProfit), type: 'line',
@@ -236,14 +234,12 @@ function renderProfitLossGraph() {
         }
     });
 
-    // Composition: what the net result is built from. Expenses shown as a
-    // positive magnitude here because a doughnut can't render negatives.
     makeChart('gpl-chart-composition', {
         type: 'doughnut',
         data: {
-            labels: ['Trading Profit', 'Other Income', 'Expenses'],
+            labels: ['Gross Profit', 'Other Income', 'Expenses'],
             datasets: [{
-                data: [Math.max(t.tradingProfit, 0), Math.max(t.otherIncome, 0), Math.max(t.expenses, 0)],
+                data: [Math.max(t.grossProfit, 0), Math.max(t.otherIncome, 0), Math.max(t.expenses, 0)],
                 backgroundColor: [p.indigo, p.credit, p.garnet],
                 borderWidth: 0
             }]
@@ -253,13 +249,13 @@ function renderProfitLossGraph() {
 
     renderGraphTable('gpl-table-body', series.rows, [
         r => r.label,
-        r => formatCurrency(r.tradingProfit),
+        r => formatCurrency(r.grossProfit),
         r => formatCurrency(r.otherIncome),
         r => formatCurrency(r.expenses),
         r => formatCurrency(r.netProfit)
     ], [
         'Total',
-        formatCurrency(t.tradingProfit),
+        formatCurrency(t.grossProfit),
         formatCurrency(t.otherIncome),
         formatCurrency(t.expenses),
         formatCurrency(t.netProfit)
@@ -284,7 +280,7 @@ function renderIncomeExpenseGraph() {
     // net to the same figure the P&L reports.
     const rows = series.rows.map(r => ({
         label: r.label,
-        income: round2(r.tradingProfit + r.otherIncome),
+        income: round2(r.grossProfit + r.otherIncome),
         expense: r.expenses,
         net: r.netProfit
     }));
