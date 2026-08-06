@@ -524,6 +524,36 @@ button { font-family: inherit; }
     border-top: 1px solid var(--border);
 }
 
+/* ==================== FORM SECTIONS ==================== */
+.form-section {
+    background: var(--paper);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 1rem 1.1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+.form-section-title {
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--teal);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.form-section-title svg { flex-shrink: 0; color: var(--teal); opacity: 0.7; }
+
+.form-section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+}
+
 /* ==================== FORM FIELDS ==================== */
 .field { display: flex; flex-direction: column; gap: 7px; }
 .field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.1rem; }

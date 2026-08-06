@@ -614,98 +614,102 @@
                 <form id="account-form" class="modal-body" onsubmit="return false;">
                     <input type="hidden" id="acc-id">
 
-                    <div class="field-grid">
-                        <div class="field">
-                            <label for="acc-type">A/c Type <span class="req">*</span></label>
-                            <select id="acc-type" required onchange="onAccountTypeChange()">
-                                <option value="">Select account type…</option>
-                                <option value="Customer">Customer</option>
-                                <option value="Supplier">Supplier</option>
-                                <option value="Customer/Supplier">Customer/Supplier</option>
-                                <option value="Employee/RSO">Employee/RSO</option>
-                                <option value="Cash">Cash</option>
-                                <option value="Bank">Bank</option>
-                                <option value="Income">Income</option>
-                                <option value="Expense">Expense</option>
-                                <option value="Asset">Asset</option>
-                                <option value="Liability">Liability</option>
-                                <option value="Owner Equity">Owner Equity</option>
-                                <option value="Branch">Branch</option>
-                            </select>
-                            <span class="hint" id="acc-type-hint">Choosing a type sets the normal Dr/Cr side automatically below.</span>
-                        </div>
-
-                        <div class="field">
-                            <label for="acc-title">A/c Title <span class="req">*</span></label>
-                            <input type="text" id="acc-title" placeholder="e.g. Al-Karam Mobile Point" required>
-                        </div>
-                    </div>
-
-                    <!-- ===== Opening balance — the signature Dr/Cr balance control ===== -->
-                    <div class="field balance-field">
-                        <label>Opening Balance</label>
-                        <div class="balance-control">
-                            <div class="balance-amount">
-                                <span class="balance-prefix">Rs.</span>
-                                <input type="text" id="acc-opening" inputmode="decimal" placeholder="0" oninput="formatAmountInput(this)">
+                    <div class="form-section">
+                        <h3 class="form-section-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><circle cx="8" cy="12" r="2"/><line x1="13" y1="10" x2="18" y2="10"/><line x1="13" y1="14" x2="18" y2="14"/></svg>Account Details</h3>
+                        <div class="field-grid">
+                            <div class="field">
+                                <label for="acc-type">A/c Type <span class="req">*</span></label>
+                                <select id="acc-type" required onchange="onAccountTypeChange()">
+                                    <option value="">Select account type…</option>
+                                    <option value="Customer">Customer</option>
+                                    <option value="Supplier">Supplier</option>
+                                    <option value="Customer/Supplier">Customer/Supplier</option>
+                                    <option value="Employee/RSO">Employee/RSO</option>
+                                    <option value="Cash">Cash</option>
+                                    <option value="Bank">Bank</option>
+                                    <option value="Income">Income</option>
+                                    <option value="Expense">Expense</option>
+                                    <option value="Asset">Asset</option>
+                                    <option value="Liability">Liability</option>
+                                    <option value="Owner Equity">Owner Equity</option>
+                                    <option value="Branch">Branch</option>
+                                </select>
+                                <span class="hint" id="acc-type-hint">Choosing a type sets the normal Dr/Cr side automatically below.</span>
                             </div>
-                            <div class="balance-toggle" id="balance-toggle" role="radiogroup" aria-label="Debit or Credit">
-                                <button type="button" class="balance-side side-dr" data-side="Dr" onclick="setBalanceSide('Dr')">
-                                    <span class="side-label">Dr</span>
-                                    <span class="side-caption">Debit</span>
-                                </button>
-                                <button type="button" class="balance-side side-cr" data-side="Cr" onclick="setBalanceSide('Cr')">
-                                    <span class="side-label">Cr</span>
-                                    <span class="side-caption">Credit</span>
-                                </button>
+                            <div class="field">
+                                <label for="acc-title">A/c Title <span class="req">*</span></label>
+                                <input type="text" id="acc-title" placeholder="e.g. Al-Karam Mobile Point" required>
                             </div>
                         </div>
-                        <span class="hint">This posts as the opening entry in the Account Ledger and feeds the Trial Balance and Balance Sheet.</span>
-                    </div>
-
-                    <div class="field-grid">
-                        <div class="field">
-                            <label for="acc-mobile">Mobile</label>
-                            <div class="phone-control">
-                                <span class="phone-prefix">+92</span>
-                                <input type="tel" id="acc-mobile" placeholder="333 2392852" maxlength="11" oninput="formatPhoneInput(this)">
+                        <div class="field balance-field">
+                            <label>Opening Balance</label>
+                            <div class="balance-control">
+                                <div class="balance-amount">
+                                    <span class="balance-prefix">Rs.</span>
+                                    <input type="text" id="acc-opening" inputmode="decimal" placeholder="0" oninput="formatAmountInput(this)">
+                                </div>
+                                <div class="balance-toggle" id="balance-toggle" role="radiogroup" aria-label="Debit or Credit">
+                                    <button type="button" class="balance-side side-dr" data-side="Dr" onclick="setBalanceSide('Dr')">
+                                        <span class="side-label">Dr</span>
+                                        <span class="side-caption">Debit</span>
+                                    </button>
+                                    <button type="button" class="balance-side side-cr" data-side="Cr" onclick="setBalanceSide('Cr')">
+                                        <span class="side-label">Cr</span>
+                                        <span class="side-caption">Credit</span>
+                                    </button>
+                                </div>
                             </div>
-                            <span class="hint">10 digits after +92, starting with 3.</span>
+                            <span class="hint">This posts as the opening entry in the Account Ledger and feeds the Trial Balance and Balance Sheet.</span>
                         </div>
-                        <div class="field">
-                            <label for="acc-phone">Phone (Landline)</label>
-                            <div class="phone-control">
-                                <span class="phone-prefix">+92</span>
-                                <input type="tel" id="acc-phone" placeholder="21 34567890" maxlength="12" oninput="formatPhoneInput(this)">
+                    </div>
+
+                    <div class="form-section">
+                        <h3 class="form-section-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>Contact Information</h3>
+                        <div class="field-grid">
+                            <div class="field">
+                                <label for="acc-mobile">Mobile</label>
+                                <div class="phone-control">
+                                    <span class="phone-prefix">+92</span>
+                                    <input type="tel" id="acc-mobile" placeholder="333 2392852" maxlength="11" oninput="formatPhoneInput(this)">
+                                </div>
+                                <span class="hint">10 digits after +92, starting with 3.</span>
+                            </div>
+                            <div class="field">
+                                <label for="acc-phone">Phone (Landline)</label>
+                                <div class="phone-control">
+                                    <span class="phone-prefix">+92</span>
+                                    <input type="tel" id="acc-phone" placeholder="21 34567890" maxlength="12" oninput="formatPhoneInput(this)">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="field-grid">
+                            <div class="field">
+                                <label for="acc-email">Email</label>
+                                <input type="email" id="acc-email" placeholder="name@business.com">
+                            </div>
+                            <div class="field">
+                                <label for="acc-city">City</label>
+                                <input type="text" id="acc-city" placeholder="Karachi">
                             </div>
                         </div>
                     </div>
 
-                    <div class="field-grid">
-                        <div class="field">
-                            <label for="acc-email">Email</label>
-                            <input type="email" id="acc-email" placeholder="name@business.com">
+                    <div class="form-section">
+                        <h3 class="form-section-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Tax &amp; Address</h3>
+                        <div class="field-grid">
+                            <div class="field">
+                                <label for="acc-gst">GST No.</label>
+                                <input type="text" id="acc-gst" placeholder="Optional">
+                            </div>
+                            <div class="field">
+                                <label for="acc-ntn">NTN No.</label>
+                                <input type="text" id="acc-ntn" placeholder="Optional">
+                            </div>
                         </div>
                         <div class="field">
-                            <label for="acc-city">City</label>
-                            <input type="text" id="acc-city" placeholder="Karachi">
+                            <label for="acc-address">Address</label>
+                            <textarea id="acc-address" rows="2" placeholder="Street, area, landmark"></textarea>
                         </div>
-                    </div>
-
-                    <div class="field-grid">
-                        <div class="field">
-                            <label for="acc-gst">GST No.</label>
-                            <input type="text" id="acc-gst" placeholder="Optional">
-                        </div>
-                        <div class="field">
-                            <label for="acc-ntn">NTN No.</label>
-                            <input type="text" id="acc-ntn" placeholder="Optional">
-                        </div>
-                    </div>
-
-                    <div class="field">
-                        <label for="acc-address">Address</label>
-                        <textarea id="acc-address" rows="2" placeholder="Street, area, landmark"></textarea>
                     </div>
                 </form>
 
@@ -773,54 +777,58 @@
                 <form id="item-form" class="modal-body" onsubmit="return false;">
                     <input type="hidden" id="item-id">
 
-                    <div class="field">
-                        <label for="item-name">Item Name <span class="req">*</span></label>
-                        <input type="text" id="item-name" placeholder="e.g. Jazz Load Card Rs.100" required>
-                    </div>
-
-                    <div class="field-grid">
+                    <div class="form-section">
+                        <h3 class="form-section-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v7a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 15Z"/><polyline points="3.29 7 12 12 20.71 7"/><line x1="12" y1="22" x2="12" y2="12"/></svg>Item Details</h3>
                         <div class="field">
-                            <label for="item-category">Category</label>
-                            <input type="text" id="item-category" placeholder="e.g. Scratch Cards" list="item-category-list">
-                            <datalist id="item-category-list"></datalist>
+                            <label for="item-name">Item Name <span class="req">*</span></label>
+                            <input type="text" id="item-name" placeholder="e.g. Jazz Load Card Rs.100" required>
                         </div>
-                        <div class="field">
-                            <label for="item-unit">Unit</label>
-                            <select id="item-unit">
-                                <option>Pcs</option>
-                                <option>Box</option>
-                                <option>Carton</option>
-                                <option>Set</option>
-                                <option>Dozen</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="field-grid">
-                        <div class="field">
-                            <label for="item-purchase-price">Purchase Price</label>
-                            <div class="amount-control">
-                                <span class="amount-prefix">Rs.</span>
-                                <input type="text" id="item-purchase-price" inputmode="decimal" placeholder="0" oninput="formatAmountInput(this)">
+                        <div class="field-grid">
+                            <div class="field">
+                                <label for="item-category">Category</label>
+                                <input type="text" id="item-category" placeholder="e.g. Scratch Cards" list="item-category-list">
+                                <datalist id="item-category-list"></datalist>
                             </div>
-                        </div>
-                        <div class="field">
-                            <label for="item-sale-price">Sale Price</label>
-                            <div class="amount-control">
-                                <span class="amount-prefix">Rs.</span>
-                                <input type="text" id="item-sale-price" inputmode="decimal" placeholder="0" oninput="formatAmountInput(this)">
+                            <div class="field">
+                                <label for="item-unit">Unit</label>
+                                <select id="item-unit">
+                                    <option>Pcs</option>
+                                    <option>Box</option>
+                                    <option>Carton</option>
+                                    <option>Set</option>
+                                    <option>Dozen</option>
+                                </select>
                             </div>
                         </div>
                     </div>
 
-                    <div class="field-grid">
-                        <div class="field">
-                            <label for="item-tax">Tax %</label>
-                            <input type="text" id="item-tax" inputmode="decimal" placeholder="0">
+                    <div class="form-section">
+                        <h3 class="form-section-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Pricing &amp; Tax</h3>
+                        <div class="field-grid">
+                            <div class="field">
+                                <label for="item-purchase-price">Purchase Price</label>
+                                <div class="amount-control">
+                                    <span class="amount-prefix">Rs.</span>
+                                    <input type="text" id="item-purchase-price" inputmode="decimal" placeholder="0" oninput="formatAmountInput(this)">
+                                </div>
+                            </div>
+                            <div class="field">
+                                <label for="item-sale-price">Sale Price</label>
+                                <div class="amount-control">
+                                    <span class="amount-prefix">Rs.</span>
+                                    <input type="text" id="item-sale-price" inputmode="decimal" placeholder="0" oninput="formatAmountInput(this)">
+                                </div>
+                            </div>
                         </div>
-                        <div class="field">
-                            <label for="item-hsn">HSN / Tariff Code</label>
-                            <input type="text" id="item-hsn" placeholder="Optional">
+                        <div class="field-grid">
+                            <div class="field">
+                                <label for="item-tax">Tax %</label>
+                                <input type="text" id="item-tax" inputmode="decimal" placeholder="0">
+                            </div>
+                            <div class="field">
+                                <label for="item-hsn">HSN / Tariff Code</label>
+                                <input type="text" id="item-hsn" placeholder="Optional">
+                            </div>
                         </div>
                     </div>
 
@@ -892,45 +900,49 @@
                     <input type="hidden" id="user-id">
                     <input type="hidden" id="user-auth-uid">
 
-                    <div class="field">
-                        <label for="user-fullname">Full Name <span class="req">*</span></label>
-                        <input type="text" id="user-fullname" placeholder="e.g. Ishfaque Ahmed" required>
-                    </div>
-
-                    <div class="field-grid">
+                    <div class="form-section">
+                        <h3 class="form-section-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>User Details</h3>
                         <div class="field">
-                            <label for="user-username">Email <span class="req">*</span></label>
-                            <div class="email-control"><input type="email" id="user-username" placeholder="e.g. staff@business.com" required oninput="validateEmailField(this)"><span class="email-tick"></span></div>
+                            <label for="user-fullname">Full Name <span class="req">*</span></label>
+                            <input type="text" id="user-fullname" placeholder="e.g. Ishfaque Ahmed" required>
                         </div>
-                        <div class="field">
-                            <label for="user-status">Status</label>
-                            <select id="user-status">
-                                <option value="Active">Active</option>
-                                <option value="Inactive">Inactive</option>
-                            </select>
+                        <div class="field-grid">
+                            <div class="field">
+                                <label for="user-username">Email <span class="req">*</span></label>
+                                <div class="email-control"><input type="email" id="user-username" placeholder="e.g. staff@business.com" required oninput="validateEmailField(this)"><span class="email-tick"></span></div>
+                            </div>
+                            <div class="field">
+                                <label for="user-status">Status</label>
+                                <select id="user-status">
+                                    <option value="Active">Active</option>
+                                    <option value="Inactive">Inactive</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="field-grid">
+                            <div class="field" id="user-role-field">
+                                <label for="user-role">Role</label>
+                                <select id="user-role">
+                                    <option value="owner">Owner</option>
+                                    <option value="admin">Admin</option>
+                                    <option value="staff">Staff</option>
+                                    <option value="rso">RSO / Salesman</option>
+                                </select>
+                                <span class="hint" id="user-role-hint">RSO users only see their own customers, sales, and stock.</span>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="field-grid">
-                        <div class="field" id="user-role-field">
-                            <label for="user-role">Role</label>
-                            <select id="user-role">
-                                <option value="owner">Owner</option>
-                                <option value="admin">Admin</option>
-                                <option value="staff">Staff</option>
-                                <option value="rso">RSO / Salesman</option>
-                            </select>
-                            <span class="hint" id="user-role-hint">RSO users only see their own customers, sales, and stock.</span>
+                    <div class="form-section">
+                        <h3 class="form-section-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Authentication</h3>
+                        <div class="field" id="user-password-field">
+                            <label for="user-password">Password <span class="req">*</span></label>
+                            <div class="password-control">
+                                <input type="password" id="user-password" placeholder="Minimum 6 characters">
+                                <button type="button" class="password-toggle" onclick="togglePasswordVisibility()">Show</button>
+                            </div>
+                            <span class="hint" id="user-password-hint">This creates their real login — they'll use this email + password to sign in.</span>
                         </div>
-                    </div>
-
-                    <div class="field" id="user-password-field">
-                        <label for="user-password">Password <span class="req">*</span></label>
-                        <div class="password-control">
-                            <input type="password" id="user-password" placeholder="Minimum 6 characters">
-                            <button type="button" class="password-toggle" onclick="togglePasswordVisibility()">Show</button>
-                        </div>
-                        <span class="hint" id="user-password-hint">This creates their real login — they'll use this email + password to sign in.</span>
                     </div>
                 </form>
 
@@ -1159,118 +1171,128 @@
 
                     <p class="hint hidden" id="inv-entered-by-note"></p>
 
-                    <div class="field-grid">
-                        <div class="field">
-                            <label>Invoice No.</label>
-                            <input type="text" id="inv-number" readonly>
+                    <div class="form-section">
+                        <h3 class="form-section-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Invoice Details</h3>
+                        <div class="field-grid">
+                            <div class="field">
+                                <label>Invoice No.</label>
+                                <input type="text" id="inv-number" readonly>
+                            </div>
+                            <div class="field">
+                                <label for="inv-date">Date <span class="req">*</span></label>
+                                <input type="date" id="inv-date" required>
+                            </div>
                         </div>
-                        <div class="field">
-                            <label for="inv-date">Date <span class="req">*</span></label>
-                            <input type="date" id="inv-date" required>
+                        <div class="field-grid">
+                            <div class="field">
+                                <label for="inv-ref-number">Reference Inv. No.</label>
+                                <input type="text" id="inv-ref-number" placeholder="Their invoice number (optional)">
+                            </div>
+                            <div class="field">
+                                <label for="inv-ref-date">Reference Inv. Date</label>
+                                <input type="date" id="inv-ref-date">
+                            </div>
                         </div>
                     </div>
 
-                    <div class="field-grid">
+                    <div class="form-section">
+                        <h3 class="form-section-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Party / Account</h3>
                         <div class="field">
-                            <label for="inv-ref-number">Reference Inv. No.</label>
-                            <input type="text" id="inv-ref-number" placeholder="Their invoice number (optional)">
-                        </div>
-                        <div class="field">
-                            <label for="inv-ref-date">Reference Inv. Date</label>
-                            <input type="date" id="inv-ref-date">
+                            <label for="inv-party" id="inv-party-label">Supplier <span class="req">*</span></label>
+                            <select id="inv-party" required onchange="onInvoicePartyChange()"></select>
+                            <span class="hint" id="inv-party-balance"></span>
                         </div>
                     </div>
 
-                    <div class="field">
-                        <label for="inv-party" id="inv-party-label">Supplier <span class="req">*</span></label>
-                        <select id="inv-party" required onchange="onInvoicePartyChange()"></select>
-                        <span class="hint" id="inv-party-balance"></span>
-                    </div>
+                    <div class="form-section">
+                        <h3 class="form-section-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>Load</h3>
+                        <div class="field balance-field">
+                            <label class="check-row check-row-strong">
+                                <input type="checkbox" id="inv-has-load" checked onchange="onLoadToggle()">
+                                <span>Include Load</span>
+                            </label>
 
-                    <!-- ===== Load block ===== -->
-                    <div class="field balance-field">
-                        <label class="check-row check-row-strong">
-                            <input type="checkbox" id="inv-has-load" checked onchange="onLoadToggle()">
-                            <span>Include Load</span>
-                        </label>
-
-                        <div id="inv-load-fields">
-                            <div class="field-grid" style="margin-top: 0.8rem;">
-                                <div class="field">
-                                    <label id="inv-load-amount-label">Purchase Amount</label>
+                            <div id="inv-load-fields">
+                                <div class="field-grid" style="margin-top: 0.8rem;">
+                                    <div class="field">
+                                        <label id="inv-load-amount-label">Purchase Amount</label>
+                                        <div class="amount-control">
+                                            <span class="amount-prefix">Rs.</span>
+                                            <input type="text" id="inv-load-amount" inputmode="decimal" placeholder="0" oninput="onLoadFieldInput('amount')">
+                                        </div>
+                                    </div>
+                                    <div class="field">
+                                        <label>Discount</label>
+                                        <div class="amount-control">
+                                            <input type="text" id="inv-load-discount" inputmode="decimal" placeholder="0" oninput="onLoadFieldInput('discount')">
+                                            <span class="amount-prefix">%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="field" style="margin-top: 0.8rem;">
+                                    <label id="inv-load-qty-label">Load Received</label>
                                     <div class="amount-control">
                                         <span class="amount-prefix">Rs.</span>
-                                        <input type="text" id="inv-load-amount" inputmode="decimal" placeholder="0" oninput="onLoadFieldInput('amount')">
+                                        <input type="text" id="inv-load-qty" inputmode="decimal" placeholder="0" oninput="onLoadFieldInput('qty')">
+                                    </div>
+                                    <span class="hint">Type into any two of Amount / Discount / Qty — the third fills in automatically.</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3 class="form-section-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h2a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-2"/><line x1="5" y1="7" x2="12" y2="7"/><line x1="5" y1="11" x2="10" y2="11"/></svg>Items</h3>
+                        <div class="field">
+                            <div class="item-lines-head">
+                                <label>Items</label>
+                                <span class="hint">Enter a quantity for whatever you're buying/selling — leave the rest blank.</span>
+                            </div>
+                            <div class="item-rows-table">
+                                <div class="item-row item-row-head">
+                                    <span>Item</span><span>Qty</span><span>Rate</span><span class="num">Amount</span>
+                                </div>
+                                <div id="inv-item-rows"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3 class="form-section-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Summary &amp; Payment</h3>
+                        <div class="totals-box">
+                            <div class="totals-row"><span>Items Total</span><span id="inv-items-total">Rs. 0</span></div>
+                            <div class="totals-row"><span>Load Amount</span><span id="inv-load-total">Rs. 0</span></div>
+                            <div class="totals-row totals-grand"><span>Grand Total</span><span id="inv-grand-total">Rs. 0</span></div>
+                        </div>
+
+                        <div class="field balance-field">
+                            <label id="inv-payment-heading">Received in Cash / Bank</label>
+                            <div class="field-grid" style="margin-top: 0.6rem;">
+                                <div class="field">
+                                    <label>Mode</label>
+                                    <select id="inv-payment-mode" onchange="onPaymentModeChange()">
+                                        <option value="None">Not now — post full amount to account</option>
+                                        <option value="Cash">Cash</option>
+                                        <option value="Bank">Bank</option>
+                                    </select>
+                                </div>
+                                <div class="field hidden" id="inv-payment-account-field">
+                                    <label>Account</label>
+                                    <select id="inv-payment-account"></select>
+                                </div>
+                            </div>
+                            <div class="field-grid hidden" id="inv-payment-amount-row" style="margin-top: 0.6rem;">
+                                <div class="field">
+                                    <label>Amount received/paid now</label>
+                                    <div class="amount-control">
+                                        <span class="amount-prefix">Rs.</span>
+                                        <input type="text" id="inv-payment-amount" inputmode="decimal" placeholder="0" oninput="onPaymentAmountInput()">
                                     </div>
                                 </div>
                                 <div class="field">
-                                    <label>Discount</label>
-                                    <div class="amount-control">
-                                        <input type="text" id="inv-load-discount" inputmode="decimal" placeholder="0" oninput="onLoadFieldInput('discount')">
-                                        <span class="amount-prefix">%</span>
-                                    </div>
+                                    <label id="inv-balance-label">Balance to account</label>
+                                    <input type="text" id="inv-balance-preview" readonly>
                                 </div>
-                            </div>
-                            <div class="field" style="margin-top: 0.8rem;">
-                                <label id="inv-load-qty-label">Load Received</label>
-                                <div class="amount-control">
-                                    <span class="amount-prefix">Rs.</span>
-                                    <input type="text" id="inv-load-qty" inputmode="decimal" placeholder="0" oninput="onLoadFieldInput('qty')">
-                                </div>
-                                <span class="hint">Type into any two of Amount / Discount / Qty — the third fills in automatically.</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- ===== Item lines ===== -->
-                    <div class="field">
-                        <div class="item-lines-head">
-                            <label>Items</label>
-                            <span class="hint">Enter a quantity for whatever you're buying/selling — leave the rest blank.</span>
-                        </div>
-                        <div class="item-rows-table">
-                            <div class="item-row item-row-head">
-                                <span>Item</span><span>Qty</span><span>Rate</span><span class="num">Amount</span>
-                            </div>
-                            <div id="inv-item-rows"></div>
-                        </div>
-                    </div>
-
-                    <!-- ===== Totals ===== -->
-                    <div class="totals-box">
-                        <div class="totals-row"><span>Items Total</span><span id="inv-items-total">Rs. 0</span></div>
-                        <div class="totals-row"><span>Load Amount</span><span id="inv-load-total">Rs. 0</span></div>
-                        <div class="totals-row totals-grand"><span>Grand Total</span><span id="inv-grand-total">Rs. 0</span></div>
-                    </div>
-
-                    <!-- ===== Payment ===== -->
-                    <div class="field balance-field">
-                        <label id="inv-payment-heading">Received in Cash / Bank</label>
-                        <div class="field-grid" style="margin-top: 0.6rem;">
-                            <div class="field">
-                                <label>Mode</label>
-                                <select id="inv-payment-mode" onchange="onPaymentModeChange()">
-                                    <option value="None">Not now — post full amount to account</option>
-                                    <option value="Cash">Cash</option>
-                                    <option value="Bank">Bank</option>
-                                </select>
-                            </div>
-                            <div class="field hidden" id="inv-payment-account-field">
-                                <label>Account</label>
-                                <select id="inv-payment-account"></select>
-                            </div>
-                        </div>
-                        <div class="field-grid hidden" id="inv-payment-amount-row" style="margin-top: 0.6rem;">
-                            <div class="field">
-                                <label>Amount received/paid now</label>
-                                <div class="amount-control">
-                                    <span class="amount-prefix">Rs.</span>
-                                    <input type="text" id="inv-payment-amount" inputmode="decimal" placeholder="0" oninput="onPaymentAmountInput()">
-                                </div>
-                            </div>
-                            <div class="field">
-                                <label id="inv-balance-label">Balance to account</label>
-                                <input type="text" id="inv-balance-preview" readonly>
                             </div>
                         </div>
                     </div>
@@ -1378,50 +1400,56 @@
 
                     <p class="hint hidden" id="bv-entered-by-note"></p>
 
-                    <div class="field-grid">
-                        <div class="field">
-                            <label>Voucher No.</label>
-                            <input type="text" id="bv-number" readonly>
-                        </div>
-                        <div class="field">
-                            <label for="bv-date">Date <span class="req">*</span></label>
-                            <input type="date" id="bv-date" required>
-                        </div>
-                    </div>
-
-                    <div class="field">
-                        <label id="bv-bank-label">Bank/Cash Account <span class="req">*</span></label>
-                        <select id="bv-bank-account" required></select>
-                    </div>
-
-                    <div class="field">
-                        <label id="bv-party-label">Party <span class="req">*</span></label>
-                        <select id="bv-party-account" required onchange="onBankVoucherPartyChange()"></select>
-                        <span class="hint" id="bv-party-balance"></span>
-                    </div>
-
-                    <div class="field">
-                        <label for="bv-amount">Amount <span class="req">*</span></label>
-                        <div class="amount-control">
-                            <span class="amount-prefix">Rs.</span>
-                            <input type="text" id="bv-amount" inputmode="decimal" placeholder="0" oninput="formatAmountInput(this)">
+                    <div class="form-section">
+                        <h3 class="form-section-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Voucher Details</h3>
+                        <div class="field-grid">
+                            <div class="field">
+                                <label>Voucher No.</label>
+                                <input type="text" id="bv-number" readonly>
+                            </div>
+                            <div class="field">
+                                <label for="bv-date">Date <span class="req">*</span></label>
+                                <input type="date" id="bv-date" required>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="field-grid">
+                    <div class="form-section">
+                        <h3 class="form-section-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Account &amp; Party</h3>
                         <div class="field">
-                            <label for="bv-cheque-no">Cheque No.</label>
-                            <input type="text" id="bv-cheque-no" placeholder="Optional">
+                            <label id="bv-bank-label">Bank/Cash Account <span class="req">*</span></label>
+                            <select id="bv-bank-account" required></select>
                         </div>
                         <div class="field">
-                            <label for="bv-cheque-date">Cheque Date</label>
-                            <input type="date" id="bv-cheque-date">
+                            <label id="bv-party-label">Party <span class="req">*</span></label>
+                            <select id="bv-party-account" required onchange="onBankVoucherPartyChange()"></select>
+                            <span class="hint" id="bv-party-balance"></span>
+                        </div>
+                        <div class="field">
+                            <label for="bv-amount">Amount <span class="req">*</span></label>
+                            <div class="amount-control">
+                                <span class="amount-prefix">Rs.</span>
+                                <input type="text" id="bv-amount" inputmode="decimal" placeholder="0" oninput="formatAmountInput(this)">
+                            </div>
                         </div>
                     </div>
 
-                    <div class="field">
-                        <label for="bv-narration">Narration</label>
-                        <textarea id="bv-narration" rows="2" placeholder="What is this for?"></textarea>
+                    <div class="form-section">
+                        <h3 class="form-section-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Cheque &amp; Notes</h3>
+                        <div class="field-grid">
+                            <div class="field">
+                                <label for="bv-cheque-no">Cheque No.</label>
+                                <input type="text" id="bv-cheque-no" placeholder="Optional">
+                            </div>
+                            <div class="field">
+                                <label for="bv-cheque-date">Cheque Date</label>
+                                <input type="date" id="bv-cheque-date">
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label for="bv-narration">Narration</label>
+                            <textarea id="bv-narration" rows="2" placeholder="What is this for?"></textarea>
+                        </div>
                     </div>
                 </form>
                 <div class="modal-foot">
@@ -1487,51 +1515,53 @@
 
                     <p class="hint hidden" id="pc-entered-by-note"></p>
 
-                    <div class="field">
-                        <label>Transaction Type <span class="req">*</span></label>
-                        <div class="btn-toggle-group" id="pc-direction-group">
-                            <button type="button" class="btn-toggle is-active" data-value="Payment" onclick="setPcDirection('Payment')">Payment</button>
-                            <button type="button" class="btn-toggle" data-value="Receipt" onclick="setPcDirection('Receipt')">Receipt</button>
-                        </div>
-                        <input type="hidden" id="pc-direction" value="Payment">
-                    </div>
-
-                    <div class="field-grid">
+                    <div class="form-section">
+                        <h3 class="form-section-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Voucher Details</h3>
                         <div class="field">
-                            <label>Voucher No.</label>
-                            <input type="text" id="pc-number" readonly>
-                        </div>
-                        <div class="field">
-                            <label for="pc-date">Date <span class="req">*</span></label>
-                            <input type="date" id="pc-date" required>
-                        </div>
-                    </div>
-
-                    <div class="field">
-                        <label for="pc-cash-account" id="pc-cash-label">Paid From (Account) <span class="req">*</span></label>
-                        <select id="pc-cash-account" required></select>
-                    </div>
-
-                    <div class="field">
-                        <label for="pc-narration">Narration</label>
-                        <input type="text" id="pc-narration" placeholder="Purpose of this voucher…">
-                    </div>
-
-                    <div class="field">
-                        <div class="item-lines-head">
-                            <label id="pc-lines-label">Account lines</label>
-                            <button type="button" class="btn-outline-text" onclick="addPettyCashLine()">+ Add line</button>
-                        </div>
-                        <div class="item-rows-table">
-                            <div class="pc-line pc-line-head">
-                                <span>Account</span><span>Amount</span><span></span>
+                            <label>Transaction Type <span class="req">*</span></label>
+                            <div class="btn-toggle-group" id="pc-direction-group">
+                                <button type="button" class="btn-toggle is-active" data-value="Payment" onclick="setPcDirection('Payment')">Payment</button>
+                                <button type="button" class="btn-toggle" data-value="Receipt" onclick="setPcDirection('Receipt')">Receipt</button>
                             </div>
-                            <div id="pc-lines"></div>
+                            <input type="hidden" id="pc-direction" value="Payment">
+                        </div>
+                        <div class="field-grid">
+                            <div class="field">
+                                <label>Voucher No.</label>
+                                <input type="text" id="pc-number" readonly>
+                            </div>
+                            <div class="field">
+                                <label for="pc-date">Date <span class="req">*</span></label>
+                                <input type="date" id="pc-date" required>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label for="pc-cash-account" id="pc-cash-label">Paid From (Account) <span class="req">*</span></label>
+                            <select id="pc-cash-account" required></select>
+                        </div>
+                        <div class="field">
+                            <label for="pc-narration">Narration</label>
+                            <input type="text" id="pc-narration" placeholder="Purpose of this voucher…">
                         </div>
                     </div>
 
-                    <div class="totals-box">
-                        <div class="totals-row totals-grand"><span>Total</span><span id="pc-total">Rs. 0</span></div>
+                    <div class="form-section">
+                        <h3 class="form-section-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>Account Lines</h3>
+                        <div class="field">
+                            <div class="item-lines-head">
+                                <label id="pc-lines-label">Account lines</label>
+                                <button type="button" class="btn-outline-text" onclick="addPettyCashLine()">+ Add line</button>
+                            </div>
+                            <div class="item-rows-table">
+                                <div class="pc-line pc-line-head">
+                                    <span>Account</span><span>Amount</span><span></span>
+                                </div>
+                                <div id="pc-lines"></div>
+                            </div>
+                        </div>
+                        <div class="totals-box">
+                            <div class="totals-row totals-grand"><span>Total</span><span id="pc-total">Rs. 0</span></div>
+                        </div>
                     </div>
                 </form>
                 <div class="modal-foot">
@@ -1597,40 +1627,44 @@
 
                     <p class="hint hidden" id="jv-entered-by-note"></p>
 
-                    <div class="field-grid">
-                        <div class="field">
-                            <label>Voucher No.</label>
-                            <input type="text" id="jv-number" readonly>
-                        </div>
-                        <div class="field">
-                            <label for="jv-date">Date <span class="req">*</span></label>
-                            <input type="date" id="jv-date" required>
-                        </div>
-                    </div>
-
-                    <div class="field">
-                        <label for="jv-narration">Narration</label>
-                        <input type="text" id="jv-narration" placeholder="What is this adjustment for?">
-                    </div>
-
-                    <div class="field">
-                        <div class="item-lines-head">
-                            <label>Dr / Cr lines</label>
-                            <button type="button" class="btn-outline-text" onclick="addJournalLine()">+ Add line</button>
-                        </div>
-                        <div class="item-rows-table">
-                            <div class="jv-line jv-line-head">
-                                <span>Account</span><span>Debit</span><span>Credit</span><span></span>
+                    <div class="form-section">
+                        <h3 class="form-section-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Voucher Details</h3>
+                        <div class="field-grid">
+                            <div class="field">
+                                <label>Voucher No.</label>
+                                <input type="text" id="jv-number" readonly>
                             </div>
-                            <div id="jv-lines"></div>
+                            <div class="field">
+                                <label for="jv-date">Date <span class="req">*</span></label>
+                                <input type="date" id="jv-date" required>
+                            </div>
                         </div>
-                        <span class="hint">Every line needs either a Debit or a Credit amount, not both.</span>
+                        <div class="field">
+                            <label for="jv-narration">Narration</label>
+                            <input type="text" id="jv-narration" placeholder="What is this adjustment for?">
+                        </div>
                     </div>
 
-                    <div class="totals-box">
-                        <div class="totals-row"><span>Total Debit</span><span id="jv-total-dr">Rs. 0</span></div>
-                        <div class="totals-row"><span>Total Credit</span><span id="jv-total-cr">Rs. 0</span></div>
-                        <div class="totals-row totals-grand"><span id="jv-balance-label">Difference</span><span id="jv-difference">Rs. 0</span></div>
+                    <div class="form-section">
+                        <h3 class="form-section-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>Dr / Cr Lines</h3>
+                        <div class="field">
+                            <div class="item-lines-head">
+                                <label>Dr / Cr lines</label>
+                                <button type="button" class="btn-outline-text" onclick="addJournalLine()">+ Add line</button>
+                            </div>
+                            <div class="item-rows-table">
+                                <div class="jv-line jv-line-head">
+                                    <span>Account</span><span>Debit</span><span>Credit</span><span></span>
+                                </div>
+                                <div id="jv-lines"></div>
+                            </div>
+                            <span class="hint">Every line needs either a Debit or a Credit amount, not both.</span>
+                        </div>
+                        <div class="totals-box">
+                            <div class="totals-row"><span>Total Debit</span><span id="jv-total-dr">Rs. 0</span></div>
+                            <div class="totals-row"><span>Total Credit</span><span id="jv-total-cr">Rs. 0</span></div>
+                            <div class="totals-row totals-grand"><span id="jv-balance-label">Difference</span><span id="jv-difference">Rs. 0</span></div>
+                        </div>
                     </div>
                 </form>
                 <div class="modal-foot">
@@ -2395,22 +2429,31 @@
                 </div>
                 <form id="rso-customer-form" class="modal-body" onsubmit="return false;">
                     <input type="hidden" id="rso-cust-id">
-                    <div class="field" id="rso-cust-rso-field">
-                        <label for="rso-cust-rso-user">Assigned RSO <span class="req">*</span></label>
-                        <select id="rso-cust-rso-user"></select>
+                    <div class="form-section">
+                        <h3 class="form-section-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Customer Details</h3>
+                        <div class="field" id="rso-cust-rso-field">
+                            <label for="rso-cust-rso-user">Assigned RSO <span class="req">*</span></label>
+                            <select id="rso-cust-rso-user"></select>
+                        </div>
+                        <div class="field-grid">
+                            <div class="field"><label for="rso-cust-name">Customer Name <span class="req">*</span></label><input type="text" id="rso-cust-name" placeholder="e.g. Ali Khan" required></div>
+                            <div class="field"><label for="rso-cust-shop">Shop Name</label><input type="text" id="rso-cust-shop" placeholder="e.g. Ali General Store"></div>
+                        </div>
                     </div>
-                    <div class="field-grid">
-                        <div class="field"><label for="rso-cust-name">Customer Name <span class="req">*</span></label><input type="text" id="rso-cust-name" placeholder="e.g. Ali Khan" required></div>
-                        <div class="field"><label for="rso-cust-shop">Shop Name</label><input type="text" id="rso-cust-shop" placeholder="e.g. Ali General Store"></div>
+                    <div class="form-section">
+                        <h3 class="form-section-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>Contact &amp; Location</h3>
+                        <div class="field-grid">
+                            <div class="field"><label for="rso-cust-mobile">Mobile</label><div class="phone-control"><span class="phone-prefix">+92</span><input type="tel" id="rso-cust-mobile" placeholder="333 2392852" maxlength="11" oninput="formatPhoneInput(this)"></div></div>
+                            <div class="field"><label for="rso-cust-area">Area / Route</label><input type="text" id="rso-cust-area" placeholder="e.g. Nazimabad Block 3"></div>
+                        </div>
+                        <div class="field"><label for="rso-cust-address">Address</label><textarea id="rso-cust-address" rows="2" placeholder="Shop address"></textarea></div>
                     </div>
-                    <div class="field-grid">
-                        <div class="field"><label for="rso-cust-mobile">Mobile</label><div class="phone-control"><span class="phone-prefix">+92</span><input type="tel" id="rso-cust-mobile" placeholder="333 2392852" maxlength="11" oninput="formatPhoneInput(this)"></div></div>
-                        <div class="field"><label for="rso-cust-area">Area / Route</label><input type="text" id="rso-cust-area" placeholder="e.g. Nazimabad Block 3"></div>
-                    </div>
-                    <div class="field"><label for="rso-cust-address">Address</label><textarea id="rso-cust-address" rows="2" placeholder="Shop address"></textarea></div>
-                    <div class="field-grid">
-                        <div class="field"><label for="rso-cust-credit-limit">Credit Limit</label><div class="amount-control"><span class="amount-prefix">Rs.</span><input type="text" id="rso-cust-credit-limit" inputmode="decimal" placeholder="0" oninput="formatAmountInput(this)"></div></div>
-                        <div class="field"><label for="rso-cust-opening">Opening Balance</label><div class="amount-control"><span class="amount-prefix">Rs.</span><input type="text" id="rso-cust-opening" inputmode="decimal" placeholder="0" oninput="formatAmountInput(this)"></div></div>
+                    <div class="form-section">
+                        <h3 class="form-section-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Financial</h3>
+                        <div class="field-grid">
+                            <div class="field"><label for="rso-cust-credit-limit">Credit Limit</label><div class="amount-control"><span class="amount-prefix">Rs.</span><input type="text" id="rso-cust-credit-limit" inputmode="decimal" placeholder="0" oninput="formatAmountInput(this)"></div></div>
+                            <div class="field"><label for="rso-cust-opening">Opening Balance</label><div class="amount-control"><span class="amount-prefix">Rs.</span><input type="text" id="rso-cust-opening" inputmode="decimal" placeholder="0" oninput="formatAmountInput(this)"></div></div>
+                        </div>
                     </div>
                 </form>
                 <div class="modal-foot">
@@ -2456,16 +2499,22 @@
                 </div>
                 <form id="rso-load-form" class="modal-body" onsubmit="return false;">
                     <input type="hidden" id="rso-load-id">
-                    <div class="field-grid">
-                        <div class="field"><label>Number</label><input type="text" id="rso-load-number" readonly></div>
-                        <div class="field"><label>Date <span class="req">*</span></label><input type="date" id="rso-load-date" required></div>
+                    <div class="form-section">
+                        <h3 class="form-section-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Load Details</h3>
+                        <div class="field-grid">
+                            <div class="field"><label>Number</label><input type="text" id="rso-load-number" readonly></div>
+                            <div class="field"><label>Date <span class="req">*</span></label><input type="date" id="rso-load-date" required></div>
+                        </div>
+                        <div class="field"><label for="rso-load-rso-user">RSO <span class="req">*</span></label><select id="rso-load-rso-user"></select></div>
                     </div>
-                    <div class="field"><label for="rso-load-rso-user">RSO <span class="req">*</span></label><select id="rso-load-rso-user"></select></div>
-                    <div class="field"><label>Items</label>
-                        <div class="item-row-header"><span>Item</span><span>Qty</span><span>Rate</span><span>Amount</span></div>
-                        <div id="rso-load-item-rows"></div>
+                    <div class="form-section">
+                        <h3 class="form-section-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h2a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-2"/><line x1="5" y1="7" x2="12" y2="7"/><line x1="5" y1="11" x2="10" y2="11"/></svg>Items</h3>
+                        <div class="field"><label>Items</label>
+                            <div class="item-row-header"><span>Item</span><span>Qty</span><span>Rate</span><span>Amount</span></div>
+                            <div id="rso-load-item-rows"></div>
+                        </div>
+                        <div class="totals-bar"><span>Grand Total:</span> <strong id="rso-load-grand-total">Rs. 0</strong></div>
                     </div>
-                    <div class="totals-bar"><span>Grand Total:</span> <strong id="rso-load-grand-total">Rs. 0</strong></div>
                 </form>
                 <div class="modal-foot">
                     <button class="btn btn-ghost" onclick="closeRsoLoadForm()">Cancel</button>
@@ -2510,39 +2559,46 @@
                 </div>
                 <form id="rso-sale-form" class="modal-body" onsubmit="return false;">
                     <input type="hidden" id="rso-sale-id">
-                    <div class="field-grid">
-                        <div class="field"><label>Number</label><input type="text" id="rso-sale-number" readonly></div>
-                        <div class="field"><label>Date <span class="req">*</span></label><input type="date" id="rso-sale-date" required></div>
-                    </div>
-                    <div class="field" id="rso-sale-rso-field">
-                        <label for="rso-sale-rso-user">RSO <span class="req">*</span></label>
-                        <select id="rso-sale-rso-user" onchange="onRsoSaleRsoChange()"></select>
-                    </div>
-                    <div class="field"><label for="rso-sale-customer">Customer <span class="req">*</span></label><select id="rso-sale-customer"></select></div>
-
-                    <div class="field">
-                        <label class="check-row"><input type="checkbox" id="rso-sale-has-load" checked onchange="onRsoSaleLoadToggle()"><span>Include Load</span></label>
-                    </div>
-                    <div id="rso-sale-load-fields" class="field-grid">
-                        <div class="field"><label id="rso-sale-load-amount-label">Sale Amount</label><div class="amount-control"><span class="amount-prefix">Rs.</span><input type="text" id="rso-sale-load-amount" inputmode="decimal" placeholder="0" oninput="onRsoSaleLoadInput('amount')"></div></div>
-                        <div class="field"><label>Discount %</label><input type="text" id="rso-sale-load-discount" inputmode="decimal" placeholder="0" oninput="onRsoSaleLoadInput('discount')"></div>
-                        <div class="field"><label id="rso-sale-load-qty-label">Load Qty</label><div class="amount-control"><input type="text" id="rso-sale-load-qty" inputmode="decimal" placeholder="0" oninput="onRsoSaleLoadInput('qty')"></div></div>
+                    <div class="form-section">
+                        <h3 class="form-section-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Sale Details</h3>
+                        <div class="field-grid">
+                            <div class="field"><label>Number</label><input type="text" id="rso-sale-number" readonly></div>
+                            <div class="field"><label>Date <span class="req">*</span></label><input type="date" id="rso-sale-date" required></div>
+                        </div>
+                        <div class="field" id="rso-sale-rso-field">
+                            <label for="rso-sale-rso-user">RSO <span class="req">*</span></label>
+                            <select id="rso-sale-rso-user" onchange="onRsoSaleRsoChange()"></select>
+                        </div>
+                        <div class="field"><label for="rso-sale-customer">Customer <span class="req">*</span></label><select id="rso-sale-customer"></select></div>
                     </div>
 
-                    <div class="field"><label>Items</label>
-                        <div class="item-row-header"><span>Item</span><span>Qty</span><span>Rate</span><span>Amount</span></div>
-                        <div id="rso-sale-item-rows"></div>
+                    <div class="form-section">
+                        <h3 class="form-section-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>Load &amp; Items</h3>
+                        <div class="field">
+                            <label class="check-row"><input type="checkbox" id="rso-sale-has-load" checked onchange="onRsoSaleLoadToggle()"><span>Include Load</span></label>
+                        </div>
+                        <div id="rso-sale-load-fields" class="field-grid">
+                            <div class="field"><label id="rso-sale-load-amount-label">Sale Amount</label><div class="amount-control"><span class="amount-prefix">Rs.</span><input type="text" id="rso-sale-load-amount" inputmode="decimal" placeholder="0" oninput="onRsoSaleLoadInput('amount')"></div></div>
+                            <div class="field"><label>Discount %</label><input type="text" id="rso-sale-load-discount" inputmode="decimal" placeholder="0" oninput="onRsoSaleLoadInput('discount')"></div>
+                            <div class="field"><label id="rso-sale-load-qty-label">Load Qty</label><div class="amount-control"><input type="text" id="rso-sale-load-qty" inputmode="decimal" placeholder="0" oninput="onRsoSaleLoadInput('qty')"></div></div>
+                        </div>
+                        <div class="field"><label>Items</label>
+                            <div class="item-row-header"><span>Item</span><span>Qty</span><span>Rate</span><span>Amount</span></div>
+                            <div id="rso-sale-item-rows"></div>
+                        </div>
                     </div>
 
-                    <div class="totals-box">
-                        <div class="totals-row"><span>Load Total</span><span id="rso-sale-load-total">Rs. 0</span></div>
-                        <div class="totals-row"><span>Items Total</span><span id="rso-sale-items-total">Rs. 0</span></div>
-                        <div class="totals-row totals-grand"><span>Grand Total</span><span id="rso-sale-grand-total">Rs. 0</span></div>
-                    </div>
-
-                    <div class="field-grid">
-                        <div class="field"><label>Cash Received</label><div class="amount-control"><span class="amount-prefix">Rs.</span><input type="text" id="rso-sale-paid" inputmode="decimal" placeholder="0" oninput="formatAmountInput(this); recalcRsoSaleTotal()"></div></div>
-                        <div class="field"><label>Balance</label><div class="amount-control"><span class="amount-prefix" id="rso-sale-balance">Rs. 0</span></div></div>
+                    <div class="form-section">
+                        <h3 class="form-section-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Summary &amp; Payment</h3>
+                        <div class="totals-box">
+                            <div class="totals-row"><span>Load Total</span><span id="rso-sale-load-total">Rs. 0</span></div>
+                            <div class="totals-row"><span>Items Total</span><span id="rso-sale-items-total">Rs. 0</span></div>
+                            <div class="totals-row totals-grand"><span>Grand Total</span><span id="rso-sale-grand-total">Rs. 0</span></div>
+                        </div>
+                        <div class="field-grid">
+                            <div class="field"><label>Cash Received</label><div class="amount-control"><span class="amount-prefix">Rs.</span><input type="text" id="rso-sale-paid" inputmode="decimal" placeholder="0" oninput="formatAmountInput(this); recalcRsoSaleTotal()"></div></div>
+                            <div class="field"><label>Balance</label><div class="amount-control"><span class="amount-prefix" id="rso-sale-balance">Rs. 0</span></div></div>
+                        </div>
                     </div>
                 </form>
                 <div class="modal-foot">
@@ -2589,20 +2645,26 @@
                 </div>
                 <form id="rso-return-form" class="modal-body" onsubmit="return false;">
                     <input type="hidden" id="rso-return-id">
-                    <div class="field-grid">
-                        <div class="field"><label>Number</label><input type="text" id="rso-return-number" readonly></div>
-                        <div class="field"><label>Date <span class="req">*</span></label><input type="date" id="rso-return-date" required></div>
+                    <div class="form-section">
+                        <h3 class="form-section-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Return Details</h3>
+                        <div class="field-grid">
+                            <div class="field"><label>Number</label><input type="text" id="rso-return-number" readonly></div>
+                            <div class="field"><label>Date <span class="req">*</span></label><input type="date" id="rso-return-date" required></div>
+                        </div>
+                        <div class="field" id="rso-return-rso-field">
+                            <label for="rso-return-rso-user">RSO <span class="req">*</span></label>
+                            <select id="rso-return-rso-user" onchange="onRsoReturnRsoChange()"></select>
+                        </div>
+                        <div class="field"><label for="rso-return-customer">Customer <span class="req">*</span></label><select id="rso-return-customer"></select></div>
                     </div>
-                    <div class="field" id="rso-return-rso-field">
-                        <label for="rso-return-rso-user">RSO <span class="req">*</span></label>
-                        <select id="rso-return-rso-user" onchange="onRsoReturnRsoChange()"></select>
+                    <div class="form-section">
+                        <h3 class="form-section-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h2a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-2"/><line x1="5" y1="7" x2="12" y2="7"/><line x1="5" y1="11" x2="10" y2="11"/></svg>Items</h3>
+                        <div class="field"><label>Items</label>
+                            <div class="item-row-header"><span>Item</span><span>Qty</span><span>Rate</span><span>Amount</span></div>
+                            <div id="rso-return-item-rows"></div>
+                        </div>
+                        <div class="totals-bar"><span>Grand Total:</span> <strong id="rso-return-grand-total">Rs. 0</strong></div>
                     </div>
-                    <div class="field"><label for="rso-return-customer">Customer <span class="req">*</span></label><select id="rso-return-customer"></select></div>
-                    <div class="field"><label>Items</label>
-                        <div class="item-row-header"><span>Item</span><span>Qty</span><span>Rate</span><span>Amount</span></div>
-                        <div id="rso-return-item-rows"></div>
-                    </div>
-                    <div class="totals-bar"><span>Grand Total:</span> <strong id="rso-return-grand-total">Rs. 0</strong></div>
                 </form>
                 <div class="modal-foot">
                     <button class="btn btn-ghost" onclick="closeRsoReturnForm()">Cancel</button>
@@ -2647,21 +2709,27 @@
                 </div>
                 <form id="rso-recovery-form" class="modal-body" onsubmit="return false;">
                     <input type="hidden" id="rso-recv-id">
-                    <div class="field"><label>Date <span class="req">*</span></label><input type="date" id="rso-recv-date" required></div>
-                    <div class="field" id="rso-recv-rso-field">
-                        <label for="rso-recv-rso-user">RSO <span class="req">*</span></label>
-                        <select id="rso-recv-rso-user" onchange="onRsoRecoveryRsoChange()"></select>
+                    <div class="form-section">
+                        <h3 class="form-section-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Recovery Details</h3>
+                        <div class="field"><label>Date <span class="req">*</span></label><input type="date" id="rso-recv-date" required></div>
+                        <div class="field" id="rso-recv-rso-field">
+                            <label for="rso-recv-rso-user">RSO <span class="req">*</span></label>
+                            <select id="rso-recv-rso-user" onchange="onRsoRecoveryRsoChange()"></select>
+                        </div>
+                        <div class="field">
+                            <label for="rso-recv-customer">Customer <span class="req">*</span></label>
+                            <select id="rso-recv-customer" onchange="onRsoRecoveryCustomerChange()"></select>
+                            <span class="hint" id="rso-recv-cust-balance"></span>
+                        </div>
                     </div>
-                    <div class="field">
-                        <label for="rso-recv-customer">Customer <span class="req">*</span></label>
-                        <select id="rso-recv-customer" onchange="onRsoRecoveryCustomerChange()"></select>
-                        <span class="hint" id="rso-recv-cust-balance"></span>
+                    <div class="form-section">
+                        <h3 class="form-section-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Payment</h3>
+                        <div class="field-grid">
+                            <div class="field"><label>Amount <span class="req">*</span></label><div class="amount-control"><span class="amount-prefix">Rs.</span><input type="text" id="rso-recv-amount" inputmode="decimal" placeholder="0" oninput="formatAmountInput(this)"></div></div>
+                            <div class="field"><label>Mode</label><select id="rso-recv-mode"><option>Cash</option><option>Cheque</option><option>Online</option></select></div>
+                        </div>
+                        <div class="field"><label>Note</label><input type="text" id="rso-recv-note" placeholder="Optional reference"></div>
                     </div>
-                    <div class="field-grid">
-                        <div class="field"><label>Amount <span class="req">*</span></label><div class="amount-control"><span class="amount-prefix">Rs.</span><input type="text" id="rso-recv-amount" inputmode="decimal" placeholder="0" oninput="formatAmountInput(this)"></div></div>
-                        <div class="field"><label>Mode</label><select id="rso-recv-mode"><option>Cash</option><option>Cheque</option><option>Online</option></select></div>
-                    </div>
-                    <div class="field"><label>Note</label><input type="text" id="rso-recv-note" placeholder="Optional reference"></div>
                 </form>
                 <div class="modal-foot">
                     <button class="btn btn-ghost" onclick="closeRsoRecoveryForm()">Cancel</button>
@@ -2706,14 +2774,20 @@
                 </div>
                 <form id="rso-deposit-form" class="modal-body" onsubmit="return false;">
                     <input type="hidden" id="rso-dep-id">
-                    <div class="field"><label>Date <span class="req">*</span></label><input type="date" id="rso-dep-date" required></div>
-                    <div class="field" id="rso-dep-rso-field">
-                        <label for="rso-dep-rso-user">RSO <span class="req">*</span></label>
-                        <select id="rso-dep-rso-user"></select>
+                    <div class="form-section">
+                        <h3 class="form-section-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Deposit Details</h3>
+                        <div class="field"><label>Date <span class="req">*</span></label><input type="date" id="rso-dep-date" required></div>
+                        <div class="field" id="rso-dep-rso-field">
+                            <label for="rso-dep-rso-user">RSO <span class="req">*</span></label>
+                            <select id="rso-dep-rso-user"></select>
+                        </div>
+                        <div class="field"><label for="rso-dep-bank">Deposit To (Bank/Cash) <span class="req">*</span></label><select id="rso-dep-bank"></select></div>
                     </div>
-                    <div class="field"><label for="rso-dep-bank">Deposit To (Bank/Cash) <span class="req">*</span></label><select id="rso-dep-bank"></select></div>
-                    <div class="field"><label>Amount <span class="req">*</span></label><div class="amount-control"><span class="amount-prefix">Rs.</span><input type="text" id="rso-dep-amount" inputmode="decimal" placeholder="0" oninput="formatAmountInput(this)"></div></div>
-                    <div class="field"><label>Note</label><input type="text" id="rso-dep-note" placeholder="Optional reference"></div>
+                    <div class="form-section">
+                        <h3 class="form-section-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Amount</h3>
+                        <div class="field"><label>Amount <span class="req">*</span></label><div class="amount-control"><span class="amount-prefix">Rs.</span><input type="text" id="rso-dep-amount" inputmode="decimal" placeholder="0" oninput="formatAmountInput(this)"></div></div>
+                        <div class="field"><label>Note</label><input type="text" id="rso-dep-note" placeholder="Optional reference"></div>
+                    </div>
                 </form>
                 <div class="modal-foot">
                     <button class="btn btn-ghost" onclick="closeRsoDepositForm()">Cancel</button>
