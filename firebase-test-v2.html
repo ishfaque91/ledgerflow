@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Firebase Connection Test v2</title>
+<style>
+  body { font-family: sans-serif; max-width: 600px; margin: 40px auto; padding: 0 20px; }
+  button { padding: 10px 20px; font-size: 16px; margin: 10px 0; cursor: pointer; }
+  #result { white-space: pre-wrap; background: #f0f0f0; padding: 15px; border-radius: 6px; margin-top: 15px; font-family: monospace; font-size: 13px; min-height: 40px; }
+  input { padding: 8px; font-size: 14px; width: 100%; margin: 5px 0; box-sizing: border-box; }
+</style>
+</head>
+<body>
+
+<h2>Firebase Connection Test v2</h2>
+<p>This page has nothing to do with LedgerFlow's code — it's a bare test of whether your device can reach Firebase at all.</p>
+
+<label>Test email:</label>
+<input type="email" id="test-email" value="test-connection-check@example.com">
+<label>Test password:</label>
+<input type="text" id="test-password" value="testpassword123">
+
+<button id="run-btn">Run Connection Test</button>
+
+<div id="result">Click the button above to start.</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-auth-compat.js"></script>
+<script>
+window.addEventListener('load', function () {
+    var resultBox = document.getElementById('result');
+
+    function log(msg) {
+        resultBox.textContent += '\n' + msg;
+    }
+
+    document.getElementById('run-btn').addEventListener('click', function () {
+        resultBox.textContent = 'Starting test at ' + new Date().toLocaleTimeString() + '...';
+
+        try {
+            log('Checking if the Firebase SDK loaded at all...');
+            if (typeof firebase === 'undefined') {
+                log('❌ FAILED: the "firebase" object does not exist.');
+                log('This means the SDK script itself never loaded — something is blocking gstatic.com, the Firebase SDK\'s own hosting domain.');
+                return;
+            }
+            log('✅ Firebase SDK object exists.');
+
+            var firebaseConfig = {
+                apiKey: "AIzaSyCpQtMlAB9mcoFdVBpSKMVszRkGrLWbl30",
+                authDomain: "ledgerflow-df765.firebaseapp.com",
+                projectId: "ledgerflow-df765",
+                storageBucket: "ledgerflow-df765.firebasestorage.app",
+                messagingSenderId: "467557800619",
+                appId: "1:467557800619:web:eda2eeb95c36162ae2f5ee"
+            };
+
+            if (!firebase.apps || firebase.apps.length === 0) {
+                firebase.initializeApp(firebaseConfig);
+                log('✅ Firebase app initialized.');
+            } else {
+                log('✅ Firebase app already initialized (fine, reusing it).');
+            }
+
+            var testAuth = firebase.auth();
+            log('✅ Auth object created. Attempting to sign in (this actually reaches Firebase\'s servers)...');
+
+            var finished = false;
+            var timeoutId = setTimeout(function () {
+                if (!finished) {
+                    log('\n❌ TIMED OUT after 12 seconds — no response at all from Firebase servers.');
+                    log('This confirms something between this device and Firebase is blocking the connection.');
+                }
+            }, 12000);
+
+            var email = document.getElementById('test-email').value;
+            var password = document.getElementById('test-password').value;
+
+            testAuth.signInWithEmailAndPassword(email, password)
+                .then(function () {
+                    finished = true;
+                    clearTimeout(timeoutId);
+                    log('✅✅ SUCCESS — actually signed in! Connection works perfectly.');
+                })
+                .catch(function (err) {
+                    finished = true;
+                    clearTimeout(timeoutId);
+                    log('✅✅ GOT A REAL RESPONSE FROM FIREBASE (this is the good outcome):');
+                    log('Error code: ' + err.code);
+                    log('Error message: ' + err.message);
+                    log('\nThis proves the connection to Firebase Auth works — it just correctly rejected this made-up test account, which is expected.');
+                });
+
+        } catch (e) {
+            log('❌ Unexpected error while setting up the test: ' + e.message);
+        }
+    });
+});
+</script>
+</body>
+</html>

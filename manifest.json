@@ -1,0 +1,17 @@
+{
+    "name": "TeleFlow — Business Accounting",
+    "short_name": "TeleFlow",
+    "description": "Accounting, invoicing, vouchers, and ledger reports for your business.",
+    "start_url": "./index.html",
+    "scope": "./",
+    "display": "standalone",
+    "orientation": "portrait-primary",
+    "background_color": "#F6F6FA",
+    "theme_color": "#5B4FE9",
+    "icons": [
+        { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+        { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+        { "src": "icons/icon-maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+        { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    ]
+}

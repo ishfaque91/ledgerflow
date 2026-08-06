@@ -1,0 +1,59 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSuperAdmin() {
+      return exists(/databases/$(database)/documents/superAdmins/$(request.auth.uid));
+    }
+
+    match /superAdmins/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow write: if false; // only ever created manually via the Firebase Console
+    }
+
+    match /users/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow create: if request.auth != null && (
+        request.auth.uid == uid ||
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.companyId == request.resource.data.companyId)
+      );
+      // companyId and role can never change via update -- the app itself never
+      // updates this doc (only creates or deletes it), so this only closes an
+      // attack surface: without this, any signed-in user could rewrite their
+      // own companyId to someone else's company (full cross-tenant data
+      // access) or their own role to 'owner' (bypassing User Rights).
+      allow update: if request.auth != null &&
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.companyId == resource.data.companyId &&
+        request.resource.data.companyId == resource.data.companyId &&
+        request.resource.data.role == resource.data.role;
+      allow delete: if request.auth != null &&
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.companyId == resource.data.companyId;
+    }
+
+    match /companies/{companyId} {
+      allow read: if request.auth != null && (
+        isSuperAdmin() ||
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.companyId == companyId
+      );
+      allow create: if request.auth != null &&
+        request.resource.data.ownerUid == request.auth.uid &&
+        request.resource.data.status == 'trial';
+      allow update: if request.auth != null && (
+        isSuperAdmin() ||
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.companyId == companyId &&
+         request.resource.data.status == resource.data.status &&
+         request.resource.data.signupDate == resource.data.signupDate &&
+         request.resource.data.trialDays == resource.data.trialDays)
+      );
+      allow delete: if request.auth != null && isSuperAdmin();
+
+      match /{subcollection}/{docId} {
+        allow read, write: if request.auth != null &&
+          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.companyId == companyId;
+      }
+    }
+  }
+}
