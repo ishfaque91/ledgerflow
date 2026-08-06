@@ -2174,10 +2174,19 @@
             <div class="export-toolbar"><button class="export-btn" onclick="printCurrentReport()">Print</button><button class="export-btn" onclick="exportReportToPDF('pl-report-container', 'Profit and Loss', 'page-profit-loss')">PDF</button><button class="export-btn" onclick="exportReportToExcel('pl-report-container', 'Profit and Loss', 'page-profit-loss')">Excel</button><button class="export-btn-wa" onclick="shareReportWhatsApp('pl-report-container', 'Profit and Loss', 'page-profit-loss')">WhatsApp</button></div></div>
             <div class="statement-grid" id="pl-report-container">
                 <div class="card statement-section">
-                    <h3>Trading Profit</h3>
-                    <div class="statement-row"><span>Load profit</span><span id="pl-load-profit">Rs. 0</span></div>
-                    <div class="statement-row"><span>Items profit</span><span id="pl-items-profit">Rs. 0</span></div>
-                    <div class="statement-row statement-total"><span>Trading Profit</span><span id="pl-trading-profit">Rs. 0</span></div>
+                    <h3>Trading Account</h3>
+                    <div class="statement-row"><span>Net Sales (Load)</span><span id="pl-load-sales">Rs. 0</span></div>
+                    <div class="statement-row"><span>Net Sales (Items)</span><span id="pl-items-sales">Rs. 0</span></div>
+                    <div class="statement-row statement-total"><span>Total Net Sales</span><span id="pl-total-sales">Rs. 0</span></div>
+
+                    <div class="statement-subtitle">Less: Cost of Goods Sold</div>
+                    <div class="statement-row"><span>Opening Stock</span><span id="pl-opening-stock">Rs. 0</span></div>
+                    <div class="statement-row"><span>+ Net Purchases (Load)</span><span id="pl-load-purchases">Rs. 0</span></div>
+                    <div class="statement-row"><span>+ Net Purchases (Items)</span><span id="pl-items-purchases">Rs. 0</span></div>
+                    <div class="statement-row"><span>− Closing Stock</span><span id="pl-closing-stock">Rs. 0</span></div>
+                    <div class="statement-row statement-total"><span>Cost of Goods Sold</span><span id="pl-cogs">Rs. 0</span></div>
+
+                    <div class="statement-row statement-total" style="margin-top:8px;"><span>Gross Profit</span><span id="pl-gross-profit">Rs. 0</span></div>
 
                     <div class="statement-subtitle">Other Income</div>
                     <div id="pl-income-rows"></div>
@@ -2189,7 +2198,7 @@
                     <div class="statement-row statement-total"><span>Total Operating Expenses</span><span id="pl-expense-total">Rs. 0</span></div>
 
                     <div class="statement-subtitle">Result</div>
-                    <div class="statement-row"><span>Trading Profit</span><span id="pl-summary-trading">Rs. 0</span></div>
+                    <div class="statement-row"><span>Gross Profit</span><span id="pl-summary-gross">Rs. 0</span></div>
                     <div class="statement-row"><span>+ Other Income</span><span id="pl-summary-income">Rs. 0</span></div>
                     <div class="statement-row"><span>− Operating Expenses</span><span id="pl-summary-expense">Rs. 0</span></div>
                     <div class="statement-row statement-total"><span id="pl-net-label">Net Profit</span><span id="pl-net-profit">Rs. 0</span></div>

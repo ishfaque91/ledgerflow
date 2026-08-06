@@ -742,7 +742,14 @@ async function cleanupOePurchasesEntries() {
         e.note && e.note.includes('Owner Equity contribution')
     );
     for (const e of entries) { await lfDelete(LF_KEYS.ACCOUNT_LEDGER, e.id); }
-    if (entries.length > 0) console.log(`[OE Cleanup] Removed ${entries.length} obsolete Purchases Dr entries.`);
+
+    const sysAcc = lfGetAll(LF_KEYS.ACCOUNTS).find(a => a.systemAccount === 'oe-purchases');
+    if (sysAcc) {
+        const hasOtherEntries = lfGetAll(LF_KEYS.ACCOUNT_LEDGER).some(e => e.accountId === sysAcc.id);
+        if (!hasOtherEntries) await lfDelete(LF_KEYS.ACCOUNTS, sysAcc.id);
+    }
+
+    if (entries.length > 0 || sysAcc) console.log(`[OE Cleanup] Removed obsolete Purchases account and ${entries.length} Dr entries.`);
 }
 
 // ==================== CANCEL TOGGLE (shared by invoices + vouchers) ====================

@@ -100,7 +100,17 @@ function computeIncomeExpense(dateFrom, dateTo) {
 function computeNetProfit(dateFrom, dateTo) {
     const trading = computeTradingProfit(dateFrom, dateTo);
     const incExp = computeIncomeExpense(dateFrom, dateTo);
-    return trading.totalProfit + incExp.totalIncome - incExp.totalExpense;
+    const closingStock = computeClosingStock(dateTo);
+    const openingStock = dateFrom ? computeClosingStock(dayBefore(dateFrom)) : 0;
+    const cogs = openingStock + (trading.loadPurchases + trading.itemsPurchases) - closingStock;
+    const grossProfit = (trading.loadSales + trading.itemsSales) - cogs;
+    return grossProfit + incExp.totalIncome - incExp.totalExpense;
+}
+
+function dayBefore(dateStr) {
+    const d = new Date(dateStr);
+    d.setDate(d.getDate() - 1);
+    return d.toISOString().slice(0, 10);
 }
 
 // ==================== TRIAL BALANCE ====================
@@ -341,11 +351,25 @@ function renderProfitAndLoss() {
 
     const trading = computeTradingProfit(dateFrom, dateTo);
     const incExp = computeIncomeExpense(dateFrom, dateTo);
-    const netProfit = trading.totalProfit + incExp.totalIncome - incExp.totalExpense;
+    const closingStock = computeClosingStock(dateTo);
+    const openingStock = dateFrom ? computeClosingStock(dayBefore(dateFrom)) : 0;
 
-    $('pl-load-profit').textContent = formatCurrency(trading.loadProfit);
-    $('pl-items-profit').textContent = formatCurrency(trading.itemsProfit);
-    $('pl-trading-profit').textContent = formatCurrency(trading.totalProfit);
+    const totalSales = trading.loadSales + trading.itemsSales;
+    const totalPurchases = trading.loadPurchases + trading.itemsPurchases;
+    const cogs = openingStock + totalPurchases - closingStock;
+    const grossProfit = totalSales - cogs;
+    const netProfit = grossProfit + incExp.totalIncome - incExp.totalExpense;
+
+    $('pl-load-sales').textContent = formatCurrency(trading.loadSales);
+    $('pl-items-sales').textContent = formatCurrency(trading.itemsSales);
+    $('pl-total-sales').textContent = formatCurrency(totalSales);
+
+    $('pl-opening-stock').textContent = formatCurrency(openingStock);
+    $('pl-load-purchases').textContent = formatCurrency(trading.loadPurchases);
+    $('pl-items-purchases').textContent = formatCurrency(trading.itemsPurchases);
+    $('pl-closing-stock').textContent = formatCurrency(closingStock);
+    $('pl-cogs').textContent = formatCurrency(cogs);
+    $('pl-gross-profit').textContent = formatCurrency(grossProfit);
 
     $('pl-income-rows').innerHTML = incExp.incomeRows.length
         ? incExp.incomeRows.map(r => statementRowHtml(r.title, r.amount)).join('')
@@ -357,7 +381,7 @@ function renderProfitAndLoss() {
         : `<div class="statement-row"><span>None this period</span><span>-</span></div>`;
     $('pl-expense-total').textContent = formatCurrency(incExp.totalExpense);
 
-    $('pl-summary-trading').textContent = formatCurrency(trading.totalProfit);
+    $('pl-summary-gross').textContent = formatCurrency(grossProfit);
     $('pl-summary-income').textContent = formatCurrency(incExp.totalIncome);
     $('pl-summary-expense').textContent = formatCurrency(incExp.totalExpense);
     $('pl-net-label').textContent = netProfit >= 0 ? 'Net Profit' : 'Net Loss';
