@@ -57,21 +57,6 @@ function computeTradingProfit(dateFrom, dateTo) {
     };
 }
 
-function computeOwnerEquityPurchases(dateFrom, dateTo) {
-    const invoices = lfGetAll(LF_KEYS.INVOICES).filter(i =>
-        !i.cancelled && (!dateFrom || i.date >= dateFrom) && (!dateTo || i.date <= dateTo)
-    );
-    let total = 0;
-    invoices.forEach(inv => {
-        if (inv.type !== 'Purchase' && inv.type !== 'PurchaseReturn') return;
-        const acc = lfFindById(LF_KEYS.ACCOUNTS, inv.partyAccountId);
-        if (!acc || acc.type !== 'Owner Equity') return;
-        const sign = inv.type === 'Purchase' ? 1 : -1;
-        total += ((inv.loadTotal || 0) + (inv.itemsTotal || 0)) * sign;
-    });
-    return total;
-}
-
 // ==================== OTHER INCOME / OPERATING EXPENSES (from Income/Expense accounts) ====================
 function computeIncomeExpense(dateFrom, dateTo) {
     const accounts = lfGetAll(LF_KEYS.ACCOUNTS);
@@ -164,22 +149,17 @@ function renderTrialBalance() {
         </tr>`;
     if (diff !== 0) {
         const tradingProfit = Math.round(computeTradingProfit('', asOf).totalProfit * 100) / 100;
-        const oeContribution = Math.round(computeOwnerEquityPurchases('', asOf) * 100) / 100;
-        const expectedDiff = tradingProfit + oeContribution;
-        const explained = Math.abs(diff - expectedDiff) < 0.01;
+        const explainedByTrading = Math.abs(diff - tradingProfit) < 0.01;
         footHtml += `
         <tr>
             <td colspan="2">Difference</td>
-            <td class="num" colspan="2" style="color:${explained ? 'var(--ink-soft)' : 'var(--garnet)'}; font-weight:700;">${formatCurrency(Math.abs(diff))} ${diff > 0 ? '(Debit heavy)' : '(Credit heavy)'}</td>
+            <td class="num" colspan="2" style="color:${explainedByTrading ? 'var(--ink-soft)' : 'var(--garnet)'}; font-weight:700;">${formatCurrency(Math.abs(diff))} ${diff > 0 ? '(Debit heavy)' : '(Credit heavy)'}</td>
         </tr>`;
-        if (explained) {
-            let hint = `This matches your trading profit of ${formatCurrency(tradingProfit)}`;
-            if (oeContribution > 0) hint += ` plus owner equity contributions of ${formatCurrency(oeContribution)}`;
-            hint += ` — expected, because sales and purchases record their profit on the invoice itself rather than as a ledger entry. See Profit &amp; Loss for the full picture.`;
+        if (explainedByTrading) {
             footHtml += `
         <tr>
             <td colspan="4" style="color:var(--ink-faint); font-size:0.82rem; font-weight:500;">
-                ${hint}
+                This matches your trading profit of ${formatCurrency(tradingProfit)} — expected, because sales and purchases record their profit on the invoice itself rather than as a ledger entry. See Profit &amp; Loss for the full picture.
             </td>
         </tr>`;
         }
@@ -255,6 +235,7 @@ function renderBalanceSheet() {
     };
 
     accounts.forEach(acc => {
+        if (acc.systemAccount) return;
         const bal = balanceMap[acc.id] || { amount: 0, side: 'Dr' };
         if (bal.amount <= 0.004) return;
 

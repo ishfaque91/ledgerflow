@@ -139,7 +139,7 @@ function openBankVoucherForm(type, editId = null) {
     const bankAccounts = lfGetAll(LF_KEYS.ACCOUNTS).filter(a => a.type === 'Cash' || a.type === 'Bank');
     $('bv-bank-account').innerHTML = bankAccounts.map(a => `<option value="${a.id}">${escapeHtml(acctLabel(a))}</option>`).join('');
 
-    const partyAccounts = lfGetAll(LF_KEYS.ACCOUNTS).filter(a => a.type !== 'Cash' && a.type !== 'Bank');
+    const partyAccounts = lfGetAll(LF_KEYS.ACCOUNTS).filter(a => a.type !== 'Cash' && a.type !== 'Bank' && !a.systemAccount);
     $('bv-party-account').innerHTML = '<option value="">Select…</option>' +
         partyAccounts.map(a => `<option value="${a.id}">${escapeHtml(a.title)}</option>`).join('');
     $('bv-party-balance').textContent = '';
@@ -351,7 +351,7 @@ function addPettyCashLine(prefill = null) {
     const lineId = `pcline${pcLineCounter}`;
     const container = $('pc-lines');
 
-    const allAccounts = lfGetAll(LF_KEYS.ACCOUNTS);
+    const allAccounts = lfGetAll(LF_KEYS.ACCOUNTS).filter(a => !a.systemAccount);
     const options = allAccounts.map(a => `<option value="${a.id}">${escapeHtml(a.title)} (${a.type})</option>`).join('');
 
     const row = document.createElement('div');
@@ -536,7 +536,7 @@ function addJournalLine(prefill = null) {
     const lineId = `jvline${jvLineCounter}`;
     const container = $('jv-lines');
 
-    const accounts = lfGetAll(LF_KEYS.ACCOUNTS).sort((a, b) => a.title.localeCompare(b.title));
+    const accounts = lfGetAll(LF_KEYS.ACCOUNTS).filter(a => !a.systemAccount).sort((a, b) => a.title.localeCompare(b.title));
     const options = accounts.map(a => `<option value="${a.id}">${escapeHtml(a.title)}</option>`).join('');
 
     const row = document.createElement('div');
