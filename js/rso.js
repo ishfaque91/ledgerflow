@@ -1672,9 +1672,45 @@ function initRsoReportCustomerDropdown() {
         customers.map(c => `<option value="${c.id}">${escapeHtml(c.shopName || c.name)}</option>`).join('');
 }
 
+// ==================== RSO ADMIN SELECTOR ====================
+let _adminSelectedRsoId = null;
+
+function initRsoAdminSelector() {
+    const selectorEl = $('rso-admin-selector');
+    const selectEl = $('rso-admin-rso-select');
+    if (!selectorEl || !selectEl) return;
+
+    const user = getCurrentUserRecord();
+    if (!user || (user.role !== 'owner' && user.role !== 'admin')) {
+        selectorEl.style.display = 'none';
+        return;
+    }
+
+    const rsoUsers = getAllRsoUsers();
+    if (rsoUsers.length === 0) { selectorEl.style.display = 'none'; return; }
+
+    selectorEl.style.display = '';
+    selectEl.innerHTML = '<option value="">Select RSO…</option>' +
+        rsoUsers.map(u => `<option value="${u.id}">${escapeHtml(u.fullName)}</option>`).join('');
+
+    if (_adminSelectedRsoId) selectEl.value = _adminSelectedRsoId;
+    makeSearchableSelect(selectEl);
+}
+
+function onAdminRsoSelect() {
+    _adminSelectedRsoId = $('rso-admin-rso-select')?.value || null;
+    renderRsoDashboard();
+}
+
+function getEffectiveRsoUserId() {
+    if (isRsoUser()) return getCurrentRsoUserId();
+    return _adminSelectedRsoId || null;
+}
+
 // ==================== RSO DASHBOARD (for RSO users) ====================
 function renderRsoDashboard() {
-    const rsoUserId = getCurrentRsoUserId();
+    initRsoAdminSelector();
+    const rsoUserId = getEffectiveRsoUserId();
     if (!rsoUserId) return;
 
     const stock = computeRsoStock(rsoUserId);
@@ -1700,12 +1736,10 @@ function renderRsoDashboard() {
     const el = $('rso-dash-stats');
     if (el) {
         el.innerHTML = `
-            <div class="rso-stat-card"><span class="rso-stat-label">Current Stock</span><span class="rso-stat-value">${formatCurrency(stockValue)}</span></div>
-            <div class="rso-stat-card"><span class="rso-stat-label">Total Sales</span><span class="rso-stat-value">${formatCurrency(totalSales)}</span></div>
-            <div class="rso-stat-card"><span class="rso-stat-label">Cash in Hand</span><span class="rso-stat-value">${formatCurrency(Math.abs(cashInHand))}</span></div>
-            <div class="rso-stat-card"><span class="rso-stat-label">Outstanding</span><span class="rso-stat-value">${formatCurrency(totalOutstanding)}</span></div>
-            <div class="rso-stat-card"><span class="rso-stat-label">Customers</span><span class="rso-stat-value">${customers.length}</span></div>
-            <div class="rso-stat-card"><span class="rso-stat-label">Deposited</span><span class="rso-stat-value">${formatCurrency(totalDeposits)}</span></div>
+            <div class="rso-stat-card rso-stat-clickable" onclick="navigateTo('page-rso-stock')"><span class="rso-stat-label">Current Stock</span><span class="rso-stat-value">${formatCurrency(stockValue)}</span></div>
+            <div class="rso-stat-card rso-stat-clickable" onclick="navigateTo('page-rso-recovery')"><span class="rso-stat-label">Cash in Hand</span><span class="rso-stat-value">${formatCurrency(Math.abs(cashInHand))}</span></div>
+            <div class="rso-stat-card rso-stat-clickable" onclick="navigateTo('page-rso-rpt-outstanding');setTimeout(renderRsoCustomerOutstanding,100)"><span class="rso-stat-label">Outstanding</span><span class="rso-stat-value">${formatCurrency(totalOutstanding)}</span></div>
+            <div class="rso-stat-card rso-stat-clickable" onclick="navigateTo('page-rso-customers')"><span class="rso-stat-label">Customers</span><span class="rso-stat-value">${customers.length}</span></div>
         `;
     }
 }
@@ -1713,6 +1747,9 @@ function renderRsoDashboard() {
 // ==================== INIT RSO REPORT DROPDOWNS ====================
 function initRsoReportDropdowns() {
     initRsoReportCustomerDropdown();
+    const custSelect = $('rso-rpt-cust-ledger-customer');
+    if (custSelect) makeSearchableSelect(custSelect);
+
     const rsoDropdowns = ['rso-rpt-stock-rso', 'rso-rpt-sales-rso', 'rso-rpt-recovery-rso', 'rso-rpt-daily-rso'];
     if (isRsoUser()) {
         rsoDropdowns.forEach(id => {
@@ -1720,7 +1757,11 @@ function initRsoReportDropdowns() {
             if (el) el.closest('.field')?.classList.add('hidden');
         });
     } else {
-        rsoDropdowns.forEach(id => populateRsoUserDropdown(id));
+        rsoDropdowns.forEach(id => {
+            populateRsoUserDropdown(id);
+            const el = $(id);
+            if (el) makeSearchableSelect(el);
+        });
     }
     const dateEl = $('rso-rpt-daily-date');
     if (dateEl && !dateEl.value) dateEl.value = new Date().toISOString().slice(0, 10);

@@ -294,7 +294,9 @@ function openPettyCashForm(editId = null) {
     pcLineCounter = 0;
 
     const allAccounts = lfGetAll(LF_KEYS.ACCOUNTS);
-    $('pc-cash-account').innerHTML = allAccounts.map(a => `<option value="${a.id}">${escapeHtml(a.title)} (${a.type})</option>`).join('');
+    const pcCashSelect = $('pc-cash-account');
+    pcCashSelect.innerHTML = allAccounts.map(a => `<option value="${a.id}">${escapeHtml(a.title)} (${a.type})</option>`).join('');
+    if (pcCashSelect._ssRefresh) pcCashSelect._ssRefresh(); else makeSearchableSelect(pcCashSelect);
 
     if (editId) {
         const v = lfFindById(LF_KEYS.VOUCHERS, editId);
@@ -312,6 +314,7 @@ function openPettyCashForm(editId = null) {
         $('pc-number').value = v.number;
         $('pc-date').value = v.date;
         $('pc-cash-account').value = v.cashAccountId;
+        $('pc-narration').value = v.narration || (v.lines && v.lines[0] ? v.lines[0].narration : '') || '';
         setPcDirection(v.pcDirection || 'Payment');
         (v.lines || []).forEach(line => addPettyCashLine(line));
     } else {
@@ -357,7 +360,6 @@ function addPettyCashLine(prefill = null) {
     row.innerHTML = `
         <select onchange="recalcPettyCashTotal()"><option value="">Select account…</option>${options}</select>
         <input type="text" inputmode="decimal" placeholder="0" oninput="formatAmountInput(this); recalcPettyCashTotal()">
-        <input type="text" placeholder="Narration">
         <button type="button" class="item-row-remove" title="Remove" onclick="removePettyCashLine('${lineId}')">✕</button>
     `;
     container.appendChild(row);
@@ -367,9 +369,9 @@ function addPettyCashLine(prefill = null) {
         const inputs = row.querySelectorAll('input');
         select.value = prefill.expenseAccountId;
         inputs[0].value = prefill.amount.toLocaleString('en-US');
-        inputs[1].value = prefill.narration || '';
     }
 
+    makeSearchableSelect(row.querySelector('select'));
     recalcPettyCashTotal();
 }
 
@@ -379,6 +381,7 @@ function removePettyCashLine(lineId) {
 }
 
 function getPettyCashLines() {
+    const voucherNarration = sanitizeInput(($('pc-narration')?.value) || '');
     return [...document.querySelectorAll('#pc-lines .pc-line')].map(row => {
         const select = row.querySelector('select');
         const inputs = row.querySelectorAll('input');
@@ -386,7 +389,7 @@ function getPettyCashLines() {
         const account = expenseAccountId ? lfFindById(LF_KEYS.ACCOUNTS, expenseAccountId) : null;
         return {
             expenseAccountId, expenseAccountName: account ? account.title : '',
-            amount: parseAmount(inputs[0].value), narration: sanitizeInput(inputs[1].value)
+            amount: parseAmount(inputs[0].value), narration: voucherNarration
         };
     }).filter(l => l.expenseAccountId && l.amount > 0);
 }
@@ -441,11 +444,13 @@ async function savePettyCash() {
             await Promise.all(writes);
         }
 
+        const narration = sanitizeInput($('pc-narration')?.value || '');
+
         const before = id ? { ...(lfFindById(LF_KEYS.VOUCHERS, id) || {}) } : null;
         const record = {
             id: voucherId, type: 'PettyCash', number, date,
             cashAccountId, cashAccountName: cashAcc ? cashAcc.title : '',
-            pcDirection, lines, total,
+            pcDirection, narration, lines, total,
             cancelled: pcCancelled,
             createdAt: id ? undefined : new Date().toISOString(),
             enteredBy: id ? undefined : getCurrentUserDisplayName(),
@@ -553,6 +558,7 @@ function addJournalLine(prefill = null) {
         else inputs[1].value = prefill.amount.toLocaleString('en-US');
     }
 
+    makeSearchableSelect(row.querySelector('select'));
     recalcJournalTotals();
 }
 

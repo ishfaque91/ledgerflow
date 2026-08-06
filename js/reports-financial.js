@@ -35,7 +35,12 @@ function computeTradingProfit(dateFrom, dateTo) {
         !i.cancelled && (!dateFrom || i.date >= dateFrom) && (!dateTo || i.date <= dateTo)
     );
 
-    const sumBy = (type, field) => invoices.filter(i => i.type === type).reduce((s, i) => s + (i[field] || 0), 0);
+    const isOwnerEquityParty = (inv) => {
+        const acc = lfFindById(LF_KEYS.ACCOUNTS, inv.partyAccountId);
+        return acc && acc.type === 'Owner Equity';
+    };
+
+    const sumBy = (type, field) => invoices.filter(i => i.type === type && !isOwnerEquityParty(i)).reduce((s, i) => s + (i[field] || 0), 0);
 
     const loadSales = sumBy('Sale', 'loadTotal') - sumBy('SaleReturn', 'loadTotal');
     const loadPurchases = sumBy('Purchase', 'loadTotal') - sumBy('PurchaseReturn', 'loadTotal');

@@ -518,6 +518,10 @@
                 </div>
                 <button class="btn btn-ghost" onclick="navigateTo('page-dashboard')">Back to Dashboard</button>
             </div>
+            <div class="field" id="rso-admin-selector" style="margin-bottom:1rem;max-width:320px;display:none;">
+                <label for="rso-admin-rso-select">View RSO</label>
+                <select id="rso-admin-rso-select" onchange="onAdminRsoSelect()"></select>
+            </div>
             <div id="rso-dash-stats" class="rso-stat-grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:1.2rem;"></div>
             <div class="card dash-directory-card dash-hub-card">
                 <div class="dash-directory-list">
@@ -1509,13 +1513,18 @@
                     </div>
 
                     <div class="field">
+                        <label for="pc-narration">Narration</label>
+                        <input type="text" id="pc-narration" placeholder="Purpose of this voucher…">
+                    </div>
+
+                    <div class="field">
                         <div class="item-lines-head">
                             <label id="pc-lines-label">Account lines</label>
                             <button type="button" class="btn-outline-text" onclick="addPettyCashLine()">+ Add line</button>
                         </div>
                         <div class="item-rows-table">
                             <div class="pc-line pc-line-head">
-                                <span>Account</span><span>Amount</span><span>Narration</span><span></span>
+                                <span>Account</span><span>Amount</span><span></span>
                             </div>
                             <div id="pc-lines"></div>
                         </div>
@@ -2720,36 +2729,71 @@
             <div id="rso-stock-tracking-body"></div>
         </section>
 
-        <!-- ============ RSO: REPORTS ============ -->
+        <!-- ============ RSO: REPORTS HUB ============ -->
         <section id="page-rso-reports" class="page">
             <div class="page-head">
                 <div><h1>RSO Reports</h1><p class="page-sub">Customer ledgers, outstanding, stock, sales, and recovery reports.</p></div>
+                <button class="btn btn-ghost" onclick="navigateTo('page-hub-rso')">Back</button>
             </div>
+            <div class="card dash-directory-card dash-hub-card">
+                <div class="dash-directory-list">
+                    <a href="#" data-page="page-rso-rpt-cust-ledger" onclick="navigateTo('page-rso-rpt-cust-ledger',this); initRsoReportDropdowns();"><span class="hub-opt-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></span><span class="hub-opt-label">Customer Ledger</span><svg class="hub-opt-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></a>
+                    <a href="#" data-page="page-rso-rpt-outstanding" onclick="navigateTo('page-rso-rpt-outstanding',this); renderRsoCustomerOutstanding();"><span class="hub-opt-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span><span class="hub-opt-label">Customer Outstanding</span><svg class="hub-opt-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></a>
+                    <a href="#" data-page="page-rso-rpt-stock" onclick="navigateTo('page-rso-rpt-stock',this); initRsoReportDropdowns();"><span class="hub-opt-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg></span><span class="hub-opt-label">RSO Stock Report</span><svg class="hub-opt-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></a>
+                    <a href="#" data-page="page-rso-rpt-sales" onclick="navigateTo('page-rso-rpt-sales',this); initRsoReportDropdowns();"><span class="hub-opt-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg></span><span class="hub-opt-label">RSO Sales Report</span><svg class="hub-opt-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></a>
+                    <a href="#" data-page="page-rso-rpt-recovery" onclick="navigateTo('page-rso-rpt-recovery',this); initRsoReportDropdowns();"><span class="hub-opt-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span><span class="hub-opt-label">RSO Recovery Report</span><svg class="hub-opt-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></a>
+                    <a href="#" data-page="page-rso-rpt-daily" onclick="navigateTo('page-rso-rpt-daily',this); initRsoReportDropdowns();"><span class="hub-opt-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span><span class="hub-opt-label">Daily Sales Summary</span><svg class="hub-opt-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></a>
+                </div>
+            </div>
+        </section>
 
+        <!-- ============ RSO REPORT: CUSTOMER LEDGER ============ -->
+        <section id="page-rso-rpt-cust-ledger" class="page">
+            <div class="page-head">
+                <div><h1>Customer Ledger</h1><p class="page-sub">Transaction history for an RSO customer.</p></div>
+                <button class="btn btn-ghost" onclick="navigateTo('page-rso-reports')">Back</button>
+            </div>
             <div class="card statement-section">
-                <h3>Customer Ledger</h3>
                 <div class="field-grid" style="margin-bottom:1rem">
                     <div class="field"><label>Customer</label><select id="rso-rpt-cust-ledger-customer" onchange="renderRsoCustomerLedger()"></select></div>
                 </div>
                 <div id="rso-rpt-cust-ledger-body"><p class="hint">Select a customer to view their ledger.</p></div>
             </div>
+        </section>
 
+        <!-- ============ RSO REPORT: CUSTOMER OUTSTANDING ============ -->
+        <section id="page-rso-rpt-outstanding" class="page">
+            <div class="page-head">
+                <div><h1>Customer Outstanding</h1><p class="page-sub">Balances owed by RSO customers.</p></div>
+                <button class="btn btn-ghost" onclick="navigateTo('page-rso-reports')">Back</button>
+            </div>
             <div class="card statement-section">
-                <h3>Customer Outstanding</h3>
                 <button class="btn btn-ghost" onclick="renderRsoCustomerOutstanding()" style="margin-bottom:0.8rem">Refresh</button>
                 <div id="rso-rpt-outstanding-body"></div>
             </div>
+        </section>
 
+        <!-- ============ RSO REPORT: STOCK ============ -->
+        <section id="page-rso-rpt-stock" class="page">
+            <div class="page-head">
+                <div><h1>RSO Stock Report</h1><p class="page-sub">Current stock held by an RSO.</p></div>
+                <button class="btn btn-ghost" onclick="navigateTo('page-rso-reports')">Back</button>
+            </div>
             <div class="card statement-section">
-                <h3>RSO Stock Report</h3>
                 <div class="field" id="rso-rpt-stock-rso-field" style="margin-bottom:1rem">
                     <label>RSO</label><select id="rso-rpt-stock-rso" onchange="renderRsoStockReport()"></select>
                 </div>
                 <div id="rso-rpt-stock-body"><p class="hint">Select an RSO to view stock.</p></div>
             </div>
+        </section>
 
+        <!-- ============ RSO REPORT: SALES ============ -->
+        <section id="page-rso-rpt-sales" class="page">
+            <div class="page-head">
+                <div><h1>RSO Sales Report</h1><p class="page-sub">Sales transactions by RSO.</p></div>
+                <button class="btn btn-ghost" onclick="navigateTo('page-rso-reports')">Back</button>
+            </div>
             <div class="card statement-section">
-                <h3>RSO Sales Report</h3>
                 <div class="field-grid" style="margin-bottom:1rem">
                     <div class="field" id="rso-rpt-sales-rso-field"><label>RSO</label><select id="rso-rpt-sales-rso" onchange="renderRsoSalesReport()"></select></div>
                     <div class="field"><label>From</label><input type="date" id="rso-rpt-sales-from" onchange="renderRsoSalesReport()"></div>
@@ -2757,9 +2801,15 @@
                 </div>
                 <div id="rso-rpt-sales-body"></div>
             </div>
+        </section>
 
+        <!-- ============ RSO REPORT: RECOVERY ============ -->
+        <section id="page-rso-rpt-recovery" class="page">
+            <div class="page-head">
+                <div><h1>RSO Recovery Report</h1><p class="page-sub">Cash recoveries collected by RSO.</p></div>
+                <button class="btn btn-ghost" onclick="navigateTo('page-rso-reports')">Back</button>
+            </div>
             <div class="card statement-section">
-                <h3>RSO Recovery Report</h3>
                 <div class="field-grid" style="margin-bottom:1rem">
                     <div class="field" id="rso-rpt-recovery-rso-field"><label>RSO</label><select id="rso-rpt-recovery-rso" onchange="renderRsoRecoveryReport()"></select></div>
                     <div class="field"><label>From</label><input type="date" id="rso-rpt-recovery-from" onchange="renderRsoRecoveryReport()"></div>
@@ -2767,9 +2817,15 @@
                 </div>
                 <div id="rso-rpt-recovery-body"></div>
             </div>
+        </section>
 
+        <!-- ============ RSO REPORT: DAILY SUMMARY ============ -->
+        <section id="page-rso-rpt-daily" class="page">
+            <div class="page-head">
+                <div><h1>Daily Sales Summary</h1><p class="page-sub">All RSO sales for a given date.</p></div>
+                <button class="btn btn-ghost" onclick="navigateTo('page-rso-reports')">Back</button>
+            </div>
             <div class="card statement-section">
-                <h3>Daily Sales Summary</h3>
                 <div class="field-grid" style="margin-bottom:1rem">
                     <div class="field"><label>Date</label><input type="date" id="rso-rpt-daily-date" onchange="renderRsoDailySalesReport()"></div>
                     <div class="field" id="rso-rpt-daily-rso-field"><label>RSO</label><select id="rso-rpt-daily-rso" onchange="renderRsoDailySalesReport()"><option value="">All RSOs</option></select></div>
