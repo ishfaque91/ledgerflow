@@ -643,6 +643,8 @@ async function saveInvoice(printAfter = false) {
         };
         await lfUpsert(LF_KEYS.INVOICES, record);
 
+        await syncRsoLoadFromInvoice(record, party);
+
         showToast(`${config.title} ${id ? 'updated' : 'saved'} as ${number}.`, 'success');
         logActivity(id ? 'Updated' : 'Created', config.title, number, {
             before,
@@ -665,8 +667,73 @@ async function removeLedgerEntriesForInvoice(invoiceId) {
     await Promise.all([
         lfDeleteWhereInvoiceId(LF_KEYS.ACCOUNT_LEDGER, invoiceId),
         lfDeleteWhereInvoiceId(LF_KEYS.LOAD_LEDGER, invoiceId),
-        lfDeleteWhereInvoiceId(LF_KEYS.ITEM_LEDGER, invoiceId)
+        lfDeleteWhereInvoiceId(LF_KEYS.ITEM_LEDGER, invoiceId),
+        removeRsoLoadForInvoice(invoiceId)
     ]);
+}
+
+async function removeRsoLoadForInvoice(invoiceId) {
+    const existing = lfGetAll(LF_KEYS.RSO_LOADS).filter(l => l.sourceInvoiceId === invoiceId);
+    for (const l of existing) {
+        await lfDelete(LF_KEYS.RSO_LOADS, l.id);
+    }
+}
+
+// ==================== RSO LOAD SYNC (Sale/SaleReturn → RSO_LOADS) ====================
+async function syncRsoLoadFromInvoice(invoice, partyAccount) {
+    if (!partyAccount || partyAccount.type !== 'Employee/RSO') return;
+    if (invoice.type !== 'Sale') return;
+    if (invoice.cancelled) return;
+
+    const rsoUserId = partyAccount.linkedUserId;
+    if (!rsoUserId) return;
+
+    const rsoUser = lfFindById(LF_KEYS.USERS, rsoUserId);
+
+    const rsoLoadRecord = {
+        id: 'rsoload_' + invoice.id,
+        sourceInvoiceId: invoice.id,
+        number: invoice.number,
+        date: invoice.date,
+        rsoUserId,
+        rsoName: rsoUser ? rsoUser.fullName : partyAccount.title,
+        hasLoad: invoice.hasLoad,
+        loadQty: invoice.loadQty || 0,
+        items: (invoice.items || []).map(r => ({
+            itemId: r.itemId,
+            itemName: r.itemName,
+            qty: r.qty,
+            rate: r.rate || 0,
+            amount: r.amount || 0
+        })),
+        grandTotal: invoice.grandTotal,
+        enteredBy: invoice.enteredBy || getCurrentUserDisplayName()
+    };
+
+    await lfUpsert(LF_KEYS.RSO_LOADS, rsoLoadRecord);
+}
+
+async function backfillRsoLoadsFromInvoices() {
+    const invoices = lfGetAll(LF_KEYS.INVOICES).filter(i =>
+        !i.cancelled && i.type === 'Sale'
+    );
+    const existingSourceIds = new Set(
+        lfGetAll(LF_KEYS.RSO_LOADS).filter(l => l.sourceInvoiceId).map(l => l.sourceInvoiceId)
+    );
+
+    let count = 0;
+    for (const inv of invoices) {
+        if (existingSourceIds.has(inv.id)) continue;
+        const party = lfFindById(LF_KEYS.ACCOUNTS, inv.partyAccountId);
+        if (!party || party.type !== 'Employee/RSO') continue;
+        await syncRsoLoadFromInvoice(inv, party);
+        count++;
+    }
+    if (count > 0) {
+        console.log(`[RSO Sync] Backfilled ${count} RSO load(s) from existing Sale invoices.`);
+        showToast(`Synced ${count} sale invoice(s) to RSO stock.`, 'success');
+    }
+    return count;
 }
 
 // ==================== CANCEL TOGGLE (shared by invoices + vouchers) ====================

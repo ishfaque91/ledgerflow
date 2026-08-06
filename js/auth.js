@@ -246,6 +246,8 @@ async function resolveCompanyAndShowApp(user) {
         watchCollection(LF_KEYS.RSO_RECOVERIES, () => { renderRsoRecoveryList(); renderRsoDashboard(); });
         watchCollection(LF_KEYS.RSO_LOADS, () => { renderRsoLoadList(); renderRsoDashboard(); });
         watchCollection(LF_KEYS.RSO_DEPOSITS, () => { renderRsoDepositList(); renderRsoDashboard(); });
+
+        setTimeout(() => { if (typeof backfillRsoLoadsFromInvoices === 'function') backfillRsoLoadsFromInvoices(); }, 2000);
     } catch (err) {
         console.error('[Auth] Resolving company failed:', err);
         showToast('Something went wrong loading your account.', 'error');
