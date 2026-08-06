@@ -783,6 +783,8 @@ button { font-family: inherit; }
     border: 1px solid var(--border-strong); border-radius: 6px; padding: 0.65rem 0.6rem; font-size: 0.92rem; width: 100%; min-height: 44px;
 }
 
+#jv-lines { min-height: 400px; }
+
 /* Journal Voucher lines */
 .jv-line {
     display: grid;

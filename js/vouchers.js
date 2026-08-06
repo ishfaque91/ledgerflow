@@ -1,8 +1,8 @@
 /**
- * TeleFlow - Vouchers module (Bank Receipt / Bank Payment / Petty Cash / Journal Voucher)
+ * TeleFlow - Vouchers module (Bank Receipt / Bank Payment / Cash Voucher / Journal Voucher)
  *
  * Bank Receipt and Bank Payment share one form (same shape, opposite Dr/Cr
- * direction — same idea as Purchase/Sale). Petty Cash and Journal Voucher
+ * direction — same idea as Purchase/Sale). Cash Voucher and Journal Voucher
  * are each multi-line and get their own forms, reusing the ledger-posting
  * pattern already established in dataentry.js (removeLedgerEntriesForInvoice,
  * computeAccountBalance, lfUpsert, etc.)
@@ -279,8 +279,8 @@ function setPcDirection(dir) {
 }
 
 function openPettyCashForm(editId = null) {
-    if (!hasRight('VOUCHERS', 'Petty Cash', 'Edit')) {
-        showToast(`You don't have permission to ${editId ? 'edit' : 'add'} Petty Cash entries.`, 'warning');
+    if (!hasRight('VOUCHERS', 'Cash Voucher', 'Edit')) {
+        showToast(`You don't have permission to ${editId ? 'edit' : 'add'} Cash Voucher entries.`, 'warning');
         return;
     }
     if (editId) {
@@ -401,7 +401,7 @@ function recalcPettyCashTotal() {
 }
 
 async function savePettyCash() {
-    if (!hasRight('VOUCHERS', 'Petty Cash', 'Edit')) {
+    if (!hasRight('VOUCHERS', 'Cash Voucher', 'Edit')) {
         showToast("You don't have permission to save this.", 'warning');
         return;
     }
@@ -435,11 +435,11 @@ async function savePettyCash() {
         if (!pcCancelled) {
             const writes = lines.map(line => lfUpsert(LF_KEYS.ACCOUNT_LEDGER, {
                 invoiceId: voucherId, accountId: line.expenseAccountId, date, type: 'PettyCash',
-                ref: number, side: lineSide, amount: line.amount, note: `Petty Cash ${pcDirection} ${number} — ${line.narration}`
+                ref: number, side: lineSide, amount: line.amount, note: `Cash Voucher ${pcDirection} ${number} — ${line.narration}`
             }));
             writes.push(lfUpsert(LF_KEYS.ACCOUNT_LEDGER, {
                 invoiceId: voucherId, accountId: cashAccountId, date, type: 'PettyCash',
-                ref: number, side: cashSide, amount: total, note: `Petty Cash ${pcDirection} ${number}`
+                ref: number, side: cashSide, amount: total, note: `Cash Voucher ${pcDirection} ${number}`
             }));
             await Promise.all(writes);
         }
@@ -458,8 +458,8 @@ async function savePettyCash() {
         };
         await lfUpsert(LF_KEYS.VOUCHERS, record);
 
-        showToast(`Petty Cash ${pcDirection} ${id ? 'updated' : 'saved'} as ${number}.`, 'success');
-        logActivity(id ? 'Updated' : 'Created', `Petty Cash ${pcDirection}`, number,
+        showToast(`Cash Voucher ${pcDirection} ${id ? 'updated' : 'saved'} as ${number}.`, 'success');
+        logActivity(id ? 'Updated' : 'Created', `Cash Voucher ${pcDirection}`, number,
                     { before, after: { ...record, enteredBy: before?.enteredBy || record.enteredBy }, recordId: voucherId });
         closePettyCashForm();
     } catch (e) {

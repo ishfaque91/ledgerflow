@@ -20,7 +20,7 @@ const RIGHTS_SCHEMA = {
     'VOUCHERS': [
         { name: 'Bank Receipt', perms: ['View', 'Edit'] },
         { name: 'Bank Payment', perms: ['View', 'Edit'] },
-        { name: 'Petty Cash', perms: ['View', 'Edit'] },
+        { name: 'Cash Voucher', perms: ['View', 'Edit'] },
         { name: 'Journal Voucher', perms: ['View', 'Edit'] },
         { name: 'Add/Edit Accounts', perms: ['Edit', 'Delete'] }
     ],
@@ -257,7 +257,7 @@ const PAGE_RIGHTS_MAP = {
     'page-sale-return': ['DATA ENTRY', 'Sale Return'],
     'page-bank-receipt': ['VOUCHERS', 'Bank Receipt'],
     'page-bank-payment': ['VOUCHERS', 'Bank Payment'],
-    'page-petty-cash': ['VOUCHERS', 'Petty Cash'],
+    'page-petty-cash': ['VOUCHERS', 'Cash Voucher'],
     'page-journal': ['VOUCHERS', 'Journal Voucher'],
     'page-edit-log': ['UTILITY', 'Edit History'],
     'page-chart-of-accounts': ['REPORTS', 'Chart of Accounts'],

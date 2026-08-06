@@ -212,7 +212,7 @@
                 <div class="nav-group-body">
                     <a href="#" class="nav-link" data-page="page-bank-receipt" onclick="navigateTo('page-bank-receipt',this);">Bank Receipt</a>
                     <a href="#" class="nav-link" data-page="page-bank-payment" onclick="navigateTo('page-bank-payment',this);">Bank Payment</a>
-                    <a href="#" class="nav-link" data-page="page-petty-cash" onclick="navigateTo('page-petty-cash',this);">Petty Cash</a>
+                    <a href="#" class="nav-link" data-page="page-petty-cash" onclick="navigateTo('page-petty-cash',this);">Cash Voucher</a>
                     <a href="#" class="nav-link" data-page="page-journal" onclick="navigateTo('page-journal',this);">Journal Voucher</a>
                     <a href="#" class="nav-link" data-page="page-accounts" onclick="navigateTo('page-accounts',this);">Add/Edit Accounts</a>
                 </div>
@@ -340,7 +340,7 @@
                     <span class="dash-tab-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 9.5V4h20v5.5"/><path d="M2 9.5a2.5 2.5 0 0 0 5 0M7 9.5a2.5 2.5 0 0 0 5 0M12 9.5a2.5 2.5 0 0 0 5 0M17 9.5a2.5 2.5 0 0 0 5 0"/><path d="M4 9.5V20h16V9.5"/></svg></span>
                     <span class="dash-tab-text">
                         <span class="dash-tab-name">Accounts</span>
-                        <span class="dash-tab-desc">Receipts, payments, petty cash, journals & accounts</span>
+                        <span class="dash-tab-desc">Receipts, payments, cash voucher, journals & accounts</span>
                     </span>
                     <span class="dash-tab-meta">
                         <span class="dash-tab-count">5</span>
@@ -465,7 +465,7 @@
             <div class="page-head">
                 <div>
                     <h1>Accounts</h1>
-                    <p class="page-sub">Bank receipts and payments, petty cash, journal entries, and account management.</p>
+                    <p class="page-sub">Bank receipts and payments, cash voucher, journal entries, and account management.</p>
                 </div>
                 <button class="btn btn-ghost" onclick="navigateTo('page-dashboard')">Back to Dashboard</button>
             </div>
@@ -473,7 +473,7 @@
                 <div class="dash-directory-list">
                         <a href="#" data-page="page-bank-receipt" onclick="navigateTo('page-bank-receipt',this)"><span class="hub-opt-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 2h16v20l-3-2-3 2-3-2-3 2-3-2-1 2Z"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="11" x2="16" y2="11"/></svg></span><span class="hub-opt-label">Bank Receipt</span><svg class="hub-opt-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></a>
                         <a href="#" data-page="page-bank-payment" onclick="navigateTo('page-bank-payment',this)"><span class="hub-opt-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg></span><span class="hub-opt-label">Bank Payment</span><svg class="hub-opt-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></a>
-                        <a href="#" data-page="page-petty-cash" onclick="navigateTo('page-petty-cash',this)"><span class="hub-opt-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg></span><span class="hub-opt-label">Petty Cash</span><svg class="hub-opt-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></a>
+                        <a href="#" data-page="page-petty-cash" onclick="navigateTo('page-petty-cash',this)"><span class="hub-opt-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg></span><span class="hub-opt-label">Cash Voucher</span><svg class="hub-opt-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></a>
                         <a href="#" data-page="page-journal" onclick="navigateTo('page-journal',this)"><span class="hub-opt-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span><span class="hub-opt-label">Journal Voucher</span><svg class="hub-opt-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></a>
                         <a href="#" data-page="page-accounts" onclick="navigateTo('page-accounts',this)"><span class="hub-opt-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><circle cx="8" cy="12" r="2"/><line x1="13" y1="10" x2="18" y2="10"/><line x1="13" y1="14" x2="18" y2="14"/></svg></span><span class="hub-opt-label">Add/Edit Accounts</span><svg class="hub-opt-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></a>
                 </div>
@@ -1438,12 +1438,12 @@
         <section id="page-petty-cash" class="page">
             <div class="page-head">
                 <div>
-                    <h1>Petty Cash</h1>
+                    <h1>Cash Voucher</h1>
                     <p class="page-sub">Small day-to-day cash expenses — tea, transport, stationery — several in one voucher.</p>
                 </div>
                 <button class="btn btn-primary" onclick="openPettyCashForm()">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                    New Petty Cash Voucher
+                    New Cash Voucher
                 </button>
             </div>
             <div class="toolbar-row">
@@ -1472,7 +1472,7 @@
         <div class="modal-backdrop hidden" id="pettycash-modal">
             <div class="modal modal-lg">
                 <div class="modal-head">
-                    <h2>New Petty Cash Voucher</h2>
+                    <h2>New Cash Voucher</h2>
                     <button class="icon-btn" onclick="closePettyCashForm()" title="Close" aria-label="Close">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                     </button>
