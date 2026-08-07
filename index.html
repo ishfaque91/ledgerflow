@@ -300,14 +300,13 @@
         <section id="page-dashboard" class="page is-active">
             <div class="page-head">
                 <div>
-                    <h1>Dashboard</h1>
-                    <p class="page-sub">Choose an area to get started — everything in TeleFlow lives under one of these.</p>
+                    <h1 id="dash-greeting">Dashboard</h1>
+                    <p class="page-sub">Your business at a glance. Tap any card to explore.</p>
                 </div>
             </div>
 
             <!-- Stats cards — visible to Owner & Admin only -->
             <div id="dash-stats" class="dash-stats hidden">
-                <h2 class="dash-section-heading">Summary</h2>
                 <div class="dash-stat-row">
                     <div class="dash-stat-card dash-card-cash" onclick="navigateTo('page-dash-cash')">
                         <span class="dash-stat-label">Cash in Hand</span>
@@ -320,17 +319,17 @@
                 </div>
                 <div class="dash-stat-row">
                     <div class="dash-stat-card dash-card-receivable" onclick="navigateTo('page-dash-receivable')">
-                        <span class="dash-stat-label">Total Receivables</span>
+                        <span class="dash-stat-label">Receivables</span>
                         <span class="dash-stat-value" id="dash-receivables">Rs. 0</span>
                     </div>
                     <div class="dash-stat-card dash-card-payable" onclick="navigateTo('page-dash-payable')">
-                        <span class="dash-stat-label">Total Payables</span>
+                        <span class="dash-stat-label">Payables</span>
                         <span class="dash-stat-value" id="dash-payables">Rs. 0</span>
                     </div>
                 </div>
             </div>
 
-            <h2 class="dash-section-heading" style="margin-top:6px;">Quick Access</h2>
+            <h2 class="dash-section-heading" style="margin-top:8px;">Quick Access</h2>
             <div class="dash-tab-grid">
                 <a href="#" class="dash-tab" data-hub="page-hub-data-entry" data-accent="indigo" onclick="navigateTo('page-hub-data-entry')">
                     <span class="dash-tab-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span>

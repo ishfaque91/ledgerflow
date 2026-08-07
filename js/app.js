@@ -135,6 +135,13 @@ window.addEventListener('popstate', (event) => {
 let _dashData = { cash: [], bank: [], receivable: [], payable: [] };
 
 function renderDashboard() {
+    const greetEl = $('dash-greeting');
+    if (greetEl) {
+        const h = new Date().getHours();
+        const g = h < 12 ? 'Good Morning' : h < 17 ? 'Good Afternoon' : 'Good Evening';
+        greetEl.textContent = g;
+    }
+
     const statsEl = $('dash-stats');
     if (!statsEl) return;
 
