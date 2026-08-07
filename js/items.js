@@ -68,6 +68,7 @@ function openItemForm(id = null) {
         $('item-id').value = item.id;
         $('item-name').value = item.name;
         $('item-category').value = item.category || '';
+        $('item-type').value = item.itemType || 'General';
         $('item-unit').value = item.unit || 'Pcs';
         $('item-purchase-price').value = item.purchasePrice ? item.purchasePrice.toLocaleString('en-US') : '';
         $('item-sale-price').value = item.salePrice ? item.salePrice.toLocaleString('en-US') : '';
@@ -89,6 +90,7 @@ async function saveItem() {
     const id = $('item-id').value;
     const name = sanitizeInput($('item-name').value);
     const category = sanitizeInput($('item-category').value);
+    const itemType = $('item-type').value || 'General';
     const unit = $('item-unit').value;
     const purchasePrice = parseAmount($('item-purchase-price').value);
     const salePrice = parseAmount($('item-sale-price').value);
@@ -113,7 +115,7 @@ async function saveItem() {
     setBtnLoading(saveBtn, true);
 
     const before = id ? { ...(lfFindById(LF_KEYS.ITEMS, id) || {}) } : null;
-    const record = { id: id || undefined, name, category, unit, purchasePrice, salePrice, tax, hsn };
+    const record = { id: id || undefined, name, category, itemType, unit, purchasePrice, salePrice, tax, hsn };
 
     try {
         await lfUpsert(LF_KEYS.ITEMS, record);

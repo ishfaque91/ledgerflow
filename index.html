@@ -259,6 +259,13 @@
                     <a href="#" class="nav-link" data-page="page-rso-recovery" onclick="navigateTo('page-rso-recovery',this);">Recovery</a>
                     <a href="#" class="nav-link" data-page="page-rso-deposit" onclick="navigateTo('page-rso-deposit',this);">Cash Deposit</a>
                     <a href="#" class="nav-link" data-page="page-rso-stock" onclick="navigateTo('page-rso-stock',this);">Stock Tracking</a>
+                    <a href="#" class="nav-link" data-page="page-rso-load-ledger" onclick="navigateTo('page-rso-load-ledger',this); initRsoLoadLedgerPage();">RSO Load Ledger</a>
+                    <a href="#" class="nav-link" data-page="page-rso-item-ledger" onclick="navigateTo('page-rso-item-ledger',this); initRsoItemLedgerPage();">RSO Item Ledger</a>
+                    <a href="#" class="nav-link" data-page="page-activations" onclick="navigateTo('page-activations',this);">SIM Activations</a>
+                    <a href="#" class="nav-link" data-page="page-verification" onclick="navigateTo('page-verification',this);">Monthly Verification</a>
+                    <a href="#" class="nav-link" data-page="page-bvs-devices" onclick="navigateTo('page-bvs-devices',this);">BVS Devices</a>
+                    <a href="#" class="nav-link" data-page="page-commission-report" onclick="navigateTo('page-commission-report',this); renderCommissionReport();">Commission Report</a>
+                    <a href="#" class="nav-link" data-page="page-sim-status" onclick="navigateTo('page-sim-status',this); renderSimStatusReport();">SIM Status Report</a>
                     <a href="#" class="nav-link" data-page="page-rso-reports" onclick="navigateTo('page-rso-reports',this);">RSO Reports</a>
                 </div>
             </div>
@@ -788,6 +795,14 @@
                                 <label for="item-category">Category</label>
                                 <input type="text" id="item-category" placeholder="e.g. Scratch Cards" list="item-category-list">
                                 <datalist id="item-category-list"></datalist>
+                            </div>
+                            <div class="field">
+                                <label for="item-type">Item Type</label>
+                                <select id="item-type">
+                                    <option value="General">General</option>
+                                    <option value="SIM">SIM</option>
+                                    <option value="Load">Load</option>
+                                </select>
                             </div>
                             <div class="field">
                                 <label for="item-unit">Unit</label>
@@ -2439,6 +2454,46 @@
                             <div class="field"><label for="rso-cust-name">Customer Name <span class="req">*</span></label><input type="text" id="rso-cust-name" placeholder="e.g. Ali Khan" required></div>
                             <div class="field"><label for="rso-cust-shop">Shop Name</label><input type="text" id="rso-cust-shop" placeholder="e.g. Ali General Store"></div>
                         </div>
+                        <div class="field-grid">
+                            <div class="field">
+                                <label for="rso-cust-type">Customer Type</label>
+                                <select id="rso-cust-type" onchange="onRsoCustTypeChange()">
+                                    <option value="Retailer">Retailer</option>
+                                    <option value="BTL">BTL Boy</option>
+                                </select>
+                            </div>
+                            <div class="field">
+                                <label for="rso-cust-source">Source</label>
+                                <select id="rso-cust-source">
+                                    <option value="RSO">RSO</option>
+                                    <option value="Office">Office</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-section" id="rso-cust-sim-section">
+                        <h3 class="form-section-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/></svg>SIM &amp; Commission</h3>
+                        <div class="field-grid">
+                            <div class="field">
+                                <label for="rso-cust-sim-pricing">SIM Pricing</label>
+                                <select id="rso-cust-sim-pricing">
+                                    <option value="Free">Free</option>
+                                    <option value="Cash">Cash</option>
+                                </select>
+                            </div>
+                            <div class="field" id="rso-cust-sim-rate-field">
+                                <label for="rso-cust-sim-rate">SIM Rate</label>
+                                <div class="amount-control"><span class="amount-prefix">Rs.</span><input type="text" id="rso-cust-sim-rate" inputmode="decimal" placeholder="0" oninput="formatAmountInput(this)"></div>
+                            </div>
+                        </div>
+                        <label class="check-row" style="margin-bottom:0.6rem">
+                            <input type="checkbox" id="rso-cust-is-commission">
+                            <span>Eligible for Commission</span>
+                        </label>
+                        <div class="field" id="rso-cust-commission-field">
+                            <label for="rso-cust-commission-rate">Commission per SIM (Rs.)</label>
+                            <div class="amount-control"><span class="amount-prefix">Rs.</span><input type="text" id="rso-cust-commission-rate" inputmode="decimal" placeholder="0" oninput="formatAmountInput(this)"></div>
+                        </div>
                     </div>
                     <div class="form-section">
                         <h3 class="form-section-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>Contact &amp; Location</h3>
@@ -2812,6 +2867,279 @@
             <div id="rso-stock-tracking-body"></div>
         </section>
 
+        <!-- ============ RSO LOAD LEDGER ============ -->
+        <section id="page-rso-load-ledger" class="page">
+            <div class="page-head">
+                <div>
+                    <h1>RSO Load Ledger</h1>
+                    <p class="page-sub">Load quantity movement from RSO operations — loads issued and sales deducted.</p>
+                </div>
+            </div>
+            <div class="report-toolbar">
+                <div class="report-field" id="rso-ll-rso-field"><label>RSO</label><select id="rso-ll-rso" onchange="renderRsoLoadLedgerReport()"></select></div>
+                <div class="report-field"><label>From</label><input type="date" id="rso-ll-date-from" onchange="renderRsoLoadLedgerReport()"></div>
+                <div class="report-field"><label>To</label><input type="date" id="rso-ll-date-to" onchange="renderRsoLoadLedgerReport()"></div>
+            </div>
+            <div class="report-summary-row">
+                <div class="report-summary-card"><span class="report-summary-label">Opening Balance</span><span class="report-summary-value" id="rso-ll-opening">0</span></div>
+                <div class="report-summary-card"><span class="report-summary-label">Closing Balance</span><span class="report-summary-value" id="rso-ll-closing">0</span></div>
+            </div>
+            <div class="card table-card">
+                <div class="table-scroll">
+                    <table class="data-table">
+                        <thead><tr><th>Date</th><th>Type</th><th>Ref</th><th>Note</th><th class="num">Qty In</th><th class="num">Qty Out</th><th class="num">Balance</th><th class="num">Amount</th></tr></thead>
+                        <tbody id="rso-load-ledger-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ RSO ITEM LEDGER ============ -->
+        <section id="page-rso-item-ledger" class="page">
+            <div class="page-head">
+                <div>
+                    <h1>RSO Item Ledger</h1>
+                    <p class="page-sub">Stock movement per item from RSO loads — issued to RSOs from company inventory.</p>
+                </div>
+            </div>
+            <div class="report-toolbar">
+                <div class="report-field"><label>Item</label><select id="rso-il-item" onchange="renderRsoItemLedgerReport()"></select></div>
+                <div class="report-field" id="rso-il-rso-field"><label>RSO</label><select id="rso-il-rso" onchange="renderRsoItemLedgerReport()"></select></div>
+                <div class="report-field"><label>From</label><input type="date" id="rso-il-date-from" onchange="renderRsoItemLedgerReport()"></div>
+                <div class="report-field"><label>To</label><input type="date" id="rso-il-date-to" onchange="renderRsoItemLedgerReport()"></div>
+            </div>
+            <div class="report-summary-row">
+                <div class="report-summary-card"><span class="report-summary-label">Opening Stock</span><span class="report-summary-value" id="rso-il-opening">0</span></div>
+                <div class="report-summary-card"><span class="report-summary-label">Closing Stock</span><span class="report-summary-value" id="rso-il-closing">0</span></div>
+            </div>
+            <div class="card table-card">
+                <div class="table-scroll">
+                    <table class="data-table">
+                        <thead><tr><th>Date</th><th>Type</th><th>Ref</th><th>Note</th><th class="num">Qty In</th><th class="num">Qty Out</th><th class="num">Balance</th></tr></thead>
+                        <tbody id="rso-item-ledger-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ SIM ACTIVATIONS ============ -->
+        <section id="page-activations" class="page">
+            <div class="page-head">
+                <div><h1>SIM Activations</h1><p class="page-sub">Daily activation claims logged by RSOs or admin.</p></div>
+                <button class="btn btn-primary" onclick="openActivationForm()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    New Entry
+                </button>
+            </div>
+            <div class="toolbar-row">
+                <div class="search-field">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input type="text" id="activation-search" placeholder="Search…" oninput="renderActivationList()">
+                </div>
+                <div class="date-filter">
+                    <input type="date" id="activation-from" onchange="renderActivationList()">
+                    <span>to</span>
+                    <input type="date" id="activation-to" onchange="renderActivationList()">
+                </div>
+                <span class="count-pill" id="activation-count">0 entries</span>
+            </div>
+            <div class="card table-card"><div class="table-scroll">
+                <table class="data-table"><thead><tr><th>Date</th><th>Customer</th><th class="num">Claimed SIMs</th><th class="rso-admin-col">RSO</th><th>Note</th><th></th></tr></thead>
+                <tbody id="activation-table-body"></tbody></table>
+            </div></div>
+        </section>
+
+        <!-- Activation Form Modal -->
+        <div class="modal-backdrop hidden" id="activation-modal">
+            <div class="modal">
+                <div class="modal-head">
+                    <h2 id="activation-modal-title">New Activation Entry</h2>
+                    <button class="icon-btn" onclick="closeActivationForm()" title="Close"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+                </div>
+                <form id="activation-form" class="modal-body" onsubmit="return false;">
+                    <input type="hidden" id="activation-id">
+                    <div class="form-section">
+                        <div class="field" id="activation-rso-field">
+                            <label for="activation-rso-user">RSO <span class="req">*</span></label>
+                            <select id="activation-rso-user" onchange="onActivationRsoChange()"></select>
+                        </div>
+                        <div class="field-grid">
+                            <div class="field"><label for="activation-date">Date <span class="req">*</span></label><input type="date" id="activation-date" required></div>
+                            <div class="field"><label for="activation-customer">Customer <span class="req">*</span></label><select id="activation-customer"></select></div>
+                        </div>
+                        <div class="field-grid">
+                            <div class="field"><label for="activation-claimed">Claimed SIMs <span class="req">*</span></label><input type="number" id="activation-claimed" min="1" placeholder="e.g. 50" required></div>
+                            <div class="field"><label for="activation-note">Note</label><input type="text" id="activation-note" placeholder="Optional"></div>
+                        </div>
+                    </div>
+                </form>
+                <div class="modal-foot">
+                    <button class="btn btn-ghost" onclick="closeActivationForm()">Cancel</button>
+                    <button class="btn btn-primary" id="activation-save-btn" onclick="saveActivation()"><span class="btn-label">Save Entry</span><span class="btn-spinner hidden"></span></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ MONTHLY VERIFICATION ============ -->
+        <section id="page-verification" class="page">
+            <div class="page-head">
+                <div><h1>Monthly Verification</h1><p class="page-sub">Real / non-real SIM results from telco report. Update when PKG converts non-real to real.</p></div>
+                <button class="btn btn-primary" onclick="openVerificationForm()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    New Record
+                </button>
+            </div>
+            <div class="toolbar-row">
+                <span class="count-pill" id="verification-count">0 records</span>
+            </div>
+            <div class="card table-card"><div class="table-scroll">
+                <table class="data-table"><thead><tr><th>Period</th><th>Customer</th><th class="num">Claimed</th><th class="num">Real</th><th class="num">Non-Real</th><th class="num">Commission</th><th>Status</th><th></th></tr></thead>
+                <tbody id="verification-table-body"></tbody></table>
+            </div></div>
+        </section>
+
+        <!-- Verification Form Modal -->
+        <div class="modal-backdrop hidden" id="verification-modal">
+            <div class="modal">
+                <div class="modal-head">
+                    <h2 id="verification-modal-title">New Verification</h2>
+                    <button class="icon-btn" onclick="closeVerificationForm()" title="Close"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+                </div>
+                <form id="verification-form" class="modal-body" onsubmit="return false;">
+                    <input type="hidden" id="verification-id">
+                    <div class="form-section">
+                        <div class="field-grid">
+                            <div class="field"><label for="verification-period">Month <span class="req">*</span></label><input type="month" id="verification-period" required></div>
+                            <div class="field"><label for="verification-customer">Customer <span class="req">*</span></label><select id="verification-customer" onchange="recalcVerificationCommission()"></select></div>
+                        </div>
+                        <div class="field-grid">
+                            <div class="field"><label for="verification-claimed">Total Claimed</label><input type="number" id="verification-claimed" min="0" placeholder="0"></div>
+                            <div class="field"><label for="verification-real">Real SIMs</label><input type="number" id="verification-real" min="0" placeholder="0" oninput="recalcVerificationCommission()"></div>
+                            <div class="field"><label for="verification-nonreal">Non-Real SIMs</label><input type="number" id="verification-nonreal" min="0" placeholder="0"></div>
+                        </div>
+                        <div class="field-grid" style="align-items:center">
+                            <div style="font-size:0.95rem;color:var(--ink)">Commission: <strong id="verification-commission">Rs. 0</strong> <span id="verification-rate-display" style="color:var(--ink-faint);font-size:0.85rem"></span></div>
+                            <div class="field"><label for="verification-status">Status</label>
+                                <select id="verification-status">
+                                    <option value="Pending">Pending</option>
+                                    <option value="Verified">Verified</option>
+                                    <option value="Paid">Paid</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+                <div class="modal-foot">
+                    <button class="btn btn-ghost" onclick="closeVerificationForm()">Cancel</button>
+                    <button class="btn btn-primary" id="verification-save-btn" onclick="saveVerification()"><span class="btn-label">Save</span><span class="btn-spinner hidden"></span></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ BVS DEVICES ============ -->
+        <section id="page-bvs-devices" class="page">
+            <div class="page-head">
+                <div><h1>BVS Device Register</h1><p class="page-sub">Track BVS devices — which retailer has which device.</p></div>
+                <button class="btn btn-primary" onclick="openBvsDeviceForm()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    Add Device
+                </button>
+            </div>
+            <div class="toolbar-row">
+                <div class="search-field">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input type="text" id="bvs-search" placeholder="Search by IMEI or retailer…" oninput="renderBvsDeviceList()">
+                </div>
+                <span class="count-pill" id="bvs-count">0 devices</span>
+            </div>
+            <div class="card table-card"><div class="table-scroll">
+                <table class="data-table"><thead><tr><th>IMEI</th><th>Assigned To</th><th>Status</th><th>Since</th><th></th></tr></thead>
+                <tbody id="bvs-table-body"></tbody></table>
+            </div></div>
+        </section>
+
+        <!-- BVS Add Device Modal -->
+        <div class="modal-backdrop hidden" id="bvs-device-modal">
+            <div class="modal">
+                <div class="modal-head">
+                    <h2 id="bvs-device-modal-title">Add BVS Device</h2>
+                    <button class="icon-btn" onclick="closeBvsDeviceForm()" title="Close"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+                </div>
+                <form id="bvs-device-form" class="modal-body" onsubmit="return false;">
+                    <div class="form-section">
+                        <div class="field">
+                            <label for="bvs-imei">IMEI Number <span class="req">*</span></label>
+                            <input type="text" id="bvs-imei" placeholder="e.g. 35698700001234" required>
+                        </div>
+                    </div>
+                </form>
+                <div class="modal-foot">
+                    <button class="btn btn-ghost" onclick="closeBvsDeviceForm()">Cancel</button>
+                    <button class="btn btn-primary" id="bvs-device-save-btn" onclick="saveBvsDevice()"><span class="btn-label">Add Device</span><span class="btn-spinner hidden"></span></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- BVS Assign Modal -->
+        <div class="modal-backdrop hidden" id="bvs-assign-modal">
+            <div class="modal">
+                <div class="modal-head">
+                    <h2>Assign Device</h2>
+                    <button class="icon-btn" onclick="closeBvsAssignForm()" title="Close"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="bvs-assign-device-id">
+                    <p style="margin-bottom:1rem">Assign device <strong id="bvs-assign-imei"></strong> to a retailer:</p>
+                    <div class="field">
+                        <label for="bvs-assign-customer">Retailer <span class="req">*</span></label>
+                        <select id="bvs-assign-customer"></select>
+                    </div>
+                </div>
+                <div class="modal-foot">
+                    <button class="btn btn-ghost" onclick="closeBvsAssignForm()">Cancel</button>
+                    <button class="btn btn-primary" id="bvs-assign-save-btn" onclick="saveBvsAssignment()"><span class="btn-label">Assign</span><span class="btn-spinner hidden"></span></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- BVS History Modal -->
+        <div class="modal-backdrop hidden" id="bvs-history-modal">
+            <div class="modal">
+                <div class="modal-head">
+                    <h2>Device History — <span id="bvs-history-imei"></span></h2>
+                    <button class="icon-btn" onclick="closeBvsHistoryModal()" title="Close"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+                </div>
+                <div class="modal-body" id="bvs-history-body"></div>
+                <div class="modal-foot">
+                    <button class="btn btn-ghost" onclick="closeBvsHistoryModal()">Close</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ COMMISSION REPORT ============ -->
+        <section id="page-commission-report" class="page">
+            <div class="page-head">
+                <div><h1>Commission Report</h1><p class="page-sub">Monthly commission based on real SIM activations.</p></div>
+            </div>
+            <div class="card statement-section">
+                <div class="field" style="margin-bottom:1rem;max-width:220px">
+                    <label>Month</label>
+                    <input type="month" id="commission-report-period" onchange="renderCommissionReport()">
+                </div>
+                <div id="commission-report-body"><p class="hint">Select a month to view commission report.</p></div>
+            </div>
+        </section>
+
+        <!-- ============ SIM STATUS REPORT ============ -->
+        <section id="page-sim-status" class="page">
+            <div class="page-head">
+                <div><h1>SIM Status Report</h1><p class="page-sub">Overall activation performance — claimed vs real vs non-real.</p></div>
+            </div>
+            <div class="card statement-section">
+                <div id="sim-status-report-body"><p class="hint">Loading…</p></div>
+            </div>
+        </section>
+
         <!-- ============ RSO: REPORTS HUB ============ -->
         <section id="page-rso-reports" class="page">
             <div class="page-head">
@@ -3052,6 +3380,7 @@
 <script src="js/users.js"></script>
 <script src="js/rights.js"></script>
 <script src="js/rso.js"></script>
+<script src="js/sim-activation.js"></script>
 <script src="js/integrity.js"></script>
 <script src="js/dataentry.js"></script>
 <script src="js/vouchers.js"></script>

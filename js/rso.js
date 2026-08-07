@@ -36,6 +36,12 @@ function getAllRsoUsers() {
 }
 
 // ==================== RSO CUSTOMER MANAGEMENT ====================
+function onRsoCustTypeChange() {
+    const type = $('rso-cust-type')?.value || 'Retailer';
+    const simSection = $('rso-cust-sim-section');
+    if (simSection) simSection.style.display = (type === 'BTL') ? 'none' : '';
+}
+
 function renderRsoCustomerList(searchTerm = '') {
     const tbody = $('rso-customer-table-body');
     if (!tbody) return;
@@ -122,11 +128,19 @@ function openRsoCustomerForm(id = null) {
         $('rso-cust-area').value = c.area || '';
         $('rso-cust-credit-limit').value = c.creditLimit ? c.creditLimit.toLocaleString('en-US') : '';
         $('rso-cust-opening').value = c.openingBalance ? c.openingBalance.toLocaleString('en-US') : '';
+        $('rso-cust-type').value = c.customerType || 'Retailer';
+        $('rso-cust-source').value = c.source || 'RSO';
+        $('rso-cust-sim-pricing').value = c.simPricing || 'Free';
+        $('rso-cust-sim-rate').value = c.simRate ? c.simRate.toLocaleString('en-US') : '';
+        $('rso-cust-is-commission').checked = !!c.isCommission;
+        $('rso-cust-commission-rate').value = c.commissionRate ? c.commissionRate.toLocaleString('en-US') : '';
         if (!isRsoUser()) {
             $('rso-cust-rso-user').value = c.rsoUserId || '';
         }
+        onRsoCustTypeChange();
     } else {
         $('rso-customer-modal-title').textContent = 'New Customer';
+        onRsoCustTypeChange();
     }
 
     if (!isRsoUser()) {
@@ -173,13 +187,21 @@ async function saveRsoCustomer() {
         if (!rsoUserId) { showToast('Please select which RSO this customer belongs to.', 'warning'); return; }
     }
 
+    const customerType = $('rso-cust-type').value || 'Retailer';
+    const source = $('rso-cust-source').value || 'RSO';
+    const simPricing = $('rso-cust-sim-pricing').value || 'Free';
+    const simRate = parseAmount($('rso-cust-sim-rate').value);
+    const isCommission = $('rso-cust-is-commission').checked;
+    const commissionRate = parseAmount($('rso-cust-commission-rate').value);
+
     setBtnLoading(saveBtn, true);
 
     try {
         const record = {
             id: id || undefined,
             rsoUserId, name, shopName, mobile, address, area,
-            creditLimit, openingBalance
+            creditLimit, openingBalance,
+            customerType, source, simPricing, simRate, isCommission, commissionRate
         };
         await lfUpsert(LF_KEYS.RSO_CUSTOMERS, record);
         showToast(id ? 'Customer updated.' : 'Customer created.', 'success');
