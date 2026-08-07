@@ -789,12 +789,12 @@ async function deduplicateSystemAccounts() {
         for (const dup of extras) {
             const entries = ledger.filter(e => e.accountId === dup.id);
             for (const e of entries) {
-                await lfUpsert(LF_KEYS.ACCOUNT_LEDGER, { ...e, accountId: keeper.id });
+                await lfDelete(LF_KEYS.ACCOUNT_LEDGER, e.id);
             }
             await lfDelete(LF_KEYS.ACCOUNTS, dup.id);
         }
         if (extras.length > 0) {
-            console.log(`[Dedup] Merged ${extras.length} duplicate "${SYSTEM_ACCOUNTS[key].title}" accounts into one.`);
+            console.log(`[Dedup] Removed ${extras.length} duplicate "${SYSTEM_ACCOUNTS[key].title}" accounts and their ledger entries.`);
         }
     }
 
@@ -804,14 +804,18 @@ async function deduplicateSystemAccounts() {
         if (!acc) continue;
         const entries = lfGetAll(LF_KEYS.ACCOUNT_LEDGER).filter(e => e.accountId === acc.id);
         const seen = new Set();
+        let removed = 0;
         for (const e of entries) {
-            const dedupKey = `${e.invoiceId}|${e.accountId}|${e.side}`;
+            const dedupKey = `${e.invoiceId}|${e.side}`;
             if (seen.has(dedupKey)) {
                 await lfDelete(LF_KEYS.ACCOUNT_LEDGER, e.id);
-                console.log(`[Dedup] Removed duplicate ledger entry for invoice ${e.ref || e.invoiceId}`);
+                removed++;
             } else {
                 seen.add(dedupKey);
             }
+        }
+        if (removed > 0) {
+            console.log(`[Dedup] Removed ${removed} duplicate ledger entries from "${SYSTEM_ACCOUNTS[key].title}" account.`);
         }
     }
 }
