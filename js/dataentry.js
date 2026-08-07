@@ -738,6 +738,8 @@ async function syncRsoLoadFromInvoice(invoice, partyAccount) {
         rsoUserId,
         rsoName: rsoUser ? rsoUser.fullName : partyAccount.title,
         hasLoad: invoice.hasLoad,
+        loadAmount: invoice.loadAmount || 0,
+        loadTotal: invoice.loadTotal || 0,
         loadQty: invoice.loadQty || 0,
         items: (invoice.items || []).map(r => ({
             itemId: r.itemId,
@@ -757,17 +759,26 @@ async function backfillRsoLoadsFromInvoices() {
     const invoices = lfGetAll(LF_KEYS.INVOICES).filter(i =>
         !i.cancelled && i.type === 'Sale'
     );
-    const existingSourceIds = new Set(
-        lfGetAll(LF_KEYS.RSO_LOADS).filter(l => l.sourceInvoiceId).map(l => l.sourceInvoiceId)
-    );
+    const existingBySource = {};
+    lfGetAll(LF_KEYS.RSO_LOADS).filter(l => l.sourceInvoiceId).forEach(l => {
+        existingBySource[l.sourceInvoiceId] = l;
+    });
 
     let count = 0;
     for (const inv of invoices) {
-        if (existingSourceIds.has(inv.id)) continue;
         const party = lfFindById(LF_KEYS.ACCOUNTS, inv.partyAccountId);
         if (!party || party.type !== 'Employee/RSO') continue;
-        await syncRsoLoadFromInvoice(inv, party);
-        count++;
+
+        const existing = existingBySource[inv.id];
+        if (existing && existing.hasLoad && !existing.loadAmount && inv.loadAmount > 0) {
+            existing.loadAmount = inv.loadAmount;
+            existing.loadTotal = inv.loadTotal || 0;
+            await lfUpsert(LF_KEYS.RSO_LOADS, existing);
+            count++;
+        } else if (!existing) {
+            await syncRsoLoadFromInvoice(inv, party);
+            count++;
+        }
     }
     if (count > 0) {
         console.log(`[RSO Sync] Backfilled ${count} RSO load(s) from existing Sale invoices.`);
