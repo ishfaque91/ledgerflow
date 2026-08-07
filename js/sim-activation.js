@@ -30,42 +30,33 @@ function _buildRsoLoadLedgerEntries(rsoUserId) {
     let loads = lfGetAll(LF_KEYS.RSO_LOADS);
     if (rsoUserId) loads = loads.filter(l => l.rsoUserId === rsoUserId);
     loads.forEach(l => {
-        (l.items || []).forEach(row => {
-            entries.push({
-                date: l.date, type: 'Purchase', ref: l.number || '',
-                note: row.itemName || '',
-                qtyIn: row.qty || 0, qtyOut: 0,
-                amountIn: row.amount || ((row.qty || 0) * (row.rate || 0)),
-                amountOut: 0
-            });
+        entries.push({
+            date: l.date, type: 'Purchase', ref: l.number || '',
+            note: (l.items || []).map(r => r.itemName).filter(Boolean).join(', ') || 'Stock loaded',
+            amountIn: l.grandTotal || 0, amountOut: 0
         });
     });
 
     let sales = lfGetAll(LF_KEYS.RSO_SALES);
     if (rsoUserId) sales = sales.filter(s => s.rsoUserId === rsoUserId);
     sales.forEach(s => {
-        (s.items || []).forEach(row => {
+        const total = (s.itemsTotal || 0) + (s.loadTotal || 0);
+        if (total > 0) {
             entries.push({
                 date: s.date, type: 'Sale', ref: s.number || '',
-                note: `${row.itemName || ''} — ${s.customerName || ''}`,
-                qtyIn: 0, qtyOut: row.qty || 0,
-                amountIn: 0,
-                amountOut: row.amount || ((row.qty || 0) * (row.rate || 0))
+                note: s.customerName || '',
+                amountIn: 0, amountOut: total
             });
-        });
+        }
     });
 
     let returns = lfGetAll(LF_KEYS.RSO_RETURNS);
     if (rsoUserId) returns = returns.filter(r => r.rsoUserId === rsoUserId);
     returns.forEach(r => {
-        (r.items || []).forEach(row => {
-            entries.push({
-                date: r.date, type: 'Return', ref: r.number || '',
-                note: `${row.itemName || ''} — ${r.customerName || ''}`,
-                qtyIn: row.qty || 0, qtyOut: 0,
-                amountIn: row.amount || ((row.qty || 0) * (row.rate || 0)),
-                amountOut: 0
-            });
+        entries.push({
+            date: r.date, type: 'Return', ref: r.number || '',
+            note: r.customerName || '',
+            amountIn: r.grandTotal || 0, amountOut: 0
         });
     });
 
@@ -89,7 +80,7 @@ function renderRsoLoadLedgerReport() {
     let opening = 0;
     const within = [];
     allEntries.forEach(e => {
-        const net = e.qtyIn - e.qtyOut;
+        const net = e.amountIn - e.amountOut;
         if (dateFrom && e.date < dateFrom) { opening += net; return; }
         if (dateTo && e.date > dateTo) return;
         within.push(e);
@@ -97,16 +88,16 @@ function renderRsoLoadLedgerReport() {
 
     let running = opening;
     const rows = within.map(e => {
-        running += e.qtyIn - e.qtyOut;
+        running += e.amountIn - e.amountOut;
         return { ...e, balance: running };
     });
 
-    $('rso-ll-opening').textContent = opening.toLocaleString('en-US');
-    $('rso-ll-closing').textContent = (rows.length ? rows[rows.length - 1].balance : opening).toLocaleString('en-US');
+    $('rso-ll-opening').textContent = formatCurrency(opening);
+    $('rso-ll-closing').textContent = formatCurrency(rows.length ? rows[rows.length - 1].balance : opening);
 
     const tbody = $('rso-load-ledger-table-body');
     if (rows.length === 0) {
-        tbody.innerHTML = `<tr class="empty-row"><td colspan="8">No stock movement in this range.</td></tr>`;
+        tbody.innerHTML = `<tr class="empty-row"><td colspan="6">No movement in this range.</td></tr>`;
         return;
     }
     tbody.innerHTML = rows.map(e => `
@@ -115,10 +106,9 @@ function renderRsoLoadLedgerReport() {
             <td><span class="type-badge">${escapeHtml(e.type)}</span></td>
             <td>${escapeHtml(e.ref)}</td>
             <td>${escapeHtml(e.note) || '-'}</td>
-            <td class="num">${e.qtyIn > 0 ? e.qtyIn.toLocaleString('en-US') : '-'}</td>
-            <td class="num">${e.qtyOut > 0 ? e.qtyOut.toLocaleString('en-US') : '-'}</td>
-            <td class="num">${e.balance.toLocaleString('en-US')}</td>
-            <td class="num">${formatCurrency(e.amountIn || e.amountOut || 0)}</td>
+            <td class="num">${e.amountIn > 0 ? formatCurrency(e.amountIn) : '-'}</td>
+            <td class="num">${e.amountOut > 0 ? formatCurrency(e.amountOut) : '-'}</td>
+            <td class="num">${formatCurrency(e.balance)}</td>
         </tr>
     `).join('');
 }
