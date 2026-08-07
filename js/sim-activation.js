@@ -30,33 +30,39 @@ function _buildRsoLoadLedgerEntries(rsoUserId) {
     let loads = lfGetAll(LF_KEYS.RSO_LOADS);
     if (rsoUserId) loads = loads.filter(l => l.rsoUserId === rsoUserId);
     loads.forEach(l => {
+        if (!l.hasLoad || !l.loadQty) return;
+        const amt = l.loadAmount || l.loadTotal || 0;
+        if (amt <= 0) return;
         entries.push({
             date: l.date, type: 'Purchase', ref: l.number || '',
-            note: (l.items || []).map(r => r.itemName).filter(Boolean).join(', ') || 'Stock loaded',
-            amountIn: l.grandTotal || 0, amountOut: 0
+            note: 'Load balance credited',
+            amountIn: amt, amountOut: 0
         });
     });
 
     let sales = lfGetAll(LF_KEYS.RSO_SALES);
     if (rsoUserId) sales = sales.filter(s => s.rsoUserId === rsoUserId);
     sales.forEach(s => {
-        const total = s.grandTotal || ((s.itemsTotal || 0) + (s.loadTotal || 0));
-        if (total > 0) {
-            entries.push({
-                date: s.date, type: 'Sale', ref: s.number || '',
-                note: s.customerName || '',
-                amountIn: 0, amountOut: total
-            });
-        }
+        if (!s.hasLoad || !s.loadQty) return;
+        const amt = s.loadAmount || s.loadTotal || 0;
+        if (amt <= 0) return;
+        entries.push({
+            date: s.date, type: 'Sale', ref: s.number || '',
+            note: s.customerName || '',
+            amountIn: 0, amountOut: amt
+        });
     });
 
     let returns = lfGetAll(LF_KEYS.RSO_RETURNS);
     if (rsoUserId) returns = returns.filter(r => r.rsoUserId === rsoUserId);
     returns.forEach(r => {
+        if (!r.hasLoad || !r.loadQty) return;
+        const amt = r.loadAmount || r.loadTotal || 0;
+        if (amt <= 0) return;
         entries.push({
             date: r.date, type: 'Return', ref: r.number || '',
             note: r.customerName || '',
-            amountIn: r.grandTotal || 0, amountOut: 0
+            amountIn: amt, amountOut: 0
         });
     });
 
