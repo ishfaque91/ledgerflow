@@ -592,7 +592,7 @@ function openBvsAssignForm(deviceId) {
     $('bvs-assign-device-id').value = deviceId;
     $('bvs-assign-imei').textContent = d.imei;
 
-    const retailers = lfGetAll(LF_KEYS.RSO_CUSTOMERS).filter(c => c.customerType === 'Retailer');
+    const retailers = lfGetAll(LF_KEYS.RSO_CUSTOMERS).filter(c => (c.customerType || 'Retailer') === 'Retailer');
     $('bvs-assign-customer').innerHTML = '<option value="">Select retailer…</option>' +
         retailers.map(c => `<option value="${c.id}">${escapeHtml(c.shopName || c.name)}</option>`).join('');
 
