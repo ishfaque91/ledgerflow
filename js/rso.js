@@ -815,32 +815,13 @@ async function saveRsoSale() {
 
     try {
         if (id) {
-            await Promise.all([
-                lfDeleteWhereInvoiceId(LF_KEYS.ACCOUNT_LEDGER, id),
-                lfDeleteWhereInvoiceId(LF_KEYS.LOAD_LEDGER, id)
-            ]);
+            await lfDeleteWhereInvoiceId(LF_KEYS.LOAD_LEDGER, id);
         }
 
         const saleId = id || generateId();
         const number = id ? $('rso-sale-number').value : await takeNextDocNumber('RsoSale', 'RS');
 
         const writes = [];
-
-        if (rsoAccount && grandTotal > 0) {
-            writes.push(lfUpsert(LF_KEYS.ACCOUNT_LEDGER, {
-                invoiceId: saleId, accountId: rsoAccount.id, date, type: 'RsoSale',
-                ref: number, side: 'Cr', amount: grandTotal,
-                note: `RSO Sale ${number} to ${customer ? (customer.shopName || customer.name) : ''}`
-            }));
-        }
-
-        if (paidAmount > 0 && rsoAccount) {
-            writes.push(lfUpsert(LF_KEYS.ACCOUNT_LEDGER, {
-                invoiceId: saleId, accountId: rsoAccount.id, date, type: 'RsoSale',
-                ref: number, side: 'Dr', amount: paidAmount,
-                note: `RSO Sale ${number} — cash received`
-            }));
-        }
 
         if (hasLoad && loadQty > 0) {
             writes.push(lfUpsert(LF_KEYS.LOAD_LEDGER, {
@@ -888,10 +869,7 @@ async function deleteRsoSale(id) {
     if (!s) return;
     if (!confirm(`Delete sale ${s.number}?`)) return;
     try {
-        await Promise.all([
-            lfDeleteWhereInvoiceId(LF_KEYS.ACCOUNT_LEDGER, id),
-            lfDeleteWhereInvoiceId(LF_KEYS.LOAD_LEDGER, id)
-        ]);
+        await lfDeleteWhereInvoiceId(LF_KEYS.LOAD_LEDGER, id);
         const linkedRecoveries = lfGetAll(LF_KEYS.RSO_RECOVERIES).filter(r => r.saleId === id);
         for (const r of linkedRecoveries) await lfDelete(LF_KEYS.RSO_RECOVERIES, r.id);
         await lfDelete(LF_KEYS.RSO_SALES, id);
@@ -1070,18 +1048,8 @@ async function saveRsoReturn() {
     setBtnLoading(saveBtn, true);
 
     try {
-        if (id) await lfDeleteWhereInvoiceId(LF_KEYS.ACCOUNT_LEDGER, id);
-
         const returnId = id || generateId();
         const number = id ? $('rso-return-number').value : await takeNextDocNumber('RsoReturn', 'RR');
-
-        if (rsoAccount && grandTotal > 0) {
-            await lfUpsert(LF_KEYS.ACCOUNT_LEDGER, {
-                invoiceId: returnId, accountId: rsoAccount.id, date, type: 'RsoReturn',
-                ref: number, side: 'Dr', amount: grandTotal,
-                note: `RSO Return ${number} from ${customer ? (customer.shopName || customer.name) : ''}`
-            });
-        }
 
         const record = {
             id: returnId, number, date, rsoUserId,
@@ -1106,7 +1074,6 @@ async function deleteRsoReturn(id) {
     if (!r) return;
     if (!confirm(`Delete return ${r.number}?`)) return;
     try {
-        await lfDeleteWhereInvoiceId(LF_KEYS.ACCOUNT_LEDGER, id);
         await lfDelete(LF_KEYS.RSO_RETURNS, id);
         showToast('Return deleted.', 'success');
     } catch (e) {

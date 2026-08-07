@@ -820,8 +820,19 @@ async function deduplicateSystemAccounts() {
     }
 }
 
+async function cleanupRsoLedgerEntries() {
+    const rsoTypes = ['RsoSale', 'RsoReturn'];
+    const entries = lfGetAll(LF_KEYS.ACCOUNT_LEDGER).filter(e => rsoTypes.includes(e.type));
+    if (entries.length === 0) return;
+    for (const e of entries) {
+        await lfDelete(LF_KEYS.ACCOUNT_LEDGER, e.id);
+    }
+    console.log(`[RSO Cleanup] Removed ${entries.length} RSO Sale/Return entries from account ledger — these are internal RSO tracking and should not affect TB/BS.`);
+}
+
 async function backfillTradingEntries() {
     await deduplicateSystemAccounts();
+    await cleanupRsoLedgerEntries();
 
     const oldOeEntries = lfGetAll(LF_KEYS.ACCOUNT_LEDGER).filter(e =>
         e.note && e.note.includes('Owner Equity contribution')
