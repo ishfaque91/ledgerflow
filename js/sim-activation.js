@@ -35,12 +35,46 @@ function _buildRsoLoadLedgerEntries(rsoUserId) {
                 date: l.date, type: 'Purchase', ref: l.number || '',
                 note: row.itemName || '',
                 qtyIn: row.qty || 0, qtyOut: 0,
-                amountChange: row.amount || ((row.qty || 0) * (row.rate || 0))
+                amountIn: row.amount || ((row.qty || 0) * (row.rate || 0)),
+                amountOut: 0
             });
         });
     });
 
-    entries.sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+    let sales = lfGetAll(LF_KEYS.RSO_SALES);
+    if (rsoUserId) sales = sales.filter(s => s.rsoUserId === rsoUserId);
+    sales.forEach(s => {
+        (s.items || []).forEach(row => {
+            entries.push({
+                date: s.date, type: 'Sale', ref: s.number || '',
+                note: `${row.itemName || ''} — ${s.customerName || ''}`,
+                qtyIn: 0, qtyOut: row.qty || 0,
+                amountIn: 0,
+                amountOut: row.amount || ((row.qty || 0) * (row.rate || 0))
+            });
+        });
+    });
+
+    let returns = lfGetAll(LF_KEYS.RSO_RETURNS);
+    if (rsoUserId) returns = returns.filter(r => r.rsoUserId === rsoUserId);
+    returns.forEach(r => {
+        (r.items || []).forEach(row => {
+            entries.push({
+                date: r.date, type: 'Return', ref: r.number || '',
+                note: `${row.itemName || ''} — ${r.customerName || ''}`,
+                qtyIn: row.qty || 0, qtyOut: 0,
+                amountIn: row.amount || ((row.qty || 0) * (row.rate || 0)),
+                amountOut: 0
+            });
+        });
+    });
+
+    entries.sort((a, b) => {
+        const d = (a.date || '').localeCompare(b.date || '');
+        if (d !== 0) return d;
+        const order = { 'Purchase': 0, 'Return': 1, 'Sale': 2 };
+        return (order[a.type] || 9) - (order[b.type] || 9);
+    });
 
     return entries;
 }
@@ -52,37 +86,39 @@ function renderRsoLoadLedgerReport() {
 
     const allEntries = _buildRsoLoadLedgerEntries(rsoUserId);
 
-    let openingQty = 0, openingAmt = 0;
+    let opening = 0;
     const within = [];
     allEntries.forEach(e => {
-        if (dateFrom && e.date < dateFrom) { openingQty += e.qtyIn; openingAmt += (e.amountChange || 0); return; }
+        const net = e.qtyIn - e.qtyOut;
+        if (dateFrom && e.date < dateFrom) { opening += net; return; }
         if (dateTo && e.date > dateTo) return;
         within.push(e);
     });
 
-    let runningQty = openingQty, runningAmt = openingAmt;
+    let running = opening;
     const rows = within.map(e => {
-        runningQty += e.qtyIn;
-        runningAmt += (e.amountChange || 0);
-        return { ...e, runningQty, runningAmt };
+        running += e.qtyIn - e.qtyOut;
+        return { ...e, balance: running };
     });
 
-    $('rso-ll-opening').textContent = openingQty.toLocaleString('en-US');
-    $('rso-ll-closing').textContent = (rows.length ? rows[rows.length - 1].runningQty : openingQty).toLocaleString('en-US');
+    $('rso-ll-opening').textContent = opening.toLocaleString('en-US');
+    $('rso-ll-closing').textContent = (rows.length ? rows[rows.length - 1].balance : opening).toLocaleString('en-US');
 
     const tbody = $('rso-load-ledger-table-body');
     if (rows.length === 0) {
-        tbody.innerHTML = `<tr class="empty-row"><td colspan="6">No purchases in this range.</td></tr>`;
+        tbody.innerHTML = `<tr class="empty-row"><td colspan="8">No stock movement in this range.</td></tr>`;
         return;
     }
     tbody.innerHTML = rows.map(e => `
         <tr>
             <td>${escapeHtml(e.date)}</td>
+            <td><span class="type-badge">${escapeHtml(e.type)}</span></td>
             <td>${escapeHtml(e.ref)}</td>
             <td>${escapeHtml(e.note) || '-'}</td>
-            <td class="num">${e.qtyIn.toLocaleString('en-US')}</td>
-            <td class="num">${formatCurrency(e.amountChange || 0)}</td>
-            <td class="num">${formatCurrency(e.runningAmt)}</td>
+            <td class="num">${e.qtyIn > 0 ? e.qtyIn.toLocaleString('en-US') : '-'}</td>
+            <td class="num">${e.qtyOut > 0 ? e.qtyOut.toLocaleString('en-US') : '-'}</td>
+            <td class="num">${e.balance.toLocaleString('en-US')}</td>
+            <td class="num">${formatCurrency(e.amountIn || e.amountOut || 0)}</td>
         </tr>
     `).join('');
 }
@@ -562,9 +598,10 @@ function openBvsAssignForm(deviceId) {
     $('bvs-assign-device-id').value = deviceId;
     $('bvs-assign-imei').textContent = d.imei;
 
-    const retailers = lfGetAll(LF_KEYS.RSO_CUSTOMERS).filter(c => (c.customerType || 'Retailer') === 'Retailer');
-    $('bvs-assign-customer').innerHTML = '<option value="">Select retailer…</option>' +
-        retailers.map(c => `<option value="${c.id}">${escapeHtml(c.shopName || c.name)}</option>`).join('');
+    let customers = lfGetAll(LF_KEYS.RSO_CUSTOMERS);
+    if (isRsoUser()) customers = customers.filter(c => c.rsoUserId === getCurrentRsoUserId());
+    $('bvs-assign-customer').innerHTML = '<option value="">Select customer…</option>' +
+        customers.map(c => `<option value="${c.id}">${escapeHtml(c.shopName || c.name)}</option>`).join('');
 
     $('bvs-assign-modal').classList.remove('hidden');
 }
