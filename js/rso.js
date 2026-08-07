@@ -359,6 +359,7 @@ function getRsoLoadItemRows() {
 }
 
 function recalcRsoLoadTotal() {
+    document.querySelectorAll('#rso-load-item-rows .item-row').forEach(row => updateRowAmount(row));
     const items = getRsoLoadItemRows();
     const total = items.reduce((sum, r) => sum + r.amount, 0);
     $('rso-load-grand-total').textContent = formatCurrency(total);
@@ -782,6 +783,7 @@ function getRsoSaleItemRows() {
 }
 
 function recalcRsoSaleTotal() {
+    document.querySelectorAll('#rso-sale-item-rows .item-row').forEach(row => updateRowAmount(row));
     const itemsTotal = getRsoSaleItemRows().reduce((sum, r) => sum + r.amount, 0);
     const loadTotal = $('rso-sale-has-load').checked ? parseAmount($('rso-sale-load-amount').value) : 0;
     const grandTotal = itemsTotal + loadTotal;
@@ -1043,6 +1045,7 @@ function getRsoReturnItemRows() {
 }
 
 function recalcRsoReturnTotal() {
+    document.querySelectorAll('#rso-return-item-rows .item-row').forEach(row => updateRowAmount(row));
     const items = getRsoReturnItemRows();
     const total = items.reduce((sum, r) => sum + r.amount, 0);
     $('rso-return-grand-total').textContent = formatCurrency(total);
