@@ -175,9 +175,23 @@ function renderCashBookReport() {
 }
 
 // ==================== LOAD LEDGER ====================
+function _loadLedgerTypeOrder(type) {
+    if (type === 'Purchase') return 0;
+    if (type === 'PurchaseReturn') return 1;
+    if (type === 'RsoLoad') return 2;
+    if (type === 'RsoSale') return 3;
+    if (type === 'RsoReturn') return 4;
+    if (type === 'Sale') return 5;
+    if (type === 'SaleReturn') return 6;
+    return 9;
+}
+
 function computeLoadLedgerRows(dateFrom, dateTo) {
     const activeIds = getActiveDocIds();
-    const entries = lfGetAll(LF_KEYS.LOAD_LEDGER).filter(e => isActiveLedgerEntry(e, activeIds)).sort((a, b) => new Date(a.date) - new Date(b.date));
+    const entries = lfGetAll(LF_KEYS.LOAD_LEDGER).filter(e => isActiveLedgerEntry(e, activeIds)).sort((a, b) => {
+        const d = new Date(a.date) - new Date(b.date);
+        return d !== 0 ? d : _loadLedgerTypeOrder(a.type) - _loadLedgerTypeOrder(b.type);
+    });
     let opening = 0, openingAmt = 0;
     const within = [];
 

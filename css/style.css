@@ -1318,6 +1318,11 @@ button { font-family: inherit; }
 .dash-tab[data-accent="violet"] { --tab-bg: linear-gradient(135deg, #0284C7, #38BDF8); --tab-bg-hover: linear-gradient(135deg, #0273AD, #2AAFEF); }
 .dash-tab[data-accent="amber"]  { --tab-bg: linear-gradient(135deg, #D97706, #F59E0B); --tab-bg-hover: linear-gradient(135deg, #C26B05, #E08E06); }
 .dash-tab[data-accent="slate"]  { --tab-bg: linear-gradient(135deg, #475569, #64748B); --tab-bg-hover: linear-gradient(135deg, #3D4A5C, #5A6A7E); }
+.dash-tab[data-accent="blue"]   { --tab-bg: linear-gradient(135deg, #2563EB, #3B82F6); --tab-bg-hover: linear-gradient(135deg, #1D4ED8, #2563EB); }
+.dash-tab[data-accent="cyan"]   { --tab-bg: linear-gradient(135deg, #0891B2, #06B6D4); --tab-bg-hover: linear-gradient(135deg, #0E7490, #0891B2); }
+.dash-tab[data-accent="green"]  { --tab-bg: linear-gradient(135deg, #16A34A, #22C55E); --tab-bg-hover: linear-gradient(135deg, #15803D, #16A34A); }
+.dash-tab[data-accent="rose"]   { --tab-bg: linear-gradient(135deg, #E11D48, #F43F5E); --tab-bg-hover: linear-gradient(135deg, #BE123C, #E11D48); }
+.dash-tab[data-accent="orange"] { --tab-bg: linear-gradient(135deg, #EA580C, #F97316); --tab-bg-hover: linear-gradient(135deg, #C2410C, #EA580C); }
 
 .dash-tab {
     display: flex;

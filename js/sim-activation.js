@@ -24,36 +24,75 @@ function initRsoLoadLedgerPage() {
     renderRsoLoadLedgerReport();
 }
 
+function _buildRsoLoadLedgerEntries(rsoUserId) {
+    const entries = [];
+
+    let loads = lfGetAll(LF_KEYS.RSO_LOADS);
+    if (rsoUserId) loads = loads.filter(l => l.rsoUserId === rsoUserId);
+    loads.forEach(l => {
+        const totalQty = (l.items || []).reduce((s, r) => s + (r.qty || 0), 0);
+        entries.push({
+            date: l.date, type: 'Stock In', ref: l.number || '',
+            note: 'Stock received from company',
+            qtyIn: totalQty, qtyOut: 0,
+            amountChange: l.grandTotal || 0
+        });
+    });
+
+    let sales = lfGetAll(LF_KEYS.RSO_SALES);
+    if (rsoUserId) sales = sales.filter(s => s.rsoUserId === rsoUserId);
+    sales.forEach(s => {
+        const totalQty = (s.items || []).reduce((sum, r) => sum + (r.qty || 0), 0) + (s.loadQty || 0);
+        entries.push({
+            date: s.date, type: 'Sale', ref: s.number || '',
+            note: `Sold to ${s.customerName || ''}`,
+            qtyIn: 0, qtyOut: totalQty,
+            amountChange: s.grandTotal || 0
+        });
+    });
+
+    let returns = lfGetAll(LF_KEYS.RSO_RETURNS);
+    if (rsoUserId) returns = returns.filter(r => r.rsoUserId === rsoUserId);
+    returns.forEach(r => {
+        const totalQty = (r.items || []).reduce((sum, row) => sum + (row.qty || 0), 0);
+        entries.push({
+            date: r.date, type: 'Return', ref: r.number || '',
+            note: `Return from ${r.customerName || ''}`,
+            qtyIn: totalQty, qtyOut: 0,
+            amountChange: r.grandTotal || 0
+        });
+    });
+
+    entries.sort((a, b) => {
+        const d = (a.date || '').localeCompare(b.date || '');
+        if (d !== 0) return d;
+        const order = { 'Stock In': 0, 'Return': 1, 'Sale': 2 };
+        return (order[a.type] || 9) - (order[b.type] || 9);
+    });
+
+    return entries;
+}
+
 function renderRsoLoadLedgerReport() {
     const rsoUserId = isRsoUser() ? getCurrentRsoUserId() : ($('rso-ll-rso')?.value || '');
     const dateFrom = $('rso-ll-date-from')?.value || '';
     const dateTo = $('rso-ll-date-to')?.value || '';
 
-    const rsoTypes = ['RsoSale', 'RsoReturn', 'RsoLoad'];
-    let entries = lfGetAll(LF_KEYS.LOAD_LEDGER).filter(e => rsoTypes.includes(e.type));
-
-    if (rsoUserId) {
-        const rsoLoads = lfGetAll(LF_KEYS.RSO_LOADS).filter(l => l.rsoUserId === rsoUserId);
-        const rsoSales = lfGetAll(LF_KEYS.RSO_SALES).filter(s => s.rsoUserId === rsoUserId);
-        const rsoInvoiceIds = new Set([...rsoLoads.map(l => l.id), ...rsoSales.map(s => s.id)]);
-        entries = entries.filter(e => rsoInvoiceIds.has(e.invoiceId));
-    }
-
-    entries.sort((a, b) => new Date(a.date) - new Date(b.date));
+    const allEntries = _buildRsoLoadLedgerEntries(rsoUserId);
 
     let opening = 0, openingAmt = 0;
     const within = [];
-    entries.forEach(e => {
-        if (dateFrom && e.date < dateFrom) { opening += e.qtyChange; openingAmt += (e.amountChange || 0); return; }
+    allEntries.forEach(e => {
+        const net = e.qtyIn - e.qtyOut;
+        if (dateFrom && e.date < dateFrom) { opening += net; openingAmt += (e.amountChange || 0) * (net >= 0 ? 1 : -1); return; }
         if (dateTo && e.date > dateTo) return;
         within.push(e);
     });
 
-    let running = opening, runningAmt = openingAmt;
+    let running = opening;
     const rows = within.map(e => {
-        running += e.qtyChange;
-        runningAmt += (e.amountChange || 0);
-        return { ...e, runningBalance: running, runningAmount: runningAmt };
+        running += e.qtyIn - e.qtyOut;
+        return { ...e, runningBalance: running };
     });
 
     $('rso-ll-opening').textContent = opening.toLocaleString('en-US');
@@ -61,7 +100,7 @@ function renderRsoLoadLedgerReport() {
 
     const tbody = $('rso-load-ledger-table-body');
     if (rows.length === 0) {
-        tbody.innerHTML = `<tr class="empty-row"><td colspan="8">No load movement in this range.</td></tr>`;
+        tbody.innerHTML = `<tr class="empty-row"><td colspan="8">No stock movement in this range.</td></tr>`;
         return;
     }
     tbody.innerHTML = rows.map(e => `
@@ -70,10 +109,10 @@ function renderRsoLoadLedgerReport() {
             <td><span class="type-badge">${escapeHtml(e.type)}</span></td>
             <td>${escapeHtml(e.ref)}</td>
             <td>${escapeHtml(e.note) || '-'}</td>
-            <td class="num">${e.qtyChange > 0 ? e.qtyChange.toLocaleString('en-US') : '-'}</td>
-            <td class="num">${e.qtyChange < 0 ? Math.abs(e.qtyChange).toLocaleString('en-US') : '-'}</td>
+            <td class="num">${e.qtyIn > 0 ? e.qtyIn.toLocaleString('en-US') : '-'}</td>
+            <td class="num">${e.qtyOut > 0 ? e.qtyOut.toLocaleString('en-US') : '-'}</td>
             <td class="num">${e.runningBalance.toLocaleString('en-US')}</td>
-            <td class="num">${formatCurrency(Math.abs(e.amountChange || 0))}</td>
+            <td class="num">${formatCurrency(e.amountChange || 0)}</td>
         </tr>
     `).join('');
 }
@@ -94,41 +133,86 @@ function initRsoItemLedgerPage() {
     renderRsoItemLedgerReport();
 }
 
+function _buildRsoItemLedgerEntries(rsoUserId, itemId) {
+    const entries = [];
+
+    let loads = lfGetAll(LF_KEYS.RSO_LOADS);
+    if (rsoUserId) loads = loads.filter(l => l.rsoUserId === rsoUserId);
+    loads.forEach(l => {
+        (l.items || []).forEach(row => {
+            if (itemId && row.itemId !== itemId) return;
+            entries.push({
+                date: l.date, type: 'Stock In', ref: l.number || '',
+                itemName: row.itemName || '',
+                note: 'Received from company',
+                qtyIn: row.qty || 0, qtyOut: 0
+            });
+        });
+    });
+
+    let sales = lfGetAll(LF_KEYS.RSO_SALES);
+    if (rsoUserId) sales = sales.filter(s => s.rsoUserId === rsoUserId);
+    sales.forEach(s => {
+        (s.items || []).forEach(row => {
+            if (itemId && row.itemId !== itemId) return;
+            entries.push({
+                date: s.date, type: 'Sale', ref: s.number || '',
+                itemName: row.itemName || '',
+                note: `Sold to ${s.customerName || ''}`,
+                qtyIn: 0, qtyOut: row.qty || 0
+            });
+        });
+    });
+
+    let returns = lfGetAll(LF_KEYS.RSO_RETURNS);
+    if (rsoUserId) returns = returns.filter(r => r.rsoUserId === rsoUserId);
+    returns.forEach(r => {
+        (r.items || []).forEach(row => {
+            if (itemId && row.itemId !== itemId) return;
+            entries.push({
+                date: r.date, type: 'Return', ref: r.number || '',
+                itemName: row.itemName || '',
+                note: `Return from ${r.customerName || ''}`,
+                qtyIn: row.qty || 0, qtyOut: 0
+            });
+        });
+    });
+
+    entries.sort((a, b) => {
+        const d = (a.date || '').localeCompare(b.date || '');
+        if (d !== 0) return d;
+        const order = { 'Stock In': 0, 'Return': 1, 'Sale': 2 };
+        return (order[a.type] || 9) - (order[b.type] || 9);
+    });
+
+    return entries;
+}
+
 function renderRsoItemLedgerReport() {
     const itemId = $('rso-il-item')?.value || '';
     const rsoUserId = isRsoUser() ? getCurrentRsoUserId() : ($('rso-il-rso')?.value || '');
     const dateFrom = $('rso-il-date-from')?.value || '';
     const dateTo = $('rso-il-date-to')?.value || '';
 
-    const rsoTypes = ['RsoLoad'];
-    let entries = lfGetAll(LF_KEYS.ITEM_LEDGER).filter(e => rsoTypes.includes(e.type));
-
-    if (itemId) entries = entries.filter(e => e.itemId === itemId);
-
-    if (rsoUserId) {
-        const rsoLoads = lfGetAll(LF_KEYS.RSO_LOADS).filter(l => l.rsoUserId === rsoUserId);
-        const rsoInvoiceIds = new Set(rsoLoads.map(l => l.id));
-        entries = entries.filter(e => rsoInvoiceIds.has(e.invoiceId));
-    }
-
-    entries.sort((a, b) => new Date(a.date) - new Date(b.date));
+    const allEntries = _buildRsoItemLedgerEntries(rsoUserId, itemId);
 
     let opening = 0;
     const within = [];
-    entries.forEach(e => {
-        if (dateFrom && e.date < dateFrom) { opening += e.qtyChange; return; }
+    allEntries.forEach(e => {
+        const net = e.qtyIn - e.qtyOut;
+        if (dateFrom && e.date < dateFrom) { opening += net; return; }
         if (dateTo && e.date > dateTo) return;
         within.push(e);
     });
 
     let running = opening;
     const rows = within.map(e => {
-        running += e.qtyChange;
+        running += e.qtyIn - e.qtyOut;
         return { ...e, runningBalance: running };
     });
 
-    $('rso-il-opening').textContent = Math.abs(opening).toLocaleString('en-US');
-    $('rso-il-closing').textContent = Math.abs(rows.length ? rows[rows.length - 1].runningBalance : opening).toLocaleString('en-US');
+    $('rso-il-opening').textContent = opening.toLocaleString('en-US');
+    $('rso-il-closing').textContent = (rows.length ? rows[rows.length - 1].runningBalance : opening).toLocaleString('en-US');
 
     const tbody = $('rso-item-ledger-table-body');
     if (rows.length === 0) {
@@ -140,10 +224,10 @@ function renderRsoItemLedgerReport() {
             <td>${escapeHtml(e.date)}</td>
             <td><span class="type-badge">${escapeHtml(e.type)}</span></td>
             <td>${escapeHtml(e.ref)}</td>
-            <td>${escapeHtml(e.note) || '-'}</td>
-            <td class="num">${e.qtyChange > 0 ? e.qtyChange.toLocaleString('en-US') : '-'}</td>
-            <td class="num">${e.qtyChange < 0 ? Math.abs(e.qtyChange).toLocaleString('en-US') : '-'}</td>
-            <td class="num">${Math.abs(e.runningBalance).toLocaleString('en-US')}</td>
+            <td>${escapeHtml(e.itemName ? e.itemName + (e.note ? ' — ' + e.note : '') : e.note) || '-'}</td>
+            <td class="num">${e.qtyIn > 0 ? e.qtyIn.toLocaleString('en-US') : '-'}</td>
+            <td class="num">${e.qtyOut > 0 ? e.qtyOut.toLocaleString('en-US') : '-'}</td>
+            <td class="num">${e.runningBalance.toLocaleString('en-US')}</td>
         </tr>
     `).join('');
 }
