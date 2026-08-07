@@ -55,7 +55,14 @@ const SYSTEM_ACCOUNTS = {
     sales:     { title: 'Sales',     type: 'Income',  flag: 'sys-sales',     side: 'Cr' }
 };
 
+const _sysAccPromises = {};
 async function getOrCreateSystemAccount(key) {
+    if (_sysAccPromises[key]) return _sysAccPromises[key];
+    _sysAccPromises[key] = _getOrCreateSystemAccountInner(key);
+    try { return await _sysAccPromises[key]; }
+    finally { _sysAccPromises[key] = null; }
+}
+async function _getOrCreateSystemAccountInner(key) {
     const spec = SYSTEM_ACCOUNTS[key];
     const existing = lfGetAll(LF_KEYS.ACCOUNTS).find(a => a.systemAccount === spec.flag);
     if (existing) return existing.id;
@@ -65,9 +72,8 @@ async function getOrCreateSystemAccount(key) {
         mobile: '', phone: '', email: '', city: '', gst: '', ntn: '', address: '',
         openingAmount: 0, openingSide: spec.side
     };
-    await lfUpsert(LF_KEYS.ACCOUNTS, record);
-    const created = lfGetAll(LF_KEYS.ACCOUNTS).find(a => a.systemAccount === spec.flag);
-    return created ? created.id : record.id;
+    const created = await lfUpsert(LF_KEYS.ACCOUNTS, record);
+    return created.id;
 }
 
 // ==================== ACCOUNT BALANCE (opening + every ledger movement since) ====================
@@ -770,7 +776,49 @@ async function backfillRsoLoadsFromInvoices() {
     return count;
 }
 
+async function deduplicateSystemAccounts() {
+    for (const key of Object.keys(SYSTEM_ACCOUNTS)) {
+        const flag = SYSTEM_ACCOUNTS[key].flag;
+        const dupes = lfGetAll(LF_KEYS.ACCOUNTS).filter(a => a.systemAccount === flag);
+        if (dupes.length <= 1) continue;
+
+        const keeper = dupes[0];
+        const extras = dupes.slice(1);
+        const ledger = lfGetAll(LF_KEYS.ACCOUNT_LEDGER);
+
+        for (const dup of extras) {
+            const entries = ledger.filter(e => e.accountId === dup.id);
+            for (const e of entries) {
+                await lfUpsert(LF_KEYS.ACCOUNT_LEDGER, { ...e, accountId: keeper.id });
+            }
+            await lfDelete(LF_KEYS.ACCOUNTS, dup.id);
+        }
+        if (extras.length > 0) {
+            console.log(`[Dedup] Merged ${extras.length} duplicate "${SYSTEM_ACCOUNTS[key].title}" accounts into one.`);
+        }
+    }
+
+    for (const key of Object.keys(SYSTEM_ACCOUNTS)) {
+        const flag = SYSTEM_ACCOUNTS[key].flag;
+        const acc = lfGetAll(LF_KEYS.ACCOUNTS).find(a => a.systemAccount === flag);
+        if (!acc) continue;
+        const entries = lfGetAll(LF_KEYS.ACCOUNT_LEDGER).filter(e => e.accountId === acc.id);
+        const seen = new Set();
+        for (const e of entries) {
+            const dedupKey = `${e.invoiceId}|${e.accountId}|${e.side}`;
+            if (seen.has(dedupKey)) {
+                await lfDelete(LF_KEYS.ACCOUNT_LEDGER, e.id);
+                console.log(`[Dedup] Removed duplicate ledger entry for invoice ${e.ref || e.invoiceId}`);
+            } else {
+                seen.add(dedupKey);
+            }
+        }
+    }
+}
+
 async function backfillTradingEntries() {
+    await deduplicateSystemAccounts();
+
     const oldOeEntries = lfGetAll(LF_KEYS.ACCOUNT_LEDGER).filter(e =>
         e.note && e.note.includes('Owner Equity contribution')
     );
