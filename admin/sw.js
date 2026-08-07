@@ -2,7 +2,7 @@
  * TeleFlow Super Admin — service worker. Same purpose as the main app's
  * sw.js: PWA installability + offline resilience for the static shell only.
  */
-const CACHE_NAME = 'ledgerflow-admin-shell-v1';
+const CACHE_NAME = 'teleflow-admin-shell-v1';
 const APP_SHELL = [
     './',
     './index.html',

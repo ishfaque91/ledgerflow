@@ -1,6 +1,6 @@
 {
-  "name": "ledgerflow-functions",
-  "description": "LedgerFlow Cloud Functions",
+  "name": "teleflow-functions",
+  "description": "TeleFlow Cloud Functions",
   "engines": { "node": "18" },
   "main": "index.js",
   "dependencies": {

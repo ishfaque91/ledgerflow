@@ -5,7 +5,7 @@
  * Google's servers over its own connection and is never touched here — this
  * only ever intercepts same-origin GET requests.
  */
-const CACHE_NAME = 'ledgerflow-shell-v1';
+const CACHE_NAME = 'teleflow-shell-v1';
 const APP_SHELL = [
     './',
     './index.html',

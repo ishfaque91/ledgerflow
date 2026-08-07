@@ -1,5 +1,5 @@
 """
-Generates the LedgerFlow PWA icon set (both the main app and the Super
+Generates the TeleFlow PWA icon set (both the main app and the Super
 Admin panel share the same mark) from the exact shapes used by the
 in-app <symbol id="lf-logo-mark"> SVG, so the app icon matches the
 in-app brand mark pixel-for-pixel in proportion.
