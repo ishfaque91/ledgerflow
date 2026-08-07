@@ -40,7 +40,7 @@ function _buildRsoLoadLedgerEntries(rsoUserId) {
     let sales = lfGetAll(LF_KEYS.RSO_SALES);
     if (rsoUserId) sales = sales.filter(s => s.rsoUserId === rsoUserId);
     sales.forEach(s => {
-        const total = (s.itemsTotal || 0) + (s.loadTotal || 0);
+        const total = s.grandTotal || ((s.itemsTotal || 0) + (s.loadTotal || 0));
         if (total > 0) {
             entries.push({
                 date: s.date, type: 'Sale', ref: s.number || '',
