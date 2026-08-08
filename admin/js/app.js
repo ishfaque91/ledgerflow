@@ -3,11 +3,13 @@ let companiesUnsub = null;
 let currentDetailId = null;
 
 const WIPE_COLLECTIONS = [
-    'accounts', 'items', 'users', 'rights', 'invoices',
+    'accounts', 'items', 'rights', 'invoices',
     'accountLedger', 'loadLedger', 'itemLedger',
     'vouchers', 'editLog', 'SETTINGS',
     'rsoCustomers', 'rsoSales', 'rsoReturns',
-    'rsoRecoveries', 'rsoLoads', 'rsoDeposits'
+    'rsoRecoveries', 'rsoLoads', 'rsoDeposits',
+    'rsoActivations', 'activationResults', 'bvsDevices',
+    'btlAgents', 'btlActivations', 'btlVerifications'
 ];
 
 function setBtnLoading(btn, isLoading) {
@@ -354,47 +356,52 @@ async function extendTrial(id) {
 async function deleteCompany(id) {
     const c = companiesCache.find(x => x.id === id);
     if (!c) return;
-    if (!confirm(`Permanently delete ${c.companyName}?\n\nThis will:\n• Delete ALL company data (invoices, ledgers, accounts, etc.)\n• Delete ALL users including the owner\n• Remove their Firebase Auth logins\n\nThis CANNOT be undone.`)) return;
-    if (!confirm(`Are you absolutely sure? Type OK in the next prompt to confirm.`)) return;
+    const typed = prompt(`Permanently delete "${c.companyName}"?\n\nThis will:\n• Delete ALL company data\n• Delete ALL users including the owner\n• Remove their Firebase Auth logins\n\nThis CANNOT be undone.\n\nType the company name to confirm:`);
+    if (!typed || typed.trim() !== c.companyName) {
+        if (typed !== null) showToast('Company name did not match. Deletion cancelled.', 'warning');
+        return;
+    }
 
     try {
-        showToast(`Deleting ${c.companyName}...`, 'info', 5000);
+        showToast(`Deleting ${c.companyName}...`, 'info', 10000);
         const companyRef = fbDb.collection('companies').doc(id);
-        const deleteAuthUser = firebase.functions().httpsCallable('deleteAuthUser');
 
         const usersSnap = await companyRef.collection('users').get();
+        const allAuthUids = new Set();
+
         for (const doc of usersSnap.docs) {
             const u = doc.data();
-            if (u.linkedAuthUid) {
-                try { await deleteAuthUser({ uid: u.linkedAuthUid }); } catch (e) {
-                    console.warn('[Delete] Could not delete auth user:', u.linkedAuthUid, e.message);
+            if (u.linkedAuthUid) allAuthUids.add(u.linkedAuthUid);
+        }
+        if (c.ownerUid) allAuthUids.add(c.ownerUid);
+
+        let deleteAuthUser = null;
+        try { deleteAuthUser = firebase.functions().httpsCallable('deleteAuthUser'); } catch (_) {}
+
+        for (const uid of allAuthUids) {
+            if (deleteAuthUser) {
+                try { await deleteAuthUser({ uid }); } catch (e) {
+                    console.warn('[Delete] Cloud Function deleteAuthUser failed for', uid, e.message);
                 }
-                try { await fbDb.collection('users').doc(u.linkedAuthUid).delete(); } catch (e) {
-                    console.warn('[Delete] Could not delete user mapping:', u.linkedAuthUid, e.message);
-                }
+            }
+            try { await fbDb.collection('users').doc(uid).delete(); } catch (e) {
+                console.warn('[Delete] Could not delete top-level user mapping:', uid, e.message);
             }
         }
 
-        if (c.ownerUid) {
-            try { await deleteAuthUser({ uid: c.ownerUid }); } catch (e) {
-                console.warn('[Delete] Could not delete owner auth:', e.message);
-            }
-            try { await fbDb.collection('users').doc(c.ownerUid).delete(); } catch (e) {
-                console.warn('[Delete] Could not delete owner mapping:', e.message);
+        const allCollections = [...WIPE_COLLECTIONS, 'users'];
+        for (const colName of allCollections) {
+            try { await deleteSubcollection(companyRef, colName); } catch (e) {
+                console.warn('[Delete] Error deleting subcollection', colName, e.message);
             }
         }
-
-        for (const colName of WIPE_COLLECTIONS) {
-            await deleteSubcollection(companyRef, colName);
-        }
-        await deleteSubcollection(companyRef, 'users');
 
         await companyRef.delete();
         showToast(`${c.companyName} and all its users permanently deleted.`, 'success');
         showListView();
     } catch (e) {
-        console.error(e);
-        showToast('Could not fully delete — some data may remain. Check console.', 'error');
+        console.error('[Delete]', e);
+        showToast('Delete failed: ' + e.message, 'error');
     }
 }
 
@@ -435,19 +442,29 @@ async function confirmWipeData() {
     $('wipe-progress').classList.remove('hidden');
 
     const companyRef = fbDb.collection('companies').doc(c.id);
+    const totalSteps = WIPE_COLLECTIONS.length + 1;
     let completed = 0;
 
     try {
         for (const colName of WIPE_COLLECTIONS) {
             $('wipe-progress-text').textContent = `Deleting ${colName}...`;
-            if (colName === 'USERS') {
-                await deleteUsersExceptOwner(companyRef);
-            } else {
+            try {
                 await deleteSubcollection(companyRef, colName);
+            } catch (e) {
+                console.warn('[Wipe] Error on', colName, e.message);
             }
             completed++;
-            $('wipe-progress-fill').style.width = `${Math.round((completed / WIPE_COLLECTIONS.length) * 100)}%`;
+            $('wipe-progress-fill').style.width = `${Math.round((completed / totalSteps) * 100)}%`;
         }
+
+        $('wipe-progress-text').textContent = 'Cleaning up users (keeping owner)...';
+        try {
+            await deleteUsersExceptOwner(companyRef, c.ownerUid);
+        } catch (e) {
+            console.warn('[Wipe] Error cleaning users:', e.message);
+        }
+        completed++;
+        $('wipe-progress-fill').style.width = '100%';
 
         $('wipe-progress-text').textContent = 'All data wiped. Owner user preserved.';
         showToast(`All data wiped for ${c.companyName}. Owner user kept.`, 'success');
@@ -461,18 +478,31 @@ async function confirmWipeData() {
     }
 }
 
-async function deleteUsersExceptOwner(companyRef) {
-    const batchSize = 200;
+async function deleteUsersExceptOwner(companyRef, ownerUid) {
     const snapshot = await companyRef.collection('users').get();
     const toDelete = snapshot.docs.filter(doc => {
         const data = doc.data();
-        return data.role !== 'owner';
+        return data.role !== 'owner' && data.linkedAuthUid !== ownerUid;
     });
 
-    for (let i = 0; i < toDelete.length; i += batchSize) {
-        const batch = fbDb.batch();
-        toDelete.slice(i, i + batchSize).forEach(doc => batch.delete(doc.ref));
-        await batch.commit();
+    let deleteAuthUser = null;
+    try { deleteAuthUser = firebase.functions().httpsCallable('deleteAuthUser'); } catch (_) {}
+
+    for (const doc of toDelete) {
+        const u = doc.data();
+        if (u.linkedAuthUid) {
+            if (deleteAuthUser) {
+                try { await deleteAuthUser({ uid: u.linkedAuthUid }); } catch (e) {
+                    console.warn('[Wipe] Could not delete auth for', u.linkedAuthUid, e.message);
+                }
+            }
+            try { await fbDb.collection('users').doc(u.linkedAuthUid).delete(); } catch (e) {
+                console.warn('[Wipe] Could not delete top-level user mapping:', u.linkedAuthUid, e.message);
+            }
+        }
+        try { await doc.ref.delete(); } catch (e) {
+            console.warn('[Wipe] Could not delete company user doc:', doc.id, e.message);
+        }
     }
 }
 
