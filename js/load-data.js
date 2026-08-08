@@ -8,15 +8,15 @@
 const LOAD_DATA_CONFIGS = {
     accounts: {
         title: 'Accounts',
-        columns: ['Title', 'Type', 'Opening Balance', 'Phone', 'City'],
+        columns: ['Title', 'Type', 'Opening Balance', 'Dr/Cr', 'Phone', 'City'],
         required: ['Title', 'Type'],
         validTypes: ['Customer', 'Supplier', 'Customer/Supplier', 'Employee/RSO', 'Employee/BTL', 'Cash', 'Bank', 'Income', 'Expense', 'Asset', 'Liability'],
         template: [
-            ['Title', 'Type', 'Opening Balance', 'Phone', 'City'],
-            ['Ali General Store', 'Customer', 5000, '0333-1234567', 'Karachi'],
-            ['Mobilink Distributor', 'Supplier', 0, '0300-9876543', 'Lahore'],
-            ['Habib Bank', 'Bank', 50000, '', 'Karachi'],
-            ['Petty Cash', 'Cash', 10000, '', '']
+            ['Title', 'Type', 'Opening Balance', 'Dr/Cr', 'Phone', 'City'],
+            ['Ali General Store', 'Customer', 5000, 'Dr', '0333-1234567', 'Karachi'],
+            ['Mobilink Distributor', 'Supplier', 0, 'Cr', '0300-9876543', 'Lahore'],
+            ['Habib Bank', 'Bank', 50000, 'Dr', '', 'Karachi'],
+            ['Petty Cash', 'Cash', 10000, 'Dr', '', '']
         ]
     },
     items: {
@@ -101,6 +101,31 @@ function downloadLoadDataTemplate() {
     const colWidths = config.columns.map(c => ({ wch: Math.max(c.length + 4, 18) }));
     ws['!cols'] = colWidths;
 
+    if (_loadDataCategory === 'accounts') {
+        const typeCol = config.columns.indexOf('Type');
+        const drcrCol = config.columns.indexOf('Dr/Cr');
+        const typeList = '"' + config.validTypes.join(',') + '"';
+        ws['!dataValidation'] = [];
+        if (typeCol >= 0) {
+            const typeColLetter = String.fromCharCode(65 + typeCol);
+            ws['!dataValidation'].push({
+                sqref: `${typeColLetter}2:${typeColLetter}1000`,
+                type: 'list', operator: 'equal', formula1: typeList,
+                showErrorMessage: true, errorTitle: 'Invalid Type',
+                error: 'Please select a valid account type from the dropdown.'
+            });
+        }
+        if (drcrCol >= 0) {
+            const drcrColLetter = String.fromCharCode(65 + drcrCol);
+            ws['!dataValidation'].push({
+                sqref: `${drcrColLetter}2:${drcrColLetter}1000`,
+                type: 'list', operator: 'equal', formula1: '"Dr,Cr"',
+                showErrorMessage: true, errorTitle: 'Invalid Side',
+                error: 'Please select Dr or Cr.'
+            });
+        }
+    }
+
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, config.title);
     XLSX.writeFile(wb, `${_loadDataCategory}_template.xlsx`);
@@ -167,9 +192,13 @@ function parseLoadData(raw) {
             if (!mapped[r]) rowError = `Missing ${r}`;
         });
 
-        if (_loadDataCategory === 'accounts' && mapped['Type']) {
-            if (!config.validTypes.includes(mapped['Type'])) {
+        if (_loadDataCategory === 'accounts') {
+            if (mapped['Type'] && !config.validTypes.includes(mapped['Type'])) {
                 rowError = `Invalid type: ${mapped['Type']}`;
+            }
+            const side = (mapped['Dr/Cr'] || '').trim().toLowerCase();
+            if (side && side !== 'dr' && side !== 'cr') {
+                rowError = `Invalid Dr/Cr: ${mapped['Dr/Cr']} (use Dr or Cr)`;
             }
         }
 
@@ -308,11 +337,14 @@ async function executeLoadDataImport() {
 
 async function _importAccount(d, batchId) {
     const id = generateId();
+    const side = (d['Dr/Cr'] || '').trim();
+    const openingSide = (side.toLowerCase() === 'cr') ? 'Cr' : 'Dr';
     await lfUpsert(LF_KEYS.ACCOUNTS, {
         id,
         title: d['Title'],
         type: d['Type'],
-        openingBalance: parseFloat((d['Opening Balance'] || '0').toString().replace(/,/g, '')) || 0,
+        openingAmount: parseFloat((d['Opening Balance'] || '0').toString().replace(/,/g, '')) || 0,
+        openingSide,
         phone: d['Phone'] || '',
         city: d['City'] || '',
         importBatch: batchId
@@ -347,7 +379,7 @@ async function _importRso(d, batchId) {
         title: d['Full Name'],
         type: 'Employee/RSO',
         linkedUserId: userId,
-        openingBalance: 0,
+        openingAmount: 0, openingSide: 'Dr',
         importBatch: batchId
     });
 }
@@ -368,7 +400,7 @@ async function _importBtl(d, batchId) {
         title: d['Agent Name'],
         type: 'Employee/BTL',
         linkedUserId: agentId,
-        openingBalance: 0,
+        openingAmount: 0, openingSide: 'Dr',
         importBatch: batchId
     });
 }

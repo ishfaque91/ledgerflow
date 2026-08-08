@@ -795,10 +795,10 @@ document.addEventListener('DOMContentLoaded', () => {
 const LD_CONFIGS = {
     accounts: {
         title: 'Accounts', collection: 'accounts',
-        columns: ['Title', 'Type', 'Opening Balance', 'Phone', 'City'],
+        columns: ['Title', 'Type', 'Opening Balance', 'Dr/Cr', 'Phone', 'City'],
         required: ['Title', 'Type'],
         validTypes: ['Customer', 'Supplier', 'Customer/Supplier', 'Employee/RSO', 'Employee/BTL', 'Cash', 'Bank', 'Income', 'Expense', 'Asset', 'Liability'],
-        template: [['Title','Type','Opening Balance','Phone','City'],['Ali General Store','Customer',5000,'0333-1234567','Karachi'],['Habib Bank','Bank',50000,'','']]
+        template: [['Title','Type','Opening Balance','Dr/Cr','Phone','City'],['Ali General Store','Customer',5000,'Dr','0333-1234567','Karachi'],['Habib Bank','Bank',50000,'Dr','','']]
     },
     items: {
         title: 'Items Catalog', collection: 'items',
@@ -879,6 +879,28 @@ function downloadLdTemplate() {
     const config = LD_CONFIGS[_ldCategory];
     const ws = XLSX.utils.aoa_to_sheet(config.template);
     ws['!cols'] = config.columns.map(c => ({ wch: Math.max(c.length + 4, 18) }));
+
+    if (_ldCategory === 'accounts') {
+        const typeCol = config.columns.indexOf('Type');
+        const drcrCol = config.columns.indexOf('Dr/Cr');
+        const typeList = '"' + config.validTypes.join(',') + '"';
+        ws['!dataValidation'] = [];
+        if (typeCol >= 0) {
+            const col = String.fromCharCode(65 + typeCol);
+            ws['!dataValidation'].push({
+                sqref: `${col}2:${col}1000`, type: 'list', operator: 'equal', formula1: typeList,
+                showErrorMessage: true, errorTitle: 'Invalid Type', error: 'Please select a valid account type from the dropdown.'
+            });
+        }
+        if (drcrCol >= 0) {
+            const col = String.fromCharCode(65 + drcrCol);
+            ws['!dataValidation'].push({
+                sqref: `${col}2:${col}1000`, type: 'list', operator: 'equal', formula1: '"Dr,Cr"',
+                showErrorMessage: true, errorTitle: 'Invalid Side', error: 'Please select Dr or Cr.'
+            });
+        }
+    }
+
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, config.title);
     XLSX.writeFile(wb, `${_ldCategory}_template.xlsx`);
@@ -935,8 +957,14 @@ async function parseLdData(raw) {
         headers.forEach(h => { mapped[h] = colMap[h] ? ('' + (row[colMap[h]] ?? '')).trim() : ''; });
         config.required.forEach(r => { if (!mapped[r]) rowError = `Missing ${r}`; });
 
-        if (_ldCategory === 'accounts' && mapped['Type'] && !config.validTypes.includes(mapped['Type'])) {
-            rowError = `Invalid type: ${mapped['Type']}`;
+        if (_ldCategory === 'accounts') {
+            if (mapped['Type'] && !config.validTypes.includes(mapped['Type'])) {
+                rowError = `Invalid type: ${mapped['Type']}`;
+            }
+            const side = (mapped['Dr/Cr'] || '').trim().toLowerCase();
+            if (side && side !== 'dr' && side !== 'cr') {
+                rowError = `Invalid Dr/Cr: ${mapped['Dr/Cr']} (use Dr or Cr)`;
+            }
         }
 
         let isDuplicate = false;
@@ -993,10 +1021,14 @@ async function executeLdImport() {
             const d = row.data;
             switch (_ldCategory) {
                 case 'accounts': {
+                    const side = (d['Dr/Cr'] || '').trim();
+                    const openingSide = (side.toLowerCase() === 'cr') ? 'Cr' : 'Dr';
                     const docRef = companyRef.collection('accounts').doc();
                     await docRef.set({
+                        id: docRef.id,
                         title: d['Title'], type: d['Type'],
-                        openingBalance: parseFloat((d['Opening Balance'] || '0').toString().replace(/,/g, '')) || 0,
+                        openingAmount: parseFloat((d['Opening Balance'] || '0').toString().replace(/,/g, '')) || 0,
+                        openingSide,
                         phone: d['Phone'] || '', city: d['City'] || '',
                         importBatch: batchId
                     });
@@ -1005,6 +1037,7 @@ async function executeLdImport() {
                 case 'items': {
                     const docRef = companyRef.collection('items').doc();
                     await docRef.set({
+                        id: docRef.id,
                         name: d['Item Name'],
                         purchasePrice: parseFloat((d['Purchase Price'] || '0').toString().replace(/,/g, '')) || 0,
                         salePrice: parseFloat((d['Sale Price'] || '0').toString().replace(/,/g, '')) || 0,
@@ -1015,14 +1048,16 @@ async function executeLdImport() {
                 case 'rso': {
                     const userRef = companyRef.collection('users').doc();
                     await userRef.set({
+                        id: userRef.id,
                         fullName: d['Full Name'], role: 'rso',
                         mobile: d['Mobile'] || '', cnic: d['CNIC'] || '', area: d['Area'] || '',
                         importBatch: batchId
                     });
                     const accRef = companyRef.collection('accounts').doc('rsoacc_' + userRef.id);
                     await accRef.set({
+                        id: accRef.id,
                         title: d['Full Name'], type: 'Employee/RSO',
-                        linkedUserId: userRef.id, openingBalance: 0,
+                        linkedUserId: userRef.id, openingAmount: 0, openingSide: 'Dr',
                         importBatch: batchId
                     });
                     break;
@@ -1030,14 +1065,16 @@ async function executeLdImport() {
                 case 'btl': {
                     const agentRef = companyRef.collection('btlAgents').doc();
                     await agentRef.set({
+                        id: agentRef.id,
                         name: d['Agent Name'], mobile: d['Mobile'] || '',
                         cnic: d['CNIC'] || '', area: d['Area / Stall'] || '',
                         importBatch: batchId
                     });
                     const accRef = companyRef.collection('accounts').doc('btlacc_' + agentRef.id);
                     await accRef.set({
+                        id: accRef.id,
                         title: d['Agent Name'], type: 'Employee/BTL',
-                        linkedUserId: agentRef.id, openingBalance: 0,
+                        linkedUserId: agentRef.id, openingAmount: 0, openingSide: 'Dr',
                         importBatch: batchId
                     });
                     break;
@@ -1049,6 +1086,7 @@ async function executeLdImport() {
                     if (!rsoUser) throw new Error(`RSO "${d['RSO Name']}" not found. Import RSO agents first.`);
                     const custRef = companyRef.collection('rsoCustomers').doc();
                     await custRef.set({
+                        id: custRef.id,
                         name: d['Customer Name'], shopName: d['Shop Name'] || '',
                         mobile: d['Mobile'] || '', area: d['Area'] || '',
                         rsoUserId: rsoUser.id,
