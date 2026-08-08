@@ -201,6 +201,7 @@ function renderDetailView(c) {
         renew: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>',
         suspend: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>',
         extend: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
+        loaddata: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>',
         edit: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>',
         wipe: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>',
         delete: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>'
@@ -238,6 +239,11 @@ function renderDetailView(c) {
     }
 
     actionsHtml += `
+        <div class="action-card action-loaddata" onclick="openLoadDataPanel('${c.id}')">
+            <div class="action-card-icon">${icons.loaddata}</div>
+            <div class="action-card-title">Load Data</div>
+            <div class="action-card-desc">Import master data from Excel</div>
+        </div>
         <div class="action-card action-edit" onclick="openCompanyForm('${c.id}')">
             <div class="action-card-icon">${icons.edit}</div>
             <div class="action-card-title">Edit Details</div>
@@ -720,4 +726,301 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     $('login-password')?.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleLogin(); });
+
+    const zone = document.getElementById('ld-upload-zone');
+    if (zone) {
+        zone.addEventListener('click', (e) => { if (e.target.tagName !== 'BUTTON') document.getElementById('ld-file-input').click(); });
+        zone.addEventListener('dragover', (e) => { e.preventDefault(); zone.classList.add('drag-over'); });
+        zone.addEventListener('dragleave', () => { zone.classList.remove('drag-over'); });
+        zone.addEventListener('drop', (e) => {
+            e.preventDefault(); zone.classList.remove('drag-over');
+            const f = e.dataTransfer.files[0];
+            if (f && (f.name.endsWith('.xlsx') || f.name.endsWith('.xls'))) {
+                const input = document.getElementById('ld-file-input');
+                const dt = new DataTransfer(); dt.items.add(f); input.files = dt.files;
+                onLdFileSelected(input);
+            } else { showToast('Please drop an Excel (.xlsx) file.', 'warning'); }
+        });
+    }
 });
+
+// ==================== LOAD DATA (EXCEL IMPORT) ====================
+const LD_CONFIGS = {
+    accounts: {
+        title: 'Accounts', collection: 'accounts',
+        columns: ['Title', 'Type', 'Opening Balance', 'Phone', 'City'],
+        required: ['Title', 'Type'],
+        validTypes: ['Customer', 'Supplier', 'Customer/Supplier', 'Employee/RSO', 'Employee/BTL', 'Cash', 'Bank', 'Income', 'Expense', 'Asset', 'Liability'],
+        template: [['Title','Type','Opening Balance','Phone','City'],['Ali General Store','Customer',5000,'0333-1234567','Karachi'],['Habib Bank','Bank',50000,'','']]
+    },
+    items: {
+        title: 'Items Catalog', collection: 'items',
+        columns: ['Item Name', 'Purchase Price', 'Sale Price'],
+        required: ['Item Name'],
+        template: [['Item Name','Purchase Price','Sale Price'],['AWAMI SIM',200,0],['Super Card 100',95,100]]
+    },
+    rso: {
+        title: 'RSO Agents', collection: 'users',
+        columns: ['Full Name', 'Mobile', 'CNIC', 'Area'],
+        required: ['Full Name'],
+        template: [['Full Name','Mobile','CNIC','Area'],['Ahmed Ali','0333-1234567','42101-1234567-1','Nazimabad']]
+    },
+    btl: {
+        title: 'BTL Agents', collection: 'btlAgents',
+        columns: ['Agent Name', 'Mobile', 'CNIC', 'Area / Stall'],
+        required: ['Agent Name'],
+        template: [['Agent Name','Mobile','CNIC','Area / Stall'],['Faisal Hussain','0312-5551234','42101-3456789-1','Tariq Road Stall']]
+    },
+    rso_customers: {
+        title: 'RSO Customers', collection: 'rsoCustomers',
+        columns: ['Customer Name', 'Shop Name', 'Mobile', 'Area', 'RSO Name', 'Credit Limit'],
+        required: ['Customer Name', 'RSO Name'],
+        template: [['Customer Name','Shop Name','Mobile','Area','RSO Name','Credit Limit'],['Fauji','Fauji Telecom','0333-1112222','Block 3','Ahmed Ali',5000]]
+    }
+};
+
+let _ldCompanyId = null;
+let _ldCategory = null;
+let _ldParsed = [];
+let _ldErrors = 0;
+
+function openLoadDataPanel(companyId) {
+    _ldCompanyId = companyId;
+    _ldCategory = null;
+    _ldParsed = [];
+    _ldErrors = 0;
+    const c = companiesCache.find(x => x.id === companyId);
+    $('loaddata-modal-title').textContent = `Load Data — ${c ? c.companyName : ''}`;
+    $('ld-step-category').classList.remove('hidden');
+    $('ld-step-upload').classList.add('hidden');
+    $('ld-step-preview').classList.add('hidden');
+    $('ld-import-btn').classList.add('hidden');
+    $('loaddata-modal').classList.remove('hidden');
+}
+
+function closeLoadDataPanel() {
+    $('loaddata-modal').classList.add('hidden');
+    _ldCompanyId = null; _ldCategory = null; _ldParsed = [];
+}
+
+function selectLoadDataCategory(cat) {
+    _ldCategory = cat;
+    $('ld-step-category').classList.add('hidden');
+    $('ld-step-upload').classList.remove('hidden');
+    $('ld-step-preview').classList.add('hidden');
+    $('ld-import-btn').classList.add('hidden');
+    $('ld-file-input').value = '';
+}
+
+function backToLdCategories() {
+    $('ld-step-category').classList.remove('hidden');
+    $('ld-step-upload').classList.add('hidden');
+    $('ld-step-preview').classList.add('hidden');
+    $('ld-import-btn').classList.add('hidden');
+    _ldCategory = null; _ldParsed = [];
+}
+
+function backToLdUpload() {
+    $('ld-step-upload').classList.remove('hidden');
+    $('ld-step-preview').classList.add('hidden');
+    $('ld-import-btn').classList.add('hidden');
+    $('ld-file-input').value = '';
+    _ldParsed = [];
+}
+
+function downloadLdTemplate() {
+    const config = LD_CONFIGS[_ldCategory];
+    const ws = XLSX.utils.aoa_to_sheet(config.template);
+    ws['!cols'] = config.columns.map(c => ({ wch: Math.max(c.length + 4, 18) }));
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, config.title);
+    XLSX.writeFile(wb, `${_ldCategory}_template.xlsx`);
+}
+
+function onLdFileSelected(input) {
+    const file = input.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const wb = XLSX.read(e.target.result, { type: 'array' });
+            const ws = wb.Sheets[wb.SheetNames[0]];
+            const raw = XLSX.utils.sheet_to_json(ws, { defval: '' });
+            if (raw.length === 0) { showToast('Excel file is empty.', 'warning'); return; }
+            parseLdData(raw);
+        } catch (err) { console.error(err); showToast('Could not read the Excel file.', 'error'); }
+    };
+    reader.readAsArrayBuffer(file);
+}
+
+async function parseLdData(raw) {
+    const config = LD_CONFIGS[_ldCategory];
+    const headers = config.columns;
+    const fileHeaders = Object.keys(raw[0]);
+    const colMap = {};
+    headers.forEach(h => {
+        const match = fileHeaders.find(fh => fh.trim().toLowerCase() === h.toLowerCase());
+        colMap[h] = match || null;
+    });
+
+    const missingReq = config.required.filter(r => !colMap[r]);
+    if (missingReq.length > 0) { showToast(`Missing required columns: ${missingReq.join(', ')}`, 'error'); return; }
+
+    const companyRef = fbDb.collection('companies').doc(_ldCompanyId);
+    const existingNames = new Set();
+
+    try {
+        const snap = await companyRef.collection(config.collection).get();
+        snap.docs.forEach(doc => {
+            const d = doc.data();
+            const name = (d.title || d.name || d.fullName || '').toLowerCase();
+            if (name) existingNames.add(name);
+        });
+    } catch (_) {}
+
+    _ldParsed = [];
+    _ldErrors = 0;
+    let duplicates = 0;
+
+    raw.forEach((row, idx) => {
+        const mapped = {};
+        let rowError = null;
+        headers.forEach(h => { mapped[h] = colMap[h] ? ('' + (row[colMap[h]] ?? '')).trim() : ''; });
+        config.required.forEach(r => { if (!mapped[r]) rowError = `Missing ${r}`; });
+
+        if (_ldCategory === 'accounts' && mapped['Type'] && !config.validTypes.includes(mapped['Type'])) {
+            rowError = `Invalid type: ${mapped['Type']}`;
+        }
+
+        let isDuplicate = false;
+        const pk = (mapped[headers[0]] || '').toLowerCase();
+        if (pk && existingNames.has(pk)) { isDuplicate = true; duplicates++; }
+
+        _ldParsed.push({ data: mapped, error: rowError, duplicate: isDuplicate, rowNum: idx + 2 });
+        if (rowError) _ldErrors++;
+    });
+
+    renderLdPreview(headers, duplicates);
+}
+
+function renderLdPreview(headers, duplicates) {
+    $('ld-step-upload').classList.add('hidden');
+    $('ld-step-preview').classList.remove('hidden');
+
+    const validCount = _ldParsed.length - _ldErrors;
+    $('ld-count-pill').textContent = `${_ldParsed.length} rows (${validCount} valid)`;
+    const errPill = $('ld-err-pill');
+    if (_ldErrors > 0 || duplicates > 0) {
+        const parts = [];
+        if (_ldErrors > 0) parts.push(`${_ldErrors} error${_ldErrors > 1 ? 's' : ''}`);
+        if (duplicates > 0) parts.push(`${duplicates} duplicate${duplicates > 1 ? 's' : ''}`);
+        errPill.textContent = parts.join(', ');
+        errPill.style.display = '';
+    } else { errPill.style.display = 'none'; }
+
+    $('ld-preview-thead').innerHTML = '<tr><th>#</th>' + headers.map(h => `<th>${escapeHtml(h)}</th>`).join('') + '<th>Status</th></tr>';
+
+    $('ld-preview-tbody').innerHTML = _ldParsed.map(p => {
+        let cls = '', status = '<span style="color:var(--credit)">OK</span>';
+        if (p.error) { cls = 'ld-row-err'; status = `<span style="color:var(--garnet)">${escapeHtml(p.error)}</span>`; }
+        else if (p.duplicate) { cls = 'ld-row-dup'; status = '<span style="color:var(--amber)">Duplicate</span>'; }
+        return `<tr class="${cls}"><td>${p.rowNum}</td>${headers.map(h => `<td>${escapeHtml(p.data[h])}</td>`).join('')}<td>${status}</td></tr>`;
+    }).join('');
+
+    if (validCount > 0) $('ld-import-btn').classList.remove('hidden');
+}
+
+async function executeLdImport() {
+    const validRows = _ldParsed.filter(p => !p.error && !p.duplicate);
+    if (validRows.length === 0) { showToast('No valid rows to import.', 'warning'); return; }
+
+    const btn = $('ld-import-btn');
+    setBtnLoading(btn, true);
+
+    const companyRef = fbDb.collection('companies').doc(_ldCompanyId);
+    const batchId = 'import_' + Date.now();
+
+    try {
+        let imported = 0;
+        for (const row of validRows) {
+            const d = row.data;
+            switch (_ldCategory) {
+                case 'accounts': {
+                    const docRef = companyRef.collection('accounts').doc();
+                    await docRef.set({
+                        title: d['Title'], type: d['Type'],
+                        openingBalance: parseFloat((d['Opening Balance'] || '0').toString().replace(/,/g, '')) || 0,
+                        phone: d['Phone'] || '', city: d['City'] || '',
+                        importBatch: batchId
+                    });
+                    break;
+                }
+                case 'items': {
+                    const docRef = companyRef.collection('items').doc();
+                    await docRef.set({
+                        name: d['Item Name'],
+                        purchasePrice: parseFloat((d['Purchase Price'] || '0').toString().replace(/,/g, '')) || 0,
+                        salePrice: parseFloat((d['Sale Price'] || '0').toString().replace(/,/g, '')) || 0,
+                        importBatch: batchId
+                    });
+                    break;
+                }
+                case 'rso': {
+                    const userRef = companyRef.collection('users').doc();
+                    await userRef.set({
+                        fullName: d['Full Name'], role: 'rso',
+                        mobile: d['Mobile'] || '', cnic: d['CNIC'] || '', area: d['Area'] || '',
+                        importBatch: batchId
+                    });
+                    const accRef = companyRef.collection('accounts').doc('rsoacc_' + userRef.id);
+                    await accRef.set({
+                        title: d['Full Name'], type: 'Employee/RSO',
+                        linkedUserId: userRef.id, openingBalance: 0,
+                        importBatch: batchId
+                    });
+                    break;
+                }
+                case 'btl': {
+                    const agentRef = companyRef.collection('btlAgents').doc();
+                    await agentRef.set({
+                        name: d['Agent Name'], mobile: d['Mobile'] || '',
+                        cnic: d['CNIC'] || '', area: d['Area / Stall'] || '',
+                        importBatch: batchId
+                    });
+                    const accRef = companyRef.collection('accounts').doc('btlacc_' + agentRef.id);
+                    await accRef.set({
+                        title: d['Agent Name'], type: 'Employee/BTL',
+                        linkedUserId: agentRef.id, openingBalance: 0,
+                        importBatch: batchId
+                    });
+                    break;
+                }
+                case 'rso_customers': {
+                    const rsoName = (d['RSO Name'] || '').trim().toLowerCase();
+                    const usersSnap = await companyRef.collection('users').where('role', '==', 'rso').get();
+                    const rsoUser = usersSnap.docs.find(doc => (doc.data().fullName || '').toLowerCase() === rsoName);
+                    if (!rsoUser) throw new Error(`RSO "${d['RSO Name']}" not found. Import RSO agents first.`);
+                    const custRef = companyRef.collection('rsoCustomers').doc();
+                    await custRef.set({
+                        name: d['Customer Name'], shopName: d['Shop Name'] || '',
+                        mobile: d['Mobile'] || '', area: d['Area'] || '',
+                        rsoUserId: rsoUser.id,
+                        creditLimit: parseFloat((d['Credit Limit'] || '0').toString().replace(/,/g, '')) || 0,
+                        openingBalance: 0, customerType: 'Retailer', source: 'Office',
+                        importBatch: batchId
+                    });
+                    break;
+                }
+            }
+            imported++;
+        }
+
+        showToast(`Successfully imported ${imported} ${LD_CONFIGS[_ldCategory].title.toLowerCase()}.`, 'success');
+        closeLoadDataPanel();
+    } catch (err) {
+        console.error('[LoadData]', err);
+        showToast('Import failed: ' + (err.message || 'Unknown error'), 'error');
+    } finally {
+        setBtnLoading(btn, false);
+    }
+}

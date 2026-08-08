@@ -203,6 +203,33 @@
     .action-wipe .action-card-title { color: var(--garnet); }
 
     .action-delete .action-card-icon { background: var(--garnet-tint); color: var(--garnet); }
+
+    .action-loaddata .action-card-icon { background: var(--teal-tint); color: var(--teal-dark); }
+    .action-loaddata:hover { border-color: var(--teal); }
+    .action-loaddata .action-card-title { color: var(--teal-dark); }
+
+    .upload-zone {
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        padding: 2.5rem 1rem; border: 2px dashed var(--border); border-radius: var(--radius-lg);
+        text-align: center; cursor: pointer; transition: border-color 0.2s, background 0.2s;
+    }
+    .upload-zone:hover, .upload-zone.drag-over {
+        border-color: var(--teal); background: var(--teal-tint);
+    }
+    .ld-row-err { background: var(--garnet-tint) !important; }
+    .ld-row-dup { background: var(--amber-tint) !important; }
+    .ld-category-grid {
+        display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 14px; margin-top: 16px;
+    }
+    .ld-cat-card {
+        background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg);
+        padding: 1.3rem; cursor: pointer; text-align: center;
+        transition: transform .15s var(--ease), box-shadow .15s var(--ease), border-color .15s var(--ease);
+    }
+    .ld-cat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); border-color: var(--teal); }
+    .ld-cat-card h3 { font-family: 'Space Grotesk', sans-serif; font-size: 0.95rem; margin: 8px 0 4px; }
+    .ld-cat-card p { font-size: 0.78rem; color: var(--ink-faint); margin: 0; }
     .action-delete:hover { border-color: var(--garnet); }
     .action-delete .action-card-title { color: var(--garnet); }
 
@@ -590,10 +617,89 @@
         </div>
     </div>
 
+    <!-- ============ LOAD DATA ============ -->
+    <div class="modal-backdrop hidden" id="loaddata-modal">
+        <div class="modal modal-lg" style="max-width:900px">
+            <div class="modal-head">
+                <h2 id="loaddata-modal-title">Load Data</h2>
+                <button class="icon-btn" onclick="closeLoadDataPanel()" title="Close"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+            </div>
+            <div class="modal-body" style="min-height:300px">
+                <!-- Step 1: Category picker -->
+                <div id="ld-step-category">
+                    <p style="margin:0 0 12px;color:var(--ink-soft);">Select which data to import:</p>
+                    <div class="ld-category-grid">
+                        <div class="ld-cat-card" onclick="selectLoadDataCategory('accounts')">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="2"><rect x="2" y="3" width="20" height="18" rx="2"/><path d="M2 9h20"/><path d="M10 3v18"/></svg>
+                            <h3>Accounts</h3>
+                            <p>Customers, suppliers, banks</p>
+                        </div>
+                        <div class="ld-cat-card" onclick="selectLoadDataCategory('items')">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+                            <h3>Items Catalog</h3>
+                            <p>SIMs, cards, products</p>
+                        </div>
+                        <div class="ld-cat-card" onclick="selectLoadDataCategory('rso')">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                            <h3>RSO Agents</h3>
+                            <p>Route sales officers</p>
+                        </div>
+                        <div class="ld-cat-card" onclick="selectLoadDataCategory('btl')">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/></svg>
+                            <h3>BTL Agents</h3>
+                            <p>Field agents on stalls</p>
+                        </div>
+                        <div class="ld-cat-card" onclick="selectLoadDataCategory('rso_customers')">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                            <h3>RSO Customers</h3>
+                            <p>Retailers under RSOs</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2: Upload -->
+                <div id="ld-step-upload" class="hidden">
+                    <button class="detail-back" onclick="backToLdCategories()" style="margin-bottom:12px">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+                        Back to categories
+                    </button>
+                    <div id="ld-upload-zone" class="upload-zone">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity:0.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                        <p style="margin:0.5rem 0 0.25rem;font-weight:600">Drop Excel file here or click to browse</p>
+                        <p style="margin:0;font-size:0.82rem;opacity:0.6">Accepts .xlsx files</p>
+                        <input type="file" id="ld-file-input" accept=".xlsx,.xls" style="display:none" onchange="onLdFileSelected(this)">
+                        <button class="btn btn-ghost" style="margin-top:0.75rem" onclick="document.getElementById('ld-file-input').click()">Choose File</button>
+                        <button class="btn-outline-text" style="margin-top:0.5rem" onclick="downloadLdTemplate()">Download Template</button>
+                    </div>
+                </div>
+
+                <!-- Step 3: Preview -->
+                <div id="ld-step-preview" class="hidden">
+                    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap">
+                        <span class="status-badge is-active" id="ld-count-pill">0 rows</span>
+                        <span class="status-badge is-trial" id="ld-err-pill" style="display:none"></span>
+                        <button class="btn-outline-text" onclick="backToLdUpload()">Choose Different File</button>
+                    </div>
+                    <div style="max-height:340px;overflow:auto;border:1px solid var(--border);border-radius:var(--radius-md)">
+                        <table class="sap-table" style="font-size:0.82rem"><thead id="ld-preview-thead"></thead><tbody id="ld-preview-tbody"></tbody></table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-foot">
+                <button class="btn btn-ghost" onclick="closeLoadDataPanel()">Cancel</button>
+                <button class="btn btn-primary hidden" id="ld-import-btn" onclick="executeLdImport()">
+                    <span class="btn-label">Import Data</span>
+                    <span class="btn-spinner hidden"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+
 </div>
 
 <div class="toast-stack" id="toast-stack"></div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore-compat.js"></script>
