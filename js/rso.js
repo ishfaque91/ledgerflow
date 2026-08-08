@@ -1971,3 +1971,238 @@ function buildBtlStockCard(agentName, stock) {
         <div class="table-scroll"><table class="data-table"><thead><tr><th>Item</th><th class="num">Qty</th><th class="num">Rate</th><th class="num">Value</th></tr></thead><tbody>${rows}</tbody></table></div>
     </div>`;
 }
+
+// ==================== BTL: CLAIMED ACTIVATIONS ====================
+
+function _populateBtlAgentDropdown(selectId) {
+    const sel = $(selectId);
+    if (!sel) return;
+    const agents = lfGetAll(LF_KEYS.BTL_AGENTS).sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+    const cur = sel.value;
+    sel.innerHTML = '<option value="">All BTL Agents</option>' +
+        agents.map(a => `<option value="${a.id}">${escapeHtml(a.name)}</option>`).join('');
+    sel.value = cur;
+}
+
+function renderBtlActivations() {
+    _populateBtlAgentDropdown('btl-act-agent-select');
+    const agentId = $('btl-act-agent-select')?.value || '';
+    const from = $('btl-act-from')?.value || '';
+    const to = $('btl-act-to')?.value || '';
+
+    let acts = lfGetAll(LF_KEYS.BTL_ACTIVATIONS || 'btlActivations');
+    if (agentId) acts = acts.filter(a => a.btlAgentId === agentId);
+    if (from) acts = acts.filter(a => a.date >= from);
+    if (to) acts = acts.filter(a => a.date <= to);
+    acts.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+
+    const tbody = $('btl-activations-body');
+    if (!tbody) return;
+    if (acts.length === 0) {
+        tbody.innerHTML = '<tr class="empty-row"><td colspan="6">No activations recorded yet.</td></tr>';
+        return;
+    }
+    const agents = lfGetAll(LF_KEYS.BTL_AGENTS);
+    tbody.innerHTML = acts.map(a => {
+        const agent = agents.find(ag => ag.id === a.btlAgentId);
+        const statusCls = a.verified === 'real' ? 'color:var(--credit)' : a.verified === 'non-real' ? 'color:var(--garnet)' : 'color:var(--ink-faint)';
+        const statusLabel = a.verified === 'real' ? 'Real' : a.verified === 'non-real' ? 'Non-Real' : 'Pending';
+        return `<tr>
+            <td>${escapeHtml(a.date || '')}</td>
+            <td>${escapeHtml(agent ? agent.name : '')}</td>
+            <td>${escapeHtml(a.simSerial || '')}</td>
+            <td>${escapeHtml(a.customerCnic || '')}</td>
+            <td><span style="${statusCls};font-weight:600">${statusLabel}</span></td>
+            <td><button class="icon-btn" onclick="openBtlActivationForm('${a.id}')" title="Edit"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+                <button class="icon-btn" onclick="deleteBtlActivation('${a.id}')" title="Delete"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button></td>
+        </tr>`;
+    }).join('');
+}
+
+function openBtlActivationForm(id) {
+    const agents = lfGetAll(LF_KEYS.BTL_AGENTS).sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+    const sel = $('btl-act-agent');
+    sel.innerHTML = '<option value="">Select agent</option>' +
+        agents.map(a => `<option value="${a.id}">${escapeHtml(a.name)}</option>`).join('');
+
+    if (id) {
+        const act = lfFindById(LF_KEYS.BTL_ACTIVATIONS || 'btlActivations', id);
+        if (act) {
+            $('btl-act-id').value = id;
+            $('btl-act-date').value = act.date || '';
+            sel.value = act.btlAgentId || '';
+            $('btl-act-serial').value = act.simSerial || '';
+            $('btl-act-cnic').value = act.customerCnic || '';
+            $('btl-act-customer-name').value = act.customerName || '';
+            $('btl-act-notes').value = act.notes || '';
+            $('btl-act-modal-title').textContent = 'Edit Activation';
+        }
+    } else {
+        $('btl-act-id').value = '';
+        $('btl-act-date').value = todayISO();
+        sel.value = '';
+        $('btl-act-serial').value = '';
+        $('btl-act-cnic').value = '';
+        $('btl-act-customer-name').value = '';
+        $('btl-act-notes').value = '';
+        $('btl-act-modal-title').textContent = 'New Claimed Activation';
+    }
+    $('btl-activation-modal').classList.remove('hidden');
+}
+
+function closeBtlActivationForm() { $('btl-activation-modal').classList.add('hidden'); }
+
+async function saveBtlActivation() {
+    const agentId = $('btl-act-agent').value;
+    const date = $('btl-act-date').value;
+    const serial = $('btl-act-serial').value.trim();
+    if (!agentId || !date || !serial) { showToast('Agent, date, and SIM serial are required.', 'warning'); return; }
+
+    const btn = $('btl-act-save-btn');
+    setBtnLoading(btn, true);
+    try {
+        const id = $('btl-act-id').value || generateId();
+        await lfUpsert(LF_KEYS.BTL_ACTIVATIONS || 'btlActivations', {
+            id, date, btlAgentId: agentId,
+            simSerial: serial,
+            customerCnic: $('btl-act-cnic').value.trim(),
+            customerName: $('btl-act-customer-name').value.trim(),
+            notes: $('btl-act-notes').value.trim(),
+            verified: lfFindById(LF_KEYS.BTL_ACTIVATIONS || 'btlActivations', id)?.verified || 'pending'
+        });
+        closeBtlActivationForm();
+        renderBtlActivations();
+        showToast('Activation saved.', 'success');
+    } catch (err) { showToast('Error: ' + err.message, 'error'); }
+    finally { setBtnLoading(btn, false); }
+}
+
+async function deleteBtlActivation(id) {
+    if (!confirm('Delete this activation record?')) return;
+    await lfDelete(LF_KEYS.BTL_ACTIVATIONS || 'btlActivations', id);
+    renderBtlActivations();
+    showToast('Activation deleted.', 'success');
+}
+
+// ==================== BTL: VERIFICATION ====================
+
+function renderBtlVerification() {
+    _populateBtlAgentDropdown('btl-ver-agent-select');
+    const agentId = $('btl-ver-agent-select')?.value || '';
+    const month = $('btl-ver-month')?.value || '';
+    const container = $('btl-verification-body');
+    if (!container) return;
+
+    if (!agentId || !month) {
+        container.innerHTML = '<div class="card" style="padding:2rem;text-align:center"><p class="hint">Select a BTL agent and month to verify activations.</p></div>';
+        return;
+    }
+
+    const [y, m] = month.split('-');
+    const fromDate = `${y}-${m}-01`;
+    const toDate = `${y}-${m}-31`;
+
+    let acts = lfGetAll(LF_KEYS.BTL_ACTIVATIONS || 'btlActivations')
+        .filter(a => a.btlAgentId === agentId && a.date >= fromDate && a.date <= toDate)
+        .sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+
+    if (acts.length === 0) {
+        container.innerHTML = '<div class="card" style="padding:2rem;text-align:center"><p class="hint">No activations found for this agent in the selected month.</p></div>';
+        return;
+    }
+
+    const realCount = acts.filter(a => a.verified === 'real').length;
+    const nonRealCount = acts.filter(a => a.verified === 'non-real').length;
+    const pendingCount = acts.filter(a => a.verified !== 'real' && a.verified !== 'non-real').length;
+
+    let html = `<div class="rso-stat-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1rem">
+        <div class="rso-stat-card"><span class="rso-stat-label">Total</span><span class="rso-stat-value">${acts.length}</span></div>
+        <div class="rso-stat-card"><span class="rso-stat-label" style="color:var(--credit)">Real</span><span class="rso-stat-value" style="color:var(--credit)">${realCount}</span></div>
+        <div class="rso-stat-card"><span class="rso-stat-label" style="color:var(--garnet)">Non-Real</span><span class="rso-stat-value" style="color:var(--garnet)">${nonRealCount}</span></div>
+    </div>`;
+
+    html += `<div class="card table-card"><div class="table-scroll"><table class="data-table">
+        <thead><tr><th>Date</th><th>SIM Serial</th><th>Customer</th><th>Status</th><th>Action</th></tr></thead><tbody>`;
+
+    acts.forEach(a => {
+        const statusLabel = a.verified === 'real' ? 'Real' : a.verified === 'non-real' ? 'Non-Real' : 'Pending';
+        const statusStyle = a.verified === 'real' ? 'color:var(--credit)' : a.verified === 'non-real' ? 'color:var(--garnet)' : 'color:var(--amber)';
+        html += `<tr>
+            <td>${escapeHtml(a.date)}</td>
+            <td>${escapeHtml(a.simSerial || '')}</td>
+            <td>${escapeHtml(a.customerName || a.customerCnic || '')}</td>
+            <td><span style="${statusStyle};font-weight:600">${statusLabel}</span></td>
+            <td>
+                <button class="btn btn-ghost" style="padding:0.25rem 0.5rem;font-size:0.78rem" onclick="markBtlActivation('${a.id}','real')">Real</button>
+                <button class="btn btn-ghost" style="padding:0.25rem 0.5rem;font-size:0.78rem;color:var(--garnet)" onclick="markBtlActivation('${a.id}','non-real')">Non-Real</button>
+            </td>
+        </tr>`;
+    });
+
+    html += '</tbody></table></div></div>';
+    container.innerHTML = html;
+}
+
+async function markBtlActivation(id, status) {
+    const act = lfFindById(LF_KEYS.BTL_ACTIVATIONS || 'btlActivations', id);
+    if (!act) return;
+    act.verified = status;
+    await lfUpsert(LF_KEYS.BTL_ACTIVATIONS || 'btlActivations', act);
+    renderBtlVerification();
+    showToast(`Marked as ${status === 'real' ? 'Real' : 'Non-Real'}.`, 'success');
+}
+
+// ==================== BTL: COMMISSION ====================
+
+function renderBtlCommission() {
+    _populateBtlAgentDropdown('btl-comm-agent-select');
+    const agentId = $('btl-comm-agent-select')?.value || '';
+    const month = $('btl-comm-month')?.value || '';
+    const container = $('btl-commission-body');
+    if (!container) return;
+
+    if (!agentId || !month) {
+        container.innerHTML = '<div class="card" style="padding:2rem;text-align:center"><p class="hint">Select a BTL agent and month to view commission.</p></div>';
+        return;
+    }
+
+    const [y, m] = month.split('-');
+    const fromDate = `${y}-${m}-01`;
+    const toDate = `${y}-${m}-31`;
+
+    const acts = lfGetAll(LF_KEYS.BTL_ACTIVATIONS || 'btlActivations')
+        .filter(a => a.btlAgentId === agentId && a.date >= fromDate && a.date <= toDate);
+
+    const totalClaimed = acts.length;
+    const realActs = acts.filter(a => a.verified === 'real');
+    const nonRealActs = acts.filter(a => a.verified === 'non-real');
+    const pendingActs = acts.filter(a => a.verified !== 'real' && a.verified !== 'non-real');
+
+    const settings = lfGetAll(LF_KEYS.SETTINGS || 'settings');
+    const commRate = (settings.find(s => s.id === 'btlCommissionRate') || {}).value || 0;
+
+    const commissionEarned = realActs.length * commRate;
+
+    const agent = lfFindById(LF_KEYS.BTL_AGENTS, agentId);
+    let html = `<div class="card" style="margin-bottom:1rem;padding:1.2rem">
+        <h3 style="margin:0 0 0.8rem;font-size:1rem">${escapeHtml(agent ? agent.name : 'BTL Agent')} — ${month}</h3>
+        <div class="rso-stat-grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:1rem">
+            <div class="rso-stat-card"><span class="rso-stat-label">Total Claimed</span><span class="rso-stat-value">${totalClaimed}</span></div>
+            <div class="rso-stat-card"><span class="rso-stat-label" style="color:var(--credit)">Verified Real</span><span class="rso-stat-value" style="color:var(--credit)">${realActs.length}</span></div>
+            <div class="rso-stat-card"><span class="rso-stat-label" style="color:var(--garnet)">Non-Real</span><span class="rso-stat-value" style="color:var(--garnet)">${nonRealActs.length}</span></div>
+            <div class="rso-stat-card"><span class="rso-stat-label" style="color:var(--amber)">Pending</span><span class="rso-stat-value" style="color:var(--amber)">${pendingActs.length}</span></div>
+        </div>
+        <div style="border-top:1px solid var(--border);padding-top:0.8rem;display:flex;justify-content:space-between;align-items:center">
+            <div><span style="font-size:0.85rem;color:var(--ink-soft)">Commission Rate:</span> <strong>${formatCurrency(commRate)}</strong> per activation</div>
+            <div><span style="font-size:0.85rem;color:var(--ink-soft)">Total Earned:</span> <strong style="font-size:1.1rem;color:var(--credit)">${formatCurrency(commissionEarned)}</strong></div>
+        </div>
+    </div>`;
+
+    if (commRate === 0) {
+        html += `<div class="card" style="padding:1rem;background:var(--amber-tint);border:1px solid var(--amber)">
+            <p style="margin:0;font-size:0.88rem"><strong>Commission rate not set.</strong> Go to Settings to configure the BTL commission rate per activation.</p>
+        </div>`;
+    }
+
+    container.innerHTML = html;
+}

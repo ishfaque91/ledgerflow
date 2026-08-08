@@ -281,6 +281,9 @@
                 <div class="nav-group-body">
                     <a href="#" class="nav-link" data-page="page-btl-agents" onclick="navigateTo('page-btl-agents',this);">BTL Agents</a>
                     <a href="#" class="nav-link" data-page="page-btl-stock" onclick="navigateTo('page-btl-stock',this);">BTL Stock</a>
+                    <a href="#" class="nav-link" data-page="page-btl-activations" onclick="navigateTo('page-btl-activations',this);">Claimed Activations</a>
+                    <a href="#" class="nav-link" data-page="page-btl-verification" onclick="navigateTo('page-btl-verification',this);">Verification</a>
+                    <a href="#" class="nav-link" data-page="page-btl-commission" onclick="navigateTo('page-btl-commission',this);">Commission</a>
                 </div>
             </div>
 
@@ -393,10 +396,10 @@
                     <span class="dash-tab-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
                     <span class="dash-tab-text">
                         <span class="dash-tab-name">BTL</span>
-                        <span class="dash-tab-desc">BTL agents and stock tracking</span>
+                        <span class="dash-tab-desc">Agents, stock, activations, verification & commission</span>
                     </span>
                     <span class="dash-tab-meta">
-                        <span class="dash-tab-count">2</span>
+                        <span class="dash-tab-count">5</span>
                         <svg class="dash-tab-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
                     </span>
                 </a>
@@ -2900,7 +2903,7 @@
             <div class="page-head">
                 <div>
                     <h1>BTL</h1>
-                    <p class="page-sub">Manage BTL field agents and their stock.</p>
+                    <p class="page-sub">Manage BTL field agents, stock, activations, and commission.</p>
                 </div>
                 <button class="btn btn-ghost" onclick="navigateTo('page-dashboard')">Back to Dashboard</button>
             </div>
@@ -2908,6 +2911,9 @@
                 <div class="dash-directory-list">
                     <a href="#" data-page="page-btl-agents" onclick="navigateTo('page-btl-agents',this)"><span class="hub-opt-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span><span class="hub-opt-label">BTL Agents</span><svg class="hub-opt-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></a>
                     <a href="#" data-page="page-btl-stock" onclick="navigateTo('page-btl-stock',this)"><span class="hub-opt-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg></span><span class="hub-opt-label">Stock Tracking</span><svg class="hub-opt-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></a>
+                    <a href="#" data-page="page-btl-activations" onclick="navigateTo('page-btl-activations',this)"><span class="hub-opt-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg></span><span class="hub-opt-label">Claimed Activations</span><svg class="hub-opt-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></a>
+                    <a href="#" data-page="page-btl-verification" onclick="navigateTo('page-btl-verification',this)"><span class="hub-opt-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></span><span class="hub-opt-label">Verification</span><svg class="hub-opt-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></a>
+                    <a href="#" data-page="page-btl-commission" onclick="navigateTo('page-btl-commission',this)"><span class="hub-opt-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span><span class="hub-opt-label">Commission</span><svg class="hub-opt-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></a>
                 </div>
             </div>
         </section>
@@ -2970,6 +2976,98 @@
                 <span class="count-pill" id="btl-stock-count">0 agents</span>
             </div>
             <div id="btl-stock-tracking-body"></div>
+        </section>
+
+        <!-- ============ BTL: CLAIMED ACTIVATIONS ============ -->
+        <section id="page-btl-activations" class="page">
+            <div class="page-head">
+                <div><h1>Claimed Activations</h1><p class="page-sub">SIM activations claimed by BTL agents on stalls.</p></div>
+                <button class="btn btn-ghost" onclick="navigateTo('page-hub-btl')">Back</button>
+            </div>
+            <div class="toolbar-row">
+                <div class="field" style="margin:0;min-width:200px">
+                    <select id="btl-act-agent-select" class="select-chip" onchange="renderBtlActivations()">
+                        <option value="">All BTL Agents</option>
+                    </select>
+                </div>
+                <div class="field" style="margin:0"><input type="date" id="btl-act-from" onchange="renderBtlActivations()"></div>
+                <div class="field" style="margin:0"><input type="date" id="btl-act-to" onchange="renderBtlActivations()"></div>
+                <button class="btn btn-primary" onclick="openBtlActivationForm()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    New Entry
+                </button>
+            </div>
+            <div class="card table-card"><div class="table-scroll">
+                <table class="data-table"><thead><tr><th>Date</th><th>BTL Agent</th><th>SIM Serial</th><th>Customer CNIC</th><th>Status</th><th></th></tr></thead>
+                <tbody id="btl-activations-body"><tr class="empty-row"><td colspan="6">No activations recorded yet.</td></tr></tbody></table>
+            </div></div>
+        </section>
+
+        <!-- BTL Activation Form Modal -->
+        <div class="modal-backdrop hidden" id="btl-activation-modal">
+            <div class="modal modal-md">
+                <div class="modal-head">
+                    <h2 id="btl-act-modal-title">New Claimed Activation</h2>
+                    <button class="icon-btn" onclick="closeBtlActivationForm()" title="Close"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+                </div>
+                <form id="btl-activation-form" class="modal-body" onsubmit="return false;">
+                    <input type="hidden" id="btl-act-id">
+                    <div class="form-section">
+                        <div class="field"><label for="btl-act-date">Date <span class="req">*</span></label><input type="date" id="btl-act-date" required></div>
+                        <div class="field"><label for="btl-act-agent">BTL Agent <span class="req">*</span></label><select id="btl-act-agent" required></select></div>
+                        <div class="field"><label for="btl-act-serial">SIM Serial Number <span class="req">*</span></label><input type="text" id="btl-act-serial" placeholder="e.g. 8992300012345678" required></div>
+                        <div class="field"><label for="btl-act-cnic">Customer CNIC</label><input type="text" id="btl-act-cnic" placeholder="42101-1234567-1" maxlength="15"></div>
+                        <div class="field"><label for="btl-act-customer-name">Customer Name</label><input type="text" id="btl-act-customer-name" placeholder="Walk-in customer name"></div>
+                        <div class="field"><label for="btl-act-notes">Notes</label><input type="text" id="btl-act-notes" placeholder="Optional notes"></div>
+                    </div>
+                </form>
+                <div class="modal-foot">
+                    <button class="btn btn-ghost" onclick="closeBtlActivationForm()">Cancel</button>
+                    <button class="btn btn-primary" id="btl-act-save-btn" onclick="saveBtlActivation()"><span class="btn-label">Save Activation</span><span class="btn-spinner hidden"></span></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ BTL: VERIFICATION ============ -->
+        <section id="page-btl-verification" class="page">
+            <div class="page-head">
+                <div><h1>BTL Verification</h1><p class="page-sub">Verify real vs non-real activations claimed by BTL agents.</p></div>
+                <button class="btn btn-ghost" onclick="navigateTo('page-hub-btl')">Back</button>
+            </div>
+            <div class="toolbar-row">
+                <div class="field" style="margin:0;min-width:200px">
+                    <select id="btl-ver-agent-select" class="select-chip" onchange="renderBtlVerification()">
+                        <option value="">All BTL Agents</option>
+                    </select>
+                </div>
+                <div class="field" style="margin:0"><label>Month</label><input type="month" id="btl-ver-month" onchange="renderBtlVerification()"></div>
+            </div>
+            <div id="btl-verification-body">
+                <div class="card" style="padding:2rem;text-align:center">
+                    <p class="hint">Select a BTL agent and month to verify activations.<br>Claimed activations will be listed for marking as Real or Non-Real.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ BTL: COMMISSION ============ -->
+        <section id="page-btl-commission" class="page">
+            <div class="page-head">
+                <div><h1>BTL Commission</h1><p class="page-sub">Commission earned by BTL agents on verified activations.</p></div>
+                <button class="btn btn-ghost" onclick="navigateTo('page-hub-btl')">Back</button>
+            </div>
+            <div class="toolbar-row">
+                <div class="field" style="margin:0;min-width:200px">
+                    <select id="btl-comm-agent-select" class="select-chip" onchange="renderBtlCommission()">
+                        <option value="">All BTL Agents</option>
+                    </select>
+                </div>
+                <div class="field" style="margin:0"><label>Month</label><input type="month" id="btl-comm-month" onchange="renderBtlCommission()"></div>
+            </div>
+            <div id="btl-commission-body">
+                <div class="card" style="padding:2rem;text-align:center">
+                    <p class="hint">Select a BTL agent and month to view commission.<br>Commission is calculated on verified (real) activations only.</p>
+                </div>
+            </div>
         </section>
 
         <!-- ============ RSO LOAD LEDGER ============ -->
@@ -3250,112 +3348,24 @@
         </section>
 
         <!-- ============ RSO: REPORTS HUB ============ -->
-        <section id="page-rso-reports" class="page">
+        <section id="page-rso-reports" class="page" data-accent="blue">
             <div class="page-head">
                 <div><h1>RSO Reports</h1><p class="page-sub">Ledgers, outstanding, stock, sales, recovery, and commission reports.</p></div>
                 <button class="btn btn-ghost" onclick="navigateTo('page-hub-rso')">Back</button>
             </div>
-            <div class="dash-tab-grid">
-                <a href="#" class="dash-tab" data-accent="blue" onclick="navigateTo('page-rso-load-ledger'); initRsoLoadLedgerPage();">
-                    <span class="dash-tab-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span>
-                    <span class="dash-tab-text">
-                        <span class="dash-tab-name">Load Ledger</span>
-                        <span class="dash-tab-desc">Stock in/out for RSO</span>
-                    </span>
-                    <span class="dash-tab-meta">
-                        <svg class="dash-tab-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-                    </span>
-                </a>
-                <a href="#" class="dash-tab" data-accent="cyan" onclick="navigateTo('page-rso-item-ledger'); initRsoItemLedgerPage();">
-                    <span class="dash-tab-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg></span>
-                    <span class="dash-tab-text">
-                        <span class="dash-tab-name">Item Ledger</span>
-                        <span class="dash-tab-desc">Per-item stock movement</span>
-                    </span>
-                    <span class="dash-tab-meta">
-                        <svg class="dash-tab-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-                    </span>
-                </a>
-                <a href="#" class="dash-tab" data-accent="indigo" onclick="navigateTo('page-rso-rpt-cust-ledger'); initRsoReportDropdowns();">
-                    <span class="dash-tab-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></span>
-                    <span class="dash-tab-text">
-                        <span class="dash-tab-name">Customer Ledger</span>
-                        <span class="dash-tab-desc">Transaction history per customer</span>
-                    </span>
-                    <span class="dash-tab-meta">
-                        <svg class="dash-tab-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-                    </span>
-                </a>
-                <a href="#" class="dash-tab" data-accent="amber" onclick="navigateTo('page-rso-rpt-outstanding'); renderRsoCustomerOutstanding();">
-                    <span class="dash-tab-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span>
-                    <span class="dash-tab-text">
-                        <span class="dash-tab-name">Outstanding</span>
-                        <span class="dash-tab-desc">Balances owed by customers</span>
-                    </span>
-                    <span class="dash-tab-meta">
-                        <svg class="dash-tab-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-                    </span>
-                </a>
-                <a href="#" class="dash-tab" data-accent="teal" onclick="navigateTo('page-rso-rpt-stock'); initRsoReportDropdowns();">
-                    <span class="dash-tab-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg></span>
-                    <span class="dash-tab-text">
-                        <span class="dash-tab-name">Stock Report</span>
-                        <span class="dash-tab-desc">Current stock held by RSO</span>
-                    </span>
-                    <span class="dash-tab-meta">
-                        <svg class="dash-tab-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-                    </span>
-                </a>
-                <a href="#" class="dash-tab" data-accent="violet" onclick="navigateTo('page-rso-rpt-sales'); initRsoReportDropdowns();">
-                    <span class="dash-tab-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg></span>
-                    <span class="dash-tab-text">
-                        <span class="dash-tab-name">Sales Report</span>
-                        <span class="dash-tab-desc">Sales transactions by RSO</span>
-                    </span>
-                    <span class="dash-tab-meta">
-                        <svg class="dash-tab-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-                    </span>
-                </a>
-                <a href="#" class="dash-tab" data-accent="rose" onclick="navigateTo('page-rso-rpt-recovery'); initRsoReportDropdowns();">
-                    <span class="dash-tab-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span>
-                    <span class="dash-tab-text">
-                        <span class="dash-tab-name">Recovery Report</span>
-                        <span class="dash-tab-desc">Cash recoveries collected</span>
-                    </span>
-                    <span class="dash-tab-meta">
-                        <svg class="dash-tab-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-                    </span>
-                </a>
-                <a href="#" class="dash-tab" data-accent="slate" onclick="navigateTo('page-rso-rpt-daily'); initRsoReportDropdowns();">
-                    <span class="dash-tab-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span>
-                    <span class="dash-tab-text">
-                        <span class="dash-tab-name">Daily Summary</span>
-                        <span class="dash-tab-desc">All RSO sales for a given date</span>
-                    </span>
-                    <span class="dash-tab-meta">
-                        <svg class="dash-tab-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-                    </span>
-                </a>
-                <a href="#" class="dash-tab" data-accent="green" onclick="navigateTo('page-commission-report'); renderCommissionReport();">
-                    <span class="dash-tab-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span>
-                    <span class="dash-tab-text">
-                        <span class="dash-tab-name">Commission</span>
-                        <span class="dash-tab-desc">Activation commissions earned</span>
-                    </span>
-                    <span class="dash-tab-meta">
-                        <svg class="dash-tab-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-                    </span>
-                </a>
-                <a href="#" class="dash-tab" data-accent="orange" onclick="navigateTo('page-sim-status'); renderSimStatusReport();">
-                    <span class="dash-tab-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg></span>
-                    <span class="dash-tab-text">
-                        <span class="dash-tab-name">SIM Status</span>
-                        <span class="dash-tab-desc">Active, inactive & pending SIMs</span>
-                    </span>
-                    <span class="dash-tab-meta">
-                        <svg class="dash-tab-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-                    </span>
-                </a>
+            <div class="card dash-directory-card dash-hub-card">
+                <div class="dash-directory-list">
+                    <a href="#" data-page="page-rso-load-ledger" onclick="navigateTo('page-rso-load-ledger',this); initRsoLoadLedgerPage();"><span class="hub-opt-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span><span class="hub-opt-label">Load Ledger</span><svg class="hub-opt-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></a>
+                    <a href="#" data-page="page-rso-item-ledger" onclick="navigateTo('page-rso-item-ledger',this); initRsoItemLedgerPage();"><span class="hub-opt-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg></span><span class="hub-opt-label">Item Ledger</span><svg class="hub-opt-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></a>
+                    <a href="#" data-page="page-rso-rpt-cust-ledger" onclick="navigateTo('page-rso-rpt-cust-ledger',this); initRsoReportDropdowns();"><span class="hub-opt-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></span><span class="hub-opt-label">Customer Ledger</span><svg class="hub-opt-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></a>
+                    <a href="#" data-page="page-rso-rpt-outstanding" onclick="navigateTo('page-rso-rpt-outstanding',this); renderRsoCustomerOutstanding();"><span class="hub-opt-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span><span class="hub-opt-label">Outstanding</span><svg class="hub-opt-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></a>
+                    <a href="#" data-page="page-rso-rpt-stock" onclick="navigateTo('page-rso-rpt-stock',this); initRsoReportDropdowns();"><span class="hub-opt-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg></span><span class="hub-opt-label">Stock Report</span><svg class="hub-opt-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></a>
+                    <a href="#" data-page="page-rso-rpt-sales" onclick="navigateTo('page-rso-rpt-sales',this); initRsoReportDropdowns();"><span class="hub-opt-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg></span><span class="hub-opt-label">Sales Report</span><svg class="hub-opt-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></a>
+                    <a href="#" data-page="page-rso-rpt-recovery" onclick="navigateTo('page-rso-rpt-recovery',this); initRsoReportDropdowns();"><span class="hub-opt-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span><span class="hub-opt-label">Recovery Report</span><svg class="hub-opt-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></a>
+                    <a href="#" data-page="page-rso-rpt-daily" onclick="navigateTo('page-rso-rpt-daily',this); initRsoReportDropdowns();"><span class="hub-opt-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span><span class="hub-opt-label">Daily Summary</span><svg class="hub-opt-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></a>
+                    <a href="#" data-page="page-commission-report" onclick="navigateTo('page-commission-report',this); renderCommissionReport();"><span class="hub-opt-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span><span class="hub-opt-label">Commission</span><svg class="hub-opt-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></a>
+                    <a href="#" data-page="page-sim-status" onclick="navigateTo('page-sim-status',this); renderSimStatusReport();"><span class="hub-opt-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg></span><span class="hub-opt-label">SIM Status</span><svg class="hub-opt-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></a>
+                </div>
             </div>
         </section>
 
