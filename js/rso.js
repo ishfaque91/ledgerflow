@@ -2087,69 +2087,126 @@ async function deleteBtlActivation(id) {
 // ==================== BTL: VERIFICATION ====================
 
 function renderBtlVerification() {
-    _populateBtlAgentDropdown('btl-ver-agent-select');
-    const agentId = $('btl-ver-agent-select')?.value || '';
-    const month = $('btl-ver-month')?.value || '';
-    const container = $('btl-verification-body');
-    if (!container) return;
+    const tbody = $('btl-ver-table-body');
+    if (!tbody) return;
 
-    if (!agentId || !month) {
-        container.innerHTML = '<div class="card" style="padding:2rem;text-align:center"><p class="hint">Select a BTL agent and month to verify activations.</p></div>';
+    let results = lfGetAll(LF_KEYS.BTL_VERIFICATIONS);
+    results.sort((a, b) => (b.period || '').localeCompare(a.period || ''));
+    $('btl-ver-count').textContent = `${results.length} record${results.length === 1 ? '' : 's'}`;
+
+    if (results.length === 0) {
+        tbody.innerHTML = '<tr class="empty-row"><td colspan="8">No verification records yet.</td></tr>';
         return;
     }
 
-    const [y, m] = month.split('-');
-    const fromDate = `${y}-${m}-01`;
-    const toDate = `${y}-${m}-31`;
-
-    let acts = lfGetAll(LF_KEYS.BTL_ACTIVATIONS || 'btlActivations')
-        .filter(a => a.btlAgentId === agentId && a.date >= fromDate && a.date <= toDate)
-        .sort((a, b) => (a.date || '').localeCompare(b.date || ''));
-
-    if (acts.length === 0) {
-        container.innerHTML = '<div class="card" style="padding:2rem;text-align:center"><p class="hint">No activations found for this agent in the selected month.</p></div>';
-        return;
-    }
-
-    const realCount = acts.filter(a => a.verified === 'real').length;
-    const nonRealCount = acts.filter(a => a.verified === 'non-real').length;
-    const pendingCount = acts.filter(a => a.verified !== 'real' && a.verified !== 'non-real').length;
-
-    let html = `<div class="rso-stat-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1rem">
-        <div class="rso-stat-card"><span class="rso-stat-label">Total</span><span class="rso-stat-value">${acts.length}</span></div>
-        <div class="rso-stat-card"><span class="rso-stat-label" style="color:var(--credit)">Real</span><span class="rso-stat-value" style="color:var(--credit)">${realCount}</span></div>
-        <div class="rso-stat-card"><span class="rso-stat-label" style="color:var(--garnet)">Non-Real</span><span class="rso-stat-value" style="color:var(--garnet)">${nonRealCount}</span></div>
-    </div>`;
-
-    html += `<div class="card table-card"><div class="table-scroll"><table class="data-table">
-        <thead><tr><th>Date</th><th>SIM Serial</th><th>Customer</th><th>Status</th><th>Action</th></tr></thead><tbody>`;
-
-    acts.forEach(a => {
-        const statusLabel = a.verified === 'real' ? 'Real' : a.verified === 'non-real' ? 'Non-Real' : 'Pending';
-        const statusStyle = a.verified === 'real' ? 'color:var(--credit)' : a.verified === 'non-real' ? 'color:var(--garnet)' : 'color:var(--amber)';
-        html += `<tr>
-            <td>${escapeHtml(a.date)}</td>
-            <td>${escapeHtml(a.simSerial || '')}</td>
-            <td>${escapeHtml(a.customerName || a.customerCnic || '')}</td>
-            <td><span style="${statusStyle};font-weight:600">${statusLabel}</span></td>
+    tbody.innerHTML = results.map(r => {
+        const statusClass = r.status === 'Paid' ? 'is-cr' : (r.status === 'Verified' ? 'is-dr' : '');
+        return `<tr>
+            <td>${escapeHtml(r.period)}</td>
+            <td>${escapeHtml(r.agentName || '-')}</td>
+            <td class="num">${r.totalClaimed || 0}</td>
+            <td class="num">${r.realCount || 0}</td>
+            <td class="num">${r.nonRealCount || 0}</td>
+            <td class="num">${formatCurrency(r.commissionAmount || 0)}</td>
+            <td><span class="balance-tag ${statusClass}">${escapeHtml(r.status || 'Pending')}</span></td>
             <td>
-                <button class="btn btn-ghost" style="padding:0.25rem 0.5rem;font-size:0.78rem" onclick="markBtlActivation('${a.id}','real')">Real</button>
-                <button class="btn btn-ghost" style="padding:0.25rem 0.5rem;font-size:0.78rem;color:var(--garnet)" onclick="markBtlActivation('${a.id}','non-real')">Non-Real</button>
+                <div class="row-actions">
+                    <button class="btn-outline-text" onclick="openBtlVerificationForm('${r.id}')">Edit</button>
+                    <button class="btn-danger-text" onclick="deleteBtlVerification('${r.id}')">Delete</button>
+                </div>
             </td>
         </tr>`;
-    });
-
-    html += '</tbody></table></div></div>';
-    container.innerHTML = html;
+    }).join('');
 }
 
-async function markBtlActivation(id, status) {
-    const act = lfFindById(LF_KEYS.BTL_ACTIVATIONS || 'btlActivations', id);
-    if (!act) return;
-    act.verified = status;
-    await lfUpsert(LF_KEYS.BTL_ACTIVATIONS || 'btlActivations', act);
-    renderBtlVerification();
-    showToast(`Marked as ${status === 'real' ? 'Real' : 'Non-Real'}.`, 'success');
+function openBtlVerificationForm(editId) {
+    const form = $('btl-ver-form');
+    form.reset();
+    $('btl-ver-id').value = '';
+
+    const agents = lfGetAll(LF_KEYS.BTL_AGENTS).sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+    $('btl-ver-agent').innerHTML = '<option value="">Select agent…</option>' +
+        agents.map(a => `<option value="${a.id}" data-rate="${a.commissionRate || 0}">${escapeHtml(a.name)}</option>`).join('');
+
+    if (editId) {
+        const r = lfFindById(LF_KEYS.BTL_VERIFICATIONS, editId);
+        if (!r) { showToast('Record not found.', 'error'); return; }
+        $('btl-ver-modal-title').textContent = 'Edit Verification';
+        $('btl-ver-id').value = r.id;
+        $('btl-ver-period').value = r.period;
+        $('btl-ver-agent').value = r.btlAgentId;
+        $('btl-ver-claimed').value = r.totalClaimed || 0;
+        $('btl-ver-real').value = r.realCount || 0;
+        $('btl-ver-nonreal').value = r.nonRealCount || 0;
+        $('btl-ver-status').value = r.status || 'Pending';
+        recalcBtlVerCommission();
+    } else {
+        $('btl-ver-modal-title').textContent = 'New Verification';
+        const now = new Date();
+        $('btl-ver-period').value = now.toISOString().slice(0, 7);
+    }
+
+    $('btl-ver-modal').classList.remove('hidden');
+}
+
+function closeBtlVerificationForm() { $('btl-ver-modal').classList.add('hidden'); }
+
+function recalcBtlVerCommission() {
+    const agentId = $('btl-ver-agent').value;
+    const realCount = parseInt($('btl-ver-real').value) || 0;
+    const agent = agentId ? lfFindById(LF_KEYS.BTL_AGENTS, agentId) : null;
+    const rate = agent ? (agent.commissionRate || 0) : 0;
+    const commission = realCount * rate;
+    $('btl-ver-commission-display').textContent = formatCurrency(commission);
+    $('btl-ver-rate-display').textContent = rate > 0 ? `@ Rs.${rate}/SIM` : '(rate not set on agent)';
+}
+
+async function saveBtlVerification() {
+    const id = $('btl-ver-id').value;
+    const period = $('btl-ver-period').value;
+    const agentId = $('btl-ver-agent').value;
+    const totalClaimed = parseInt($('btl-ver-claimed').value) || 0;
+    const realCount = parseInt($('btl-ver-real').value) || 0;
+    const nonRealCount = parseInt($('btl-ver-nonreal').value) || 0;
+    const status = $('btl-ver-status').value || 'Pending';
+    const saveBtn = $('btl-ver-save-btn');
+
+    if (!period) { showToast('Please select a period.', 'warning'); return; }
+    if (!agentId) { showToast('Please select a BTL agent.', 'warning'); return; }
+
+    const agent = lfFindById(LF_KEYS.BTL_AGENTS, agentId);
+    const commissionRate = agent ? (agent.commissionRate || 0) : 0;
+    const commissionAmount = realCount * commissionRate;
+
+    setBtnLoading(saveBtn, true);
+    try {
+        await lfUpsert(LF_KEYS.BTL_VERIFICATIONS, {
+            id: id || undefined, period, btlAgentId: agentId,
+            agentName: agent ? agent.name : '',
+            totalClaimed, realCount, nonRealCount,
+            commissionRate, commissionAmount, status
+        });
+        showToast(id ? 'Verification updated.' : 'Verification saved.', 'success');
+        closeBtlVerificationForm();
+        renderBtlVerification();
+    } catch (e) {
+        console.error(e);
+        showToast('Could not save.', 'error');
+    } finally {
+        setBtnLoading(saveBtn, false);
+    }
+}
+
+async function deleteBtlVerification(id) {
+    if (!confirm('Delete this verification record?')) return;
+    try {
+        await lfDelete(LF_KEYS.BTL_VERIFICATIONS, id);
+        renderBtlVerification();
+        showToast('Record deleted.', 'success');
+    } catch (e) {
+        console.error(e);
+        showToast('Could not delete.', 'error');
+    }
 }
 
 // ==================== BTL: COMMISSION ====================
@@ -2157,52 +2214,29 @@ async function markBtlActivation(id, status) {
 function renderBtlCommission() {
     _populateBtlAgentDropdown('btl-comm-agent-select');
     const agentId = $('btl-comm-agent-select')?.value || '';
-    const month = $('btl-comm-month')?.value || '';
-    const container = $('btl-commission-body');
-    if (!container) return;
+    const tbody = $('btl-comm-table-body');
+    if (!tbody) return;
 
-    if (!agentId || !month) {
-        container.innerHTML = '<div class="card" style="padding:2rem;text-align:center"><p class="hint">Select a BTL agent and month to view commission.</p></div>';
+    let results = lfGetAll(LF_KEYS.BTL_VERIFICATIONS);
+    if (agentId) results = results.filter(r => r.btlAgentId === agentId);
+    results.sort((a, b) => (b.period || '').localeCompare(a.period || ''));
+
+    if (results.length === 0) {
+        tbody.innerHTML = '<tr class="empty-row"><td colspan="6">No commission records. Add verification records first.</td></tr>';
         return;
     }
 
-    const [y, m] = month.split('-');
-    const fromDate = `${y}-${m}-01`;
-    const toDate = `${y}-${m}-31`;
-
-    const acts = lfGetAll(LF_KEYS.BTL_ACTIVATIONS || 'btlActivations')
-        .filter(a => a.btlAgentId === agentId && a.date >= fromDate && a.date <= toDate);
-
-    const totalClaimed = acts.length;
-    const realActs = acts.filter(a => a.verified === 'real');
-    const nonRealActs = acts.filter(a => a.verified === 'non-real');
-    const pendingActs = acts.filter(a => a.verified !== 'real' && a.verified !== 'non-real');
-
-    const settings = lfGetAll(LF_KEYS.SETTINGS || 'settings');
-    const commRate = (settings.find(s => s.id === 'btlCommissionRate') || {}).value || 0;
-
-    const commissionEarned = realActs.length * commRate;
-
-    const agent = lfFindById(LF_KEYS.BTL_AGENTS, agentId);
-    let html = `<div class="card" style="margin-bottom:1rem;padding:1.2rem">
-        <h3 style="margin:0 0 0.8rem;font-size:1rem">${escapeHtml(agent ? agent.name : 'BTL Agent')} — ${month}</h3>
-        <div class="rso-stat-grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:1rem">
-            <div class="rso-stat-card"><span class="rso-stat-label">Total Claimed</span><span class="rso-stat-value">${totalClaimed}</span></div>
-            <div class="rso-stat-card"><span class="rso-stat-label" style="color:var(--credit)">Verified Real</span><span class="rso-stat-value" style="color:var(--credit)">${realActs.length}</span></div>
-            <div class="rso-stat-card"><span class="rso-stat-label" style="color:var(--garnet)">Non-Real</span><span class="rso-stat-value" style="color:var(--garnet)">${nonRealActs.length}</span></div>
-            <div class="rso-stat-card"><span class="rso-stat-label" style="color:var(--amber)">Pending</span><span class="rso-stat-value" style="color:var(--amber)">${pendingActs.length}</span></div>
-        </div>
-        <div style="border-top:1px solid var(--border);padding-top:0.8rem;display:flex;justify-content:space-between;align-items:center">
-            <div><span style="font-size:0.85rem;color:var(--ink-soft)">Commission Rate:</span> <strong>${formatCurrency(commRate)}</strong> per activation</div>
-            <div><span style="font-size:0.85rem;color:var(--ink-soft)">Total Earned:</span> <strong style="font-size:1.1rem;color:var(--credit)">${formatCurrency(commissionEarned)}</strong></div>
-        </div>
-    </div>`;
-
-    if (commRate === 0) {
-        html += `<div class="card" style="padding:1rem;background:var(--amber-tint);border:1px solid var(--amber)">
-            <p style="margin:0;font-size:0.88rem"><strong>Commission rate not set.</strong> Go to Settings to configure the BTL commission rate per activation.</p>
-        </div>`;
-    }
-
-    container.innerHTML = html;
+    let totalCommission = 0;
+    tbody.innerHTML = results.map(r => {
+        totalCommission += r.commissionAmount || 0;
+        const statusClass = r.status === 'Paid' ? 'is-cr' : (r.status === 'Verified' ? 'is-dr' : '');
+        return `<tr>
+            <td>${escapeHtml(r.period)}</td>
+            <td>${escapeHtml(r.agentName || '-')}</td>
+            <td class="num">${r.realCount || 0}</td>
+            <td class="num">${formatCurrency(r.commissionRate || 0)}</td>
+            <td class="num">${formatCurrency(r.commissionAmount || 0)}</td>
+            <td><span class="balance-tag ${statusClass}">${escapeHtml(r.status || 'Pending')}</span></td>
+        </tr>`;
+    }).join('') + `<tr class="statement-total"><td colspan="4"><strong>Total Commission</strong></td><td class="num"><strong>${formatCurrency(totalCommission)}</strong></td><td></td></tr>`;
 }

@@ -3031,28 +3031,66 @@
         <!-- ============ BTL: VERIFICATION ============ -->
         <section id="page-btl-verification" class="page">
             <div class="page-head">
-                <div><h1>BTL Verification</h1><p class="page-sub">Verify real vs non-real activations claimed by BTL agents.</p></div>
-                <button class="btn btn-ghost" onclick="navigateTo('page-hub-btl')">Back</button>
+                <div><h1>BTL Monthly Verification</h1><p class="page-sub">Real / non-real SIM results from telco report. Enter monthly totals per BTL agent.</p></div>
+                <div style="display:flex;gap:8px">
+                    <button class="btn btn-ghost" onclick="navigateTo('page-hub-btl')">Back</button>
+                    <button class="btn btn-primary" onclick="openBtlVerificationForm()">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        New Record
+                    </button>
+                </div>
             </div>
             <div class="toolbar-row">
-                <div class="field" style="margin:0;min-width:200px">
-                    <select id="btl-ver-agent-select" class="select-chip" onchange="renderBtlVerification()">
-                        <option value="">All BTL Agents</option>
-                    </select>
-                </div>
-                <div class="field" style="margin:0"><label>Month</label><input type="month" id="btl-ver-month" onchange="renderBtlVerification()"></div>
+                <span class="count-pill" id="btl-ver-count">0 records</span>
             </div>
-            <div id="btl-verification-body">
-                <div class="card" style="padding:2rem;text-align:center">
-                    <p class="hint">Select a BTL agent and month to verify activations.<br>Claimed activations will be listed for marking as Real or Non-Real.</p>
-                </div>
-            </div>
+            <div class="card table-card"><div class="table-scroll">
+                <table class="data-table"><thead><tr><th>Period</th><th>BTL Agent</th><th class="num">Claimed</th><th class="num">Real</th><th class="num">Non-Real</th><th class="num">Commission</th><th>Status</th><th></th></tr></thead>
+                <tbody id="btl-ver-table-body"></tbody></table>
+            </div></div>
         </section>
+
+        <!-- BTL Verification Form Modal -->
+        <div class="modal-backdrop hidden" id="btl-ver-modal">
+            <div class="modal">
+                <div class="modal-head">
+                    <h2 id="btl-ver-modal-title">New Verification</h2>
+                    <button class="icon-btn" onclick="closeBtlVerificationForm()" title="Close"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+                </div>
+                <form id="btl-ver-form" class="modal-body" onsubmit="return false;">
+                    <input type="hidden" id="btl-ver-id">
+                    <div class="form-section">
+                        <div class="field-grid">
+                            <div class="field"><label for="btl-ver-period">Month <span class="req">*</span></label><input type="month" id="btl-ver-period" required></div>
+                            <div class="field"><label for="btl-ver-agent">BTL Agent <span class="req">*</span></label><select id="btl-ver-agent" onchange="recalcBtlVerCommission()" required></select></div>
+                        </div>
+                        <div class="field-grid">
+                            <div class="field"><label for="btl-ver-claimed">Total Claimed</label><input type="number" id="btl-ver-claimed" min="0" placeholder="0"></div>
+                            <div class="field"><label for="btl-ver-real">Real SIMs</label><input type="number" id="btl-ver-real" min="0" placeholder="0" oninput="recalcBtlVerCommission()"></div>
+                            <div class="field"><label for="btl-ver-nonreal">Non-Real SIMs</label><input type="number" id="btl-ver-nonreal" min="0" placeholder="0"></div>
+                        </div>
+                        <div class="field-grid" style="align-items:center">
+                            <div style="font-size:0.95rem;color:var(--ink)">Commission: <strong id="btl-ver-commission-display">Rs. 0</strong> <span id="btl-ver-rate-display" style="color:var(--ink-faint);font-size:0.85rem"></span></div>
+                            <div class="field"><label for="btl-ver-status">Status</label>
+                                <select id="btl-ver-status">
+                                    <option value="Pending">Pending</option>
+                                    <option value="Verified">Verified</option>
+                                    <option value="Paid">Paid</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+                <div class="modal-foot">
+                    <button class="btn btn-ghost" onclick="closeBtlVerificationForm()">Cancel</button>
+                    <button class="btn btn-primary" id="btl-ver-save-btn" onclick="saveBtlVerification()"><span class="btn-label">Save</span><span class="btn-spinner hidden"></span></button>
+                </div>
+            </div>
+        </div>
 
         <!-- ============ BTL: COMMISSION ============ -->
         <section id="page-btl-commission" class="page">
             <div class="page-head">
-                <div><h1>BTL Commission</h1><p class="page-sub">Commission earned by BTL agents on verified activations.</p></div>
+                <div><h1>BTL Commission</h1><p class="page-sub">Commission summary from verified monthly records.</p></div>
                 <button class="btn btn-ghost" onclick="navigateTo('page-hub-btl')">Back</button>
             </div>
             <div class="toolbar-row">
@@ -3061,13 +3099,11 @@
                         <option value="">All BTL Agents</option>
                     </select>
                 </div>
-                <div class="field" style="margin:0"><label>Month</label><input type="month" id="btl-comm-month" onchange="renderBtlCommission()"></div>
             </div>
-            <div id="btl-commission-body">
-                <div class="card" style="padding:2rem;text-align:center">
-                    <p class="hint">Select a BTL agent and month to view commission.<br>Commission is calculated on verified (real) activations only.</p>
-                </div>
-            </div>
+            <div class="card table-card"><div class="table-scroll">
+                <table class="data-table"><thead><tr><th>Period</th><th>BTL Agent</th><th class="num">Real SIMs</th><th class="num">Rate</th><th class="num">Commission</th><th>Status</th></tr></thead>
+                <tbody id="btl-comm-table-body"></tbody></table>
+            </div></div>
         </section>
 
         <!-- ============ RSO LOAD LEDGER ============ -->

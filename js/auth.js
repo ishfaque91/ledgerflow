@@ -251,6 +251,7 @@ async function resolveCompanyAndShowApp(user) {
         watchCollection(LF_KEYS.BVS_DEVICES, () => { if (typeof renderBvsDeviceList === 'function') renderBvsDeviceList(); });
         watchCollection(LF_KEYS.BTL_AGENTS, () => { if (typeof renderBtlAgentList === 'function') renderBtlAgentList(); });
         watchCollection(LF_KEYS.BTL_ACTIVATIONS, () => { if (typeof renderBtlActivations === 'function') renderBtlActivations(); });
+        watchCollection(LF_KEYS.BTL_VERIFICATIONS, () => { if (typeof renderBtlVerification === 'function') renderBtlVerification(); });
 
         setTimeout(() => {
             if (typeof backfillRsoLoadsFromInvoices === 'function') backfillRsoLoadsFromInvoices();

@@ -38,7 +38,8 @@ const LF_KEYS = {
     ACTIVATION_RESULTS: 'activationResults',
     BVS_DEVICES: 'bvsDevices',
     BTL_AGENTS: 'btlAgents',
-    BTL_ACTIVATIONS: 'btlActivations'
+    BTL_ACTIVATIONS: 'btlActivations',
+    BTL_VERIFICATIONS: 'btlVerifications'
 };
 
 let currentCompanyId = null;
