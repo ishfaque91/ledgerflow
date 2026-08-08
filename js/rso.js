@@ -457,7 +457,8 @@ function computeRsoStock(rsoUserId) {
     lfGetAll(LF_KEYS.RSO_LOADS).filter(l => l.rsoUserId === rsoUserId).forEach(l => {
         if (l.hasLoad && l.loadQty > 0) stock['__load__'].qty += l.loadQty;
         (l.items || []).forEach(i => {
-            if (!stock[i.itemId]) stock[i.itemId] = { itemName: i.itemName, qty: 0, rate: i.rate };
+            if (!stock[i.itemId]) stock[i.itemId] = { itemName: i.itemName, qty: 0, rate: i.rate || 0 };
+            if (i.rate > 0) stock[i.itemId].rate = i.rate;
             stock[i.itemId].qty += i.qty;
         });
     });
