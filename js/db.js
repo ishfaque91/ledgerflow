@@ -36,7 +36,8 @@ const LF_KEYS = {
     RSO_DEPOSITS: 'rsoDeposits',
     RSO_ACTIVATIONS: 'rsoActivations',
     ACTIVATION_RESULTS: 'activationResults',
-    BVS_DEVICES: 'bvsDevices'
+    BVS_DEVICES: 'bvsDevices',
+    BTL_AGENTS: 'btlAgents'
 };
 
 let currentCompanyId = null;

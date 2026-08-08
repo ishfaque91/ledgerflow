@@ -28,8 +28,8 @@ const INVOICE_CONFIG = {
         rateField: 'purchasePrice'
     },
     Sale: {
-        title: 'Sale', prefix: 'SAL', partyLabel: 'RSO',
-        partyTypes: ['Employee/RSO'],
+        title: 'Sale', prefix: 'SAL', partyLabel: 'RSO / BTL',
+        partyTypes: ['Employee/RSO', 'Employee/BTL'],
         loadAmountLabel: 'Sale Amount', loadQtyLabel: 'Load Issued',
         paymentHeading: 'Received in Cash / Bank', balanceLabel: 'Balance receivable',
         direction: -1, ledgerPartySide: 'Dr', paymentCashSide: 'Dr',
@@ -37,8 +37,8 @@ const INVOICE_CONFIG = {
         rateField: 'salePrice'
     },
     SaleReturn: {
-        title: 'Sale Return', prefix: 'SRET', partyLabel: 'RSO',
-        partyTypes: ['Employee/RSO'],
+        title: 'Sale Return', prefix: 'SRET', partyLabel: 'RSO / BTL',
+        partyTypes: ['Employee/RSO', 'Employee/BTL'],
         loadAmountLabel: 'Return Amount', loadQtyLabel: 'Load Returned',
         paymentHeading: 'Refunded in Cash / Bank', balanceLabel: 'Reduces receivable by',
         direction: 1, ledgerPartySide: 'Cr', paymentCashSide: 'Cr',
@@ -719,28 +719,32 @@ async function removeRsoLoadForInvoice(invoiceId) {
     }
 }
 
-// ==================== RSO LOAD SYNC (Sale/SaleReturn → RSO_LOADS) ====================
+// ==================== RSO/BTL LOAD SYNC (Sale/SaleReturn → RSO_LOADS) ====================
 async function syncRsoLoadFromInvoice(invoice, partyAccount) {
-    if (!partyAccount || partyAccount.type !== 'Employee/RSO') return;
+    if (!partyAccount) return;
+    const isBtl = partyAccount.type === 'Employee/BTL';
+    const isRso = partyAccount.type === 'Employee/RSO';
+    if (!isRso && !isBtl) return;
     if (invoice.type !== 'Sale') return;
     if (invoice.cancelled) return;
 
-    const rsoUserId = partyAccount.linkedUserId;
-    if (!rsoUserId) return;
+    const linkedUserId = partyAccount.linkedUserId;
+    if (!linkedUserId) return;
 
-    const rsoUser = lfFindById(LF_KEYS.USERS, rsoUserId);
+    const linkedUser = lfFindById(LF_KEYS.USERS, linkedUserId);
 
     const rsoLoadRecord = {
         id: 'rsoload_' + invoice.id,
         sourceInvoiceId: invoice.id,
         number: invoice.number,
         date: invoice.date,
-        rsoUserId,
-        rsoName: rsoUser ? rsoUser.fullName : partyAccount.title,
-        hasLoad: invoice.hasLoad,
-        loadAmount: invoice.loadAmount || 0,
-        loadTotal: invoice.loadTotal || 0,
-        loadQty: invoice.loadQty || 0,
+        rsoUserId: linkedUserId,
+        rsoName: linkedUser ? linkedUser.fullName : partyAccount.title,
+        partyType: partyAccount.type,
+        hasLoad: isBtl ? false : invoice.hasLoad,
+        loadAmount: isBtl ? 0 : (invoice.loadAmount || 0),
+        loadTotal: isBtl ? 0 : (invoice.loadTotal || 0),
+        loadQty: isBtl ? 0 : (invoice.loadQty || 0),
         items: (invoice.items || []).map(r => ({
             itemId: r.itemId,
             itemName: r.itemName,
@@ -767,7 +771,7 @@ async function backfillRsoLoadsFromInvoices() {
     let count = 0;
     for (const inv of invoices) {
         const party = lfFindById(LF_KEYS.ACCOUNTS, inv.partyAccountId);
-        if (!party || party.type !== 'Employee/RSO') continue;
+        if (!party || (party.type !== 'Employee/RSO' && party.type !== 'Employee/BTL')) continue;
 
         const existing = existingBySource[inv.id];
         if (existing && existing.hasLoad && !existing.loadAmount && inv.loadAmount > 0) {

@@ -273,6 +273,20 @@
             <div class="nav-group">
                 <button class="nav-group-header" onclick="toggleGroup(this)">
                     <span class="nav-group-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    </span>
+                    <span>BTL</span>
+                    <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+                <div class="nav-group-body">
+                    <a href="#" class="nav-link" data-page="page-btl-agents" onclick="navigateTo('page-btl-agents',this);">BTL Agents</a>
+                    <a href="#" class="nav-link" data-page="page-btl-stock" onclick="navigateTo('page-btl-stock',this);">BTL Stock</a>
+                </div>
+            </div>
+
+            <div class="nav-group">
+                <button class="nav-group-header" onclick="toggleGroup(this)">
+                    <span class="nav-group-icon">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
                     </span>
                     <span>Utility</span>
@@ -634,6 +648,7 @@
                                     <option value="Supplier">Supplier</option>
                                     <option value="Customer/Supplier">Customer/Supplier</option>
                                     <option value="Employee/RSO">Employee/RSO</option>
+                                    <option value="Employee/BTL">Employee/BTL</option>
                                     <option value="Cash">Cash</option>
                                     <option value="Bank">Bank</option>
                                     <option value="Income">Income</option>
@@ -2461,7 +2476,6 @@
                                 <label for="rso-cust-type">Customer Type</label>
                                 <select id="rso-cust-type" onchange="onRsoCustTypeChange()">
                                     <option value="Retailer">Retailer</option>
-                                    <option value="BTL">BTL Boy</option>
                                 </select>
                             </div>
                             <div class="field">
@@ -2867,6 +2881,62 @@
                 <span class="count-pill" id="rso-stock-count">0 RSOs</span>
             </div>
             <div id="rso-stock-tracking-body"></div>
+        </section>
+
+        <!-- ============ BTL: AGENTS ============ -->
+        <section id="page-btl-agents" class="page">
+            <div class="page-head">
+                <div><h1>BTL Agents</h1><p class="page-sub">Below-the-line field agents on stalls.</p></div>
+                <button class="btn btn-primary" onclick="openBtlAgentForm()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    New BTL Agent
+                </button>
+            </div>
+            <div class="card table-card"><div class="table-scroll">
+                <table class="data-table"><thead><tr><th>Agent Name</th><th>Mobile</th><th>Area / Stall</th><th class="num">Stock Value</th><th></th></tr></thead>
+                <tbody id="btl-agent-table-body"></tbody></table>
+            </div></div>
+        </section>
+
+        <!-- BTL Agent Form Modal -->
+        <div class="modal-backdrop hidden" id="btl-agent-modal">
+            <div class="modal modal-md">
+                <div class="modal-head">
+                    <h2 id="btl-agent-modal-title">New BTL Agent</h2>
+                    <button class="icon-btn" onclick="closeBtlAgentForm()" title="Close"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+                </div>
+                <form id="btl-agent-form" class="modal-body" onsubmit="return false;">
+                    <input type="hidden" id="btl-agent-id">
+                    <div class="form-section">
+                        <div class="field"><label for="btl-agent-name">Agent Name <span class="req">*</span></label><input type="text" id="btl-agent-name" placeholder="e.g. Ahmed Khan" required></div>
+                        <div class="field-grid">
+                            <div class="field"><label for="btl-agent-mobile">Mobile</label><div class="phone-control"><span class="phone-prefix">+92</span><input type="tel" id="btl-agent-mobile" placeholder="333 2392852" maxlength="11" oninput="formatPhoneInput(this)"></div></div>
+                            <div class="field"><label for="btl-agent-area">Area / Stall</label><input type="text" id="btl-agent-area" placeholder="e.g. Tariq Road Stall"></div>
+                        </div>
+                        <div class="field"><label for="btl-agent-cnic">CNIC</label><input type="text" id="btl-agent-cnic" placeholder="42101-1234567-1" maxlength="15"></div>
+                    </div>
+                </form>
+                <div class="modal-foot">
+                    <button class="btn btn-ghost" onclick="closeBtlAgentForm()">Cancel</button>
+                    <button class="btn btn-primary" id="btl-agent-save-btn" onclick="saveBtlAgent()"><span class="btn-label">Save Agent</span><span class="btn-spinner hidden"></span></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ BTL: STOCK TRACKING ============ -->
+        <section id="page-btl-stock" class="page">
+            <div class="page-head">
+                <div><h1>BTL Stock Tracking</h1><p class="page-sub">Physical items issued to BTL agents via Sale invoices.</p></div>
+            </div>
+            <div class="toolbar-row">
+                <div class="field" style="margin:0;min-width:200px">
+                    <select id="btl-stock-agent-select" class="select-chip" onchange="renderBtlStockTracking()">
+                        <option value="">All BTL Agents</option>
+                    </select>
+                </div>
+                <span class="count-pill" id="btl-stock-count">0 agents</span>
+            </div>
+            <div id="btl-stock-tracking-body"></div>
         </section>
 
         <!-- ============ RSO LOAD LEDGER ============ -->

@@ -1780,3 +1780,194 @@ function applyRsoNavVisibility() {
         document.querySelectorAll('.nav-group[data-rso-shared]').forEach(g => g.classList.remove('hidden'));
     }
 }
+
+// ==================== BTL AGENT MANAGEMENT ====================
+function getAllBtlAccounts() {
+    return lfGetAll(LF_KEYS.ACCOUNTS).filter(a => a.type === 'Employee/BTL');
+}
+
+function renderBtlAgentList() {
+    const tbody = $('btl-agent-table-body');
+    if (!tbody) return;
+
+    const agents = lfGetAll(LF_KEYS.BTL_AGENTS).sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+
+    if (agents.length === 0) {
+        tbody.innerHTML = '<tr class="empty-row"><td colspan="5">No BTL agents yet — click "New BTL Agent" to add one.</td></tr>';
+        return;
+    }
+
+    tbody.innerHTML = agents.map(a => {
+        const stock = computeBtlStock(a.id);
+        let stockValue = 0;
+        Object.values(stock).forEach(s => { stockValue += s.qty * s.rate; });
+        return `
+        <tr>
+            <td><strong>${escapeHtml(a.name)}</strong></td>
+            <td>${a.mobile ? '+92 ' + escapeHtml(a.mobile) : '-'}</td>
+            <td>${escapeHtml(a.area) || '-'}</td>
+            <td class="num">${formatCurrency(stockValue)}</td>
+            <td>
+                <div class="row-actions">
+                    <button class="btn-outline-text" onclick="openBtlAgentForm('${a.id}')">Edit</button>
+                    <button class="btn-danger-text" onclick="deleteBtlAgent('${a.id}')">Delete</button>
+                </div>
+            </td>
+        </tr>`;
+    }).join('');
+}
+
+function openBtlAgentForm(id = null) {
+    const modal = $('btl-agent-modal');
+    const form = $('btl-agent-form');
+    form.reset();
+    $('btl-agent-id').value = '';
+
+    if (id) {
+        const a = lfFindById(LF_KEYS.BTL_AGENTS, id);
+        if (!a) { showToast('Agent not found.', 'error'); return; }
+        $('btl-agent-modal-title').textContent = 'Edit BTL Agent';
+        $('btl-agent-id').value = a.id;
+        $('btl-agent-name').value = a.name || '';
+        $('btl-agent-mobile').value = a.mobile || '';
+        $('btl-agent-area').value = a.area || '';
+        $('btl-agent-cnic').value = a.cnic || '';
+    } else {
+        $('btl-agent-modal-title').textContent = 'New BTL Agent';
+    }
+
+    modal.classList.remove('hidden');
+    setTimeout(() => $('btl-agent-name')?.focus(), 80);
+}
+
+function closeBtlAgentForm() {
+    $('btl-agent-modal').classList.add('hidden');
+}
+
+async function saveBtlAgent() {
+    const id = $('btl-agent-id').value;
+    const name = sanitizeInput($('btl-agent-name').value);
+    const mobile = sanitizeInput($('btl-agent-mobile').value);
+    const area = sanitizeInput($('btl-agent-area').value);
+    const cnic = sanitizeInput($('btl-agent-cnic').value);
+
+    if (!name) { showToast('Agent name is required.', 'warning'); return; }
+
+    const saveBtn = $('btl-agent-save-btn');
+    setBtnLoading(saveBtn, true);
+
+    try {
+        const agentId = id || generateId();
+        const record = { id: agentId, name, mobile, area, cnic };
+        await lfUpsert(LF_KEYS.BTL_AGENTS, record);
+
+        const existingAccount = lfGetAll(LF_KEYS.ACCOUNTS).find(a => a.type === 'Employee/BTL' && a.linkedUserId === agentId);
+        if (!existingAccount) {
+            await lfUpsert(LF_KEYS.ACCOUNTS, {
+                id: 'btlacc_' + agentId,
+                title: name,
+                type: 'Employee/BTL',
+                linkedUserId: agentId,
+                openingBalance: 0
+            });
+        } else if (existingAccount.title !== name) {
+            existingAccount.title = name;
+            await lfUpsert(LF_KEYS.ACCOUNTS, existingAccount);
+        }
+
+        showToast(`BTL agent ${id ? 'updated' : 'added'}.`, 'success');
+        closeBtlAgentForm();
+    } catch (e) {
+        console.error(e);
+        showToast('Could not save agent.', 'error');
+    } finally {
+        setBtnLoading(saveBtn, false);
+    }
+}
+
+async function deleteBtlAgent(id) {
+    const a = lfFindById(LF_KEYS.BTL_AGENTS, id);
+    if (!a) return;
+    if (!confirm(`Delete BTL agent "${a.name}"?`)) return;
+    try {
+        await lfDelete(LF_KEYS.BTL_AGENTS, id);
+        showToast('Agent deleted.', 'success');
+    } catch (e) {
+        console.error(e);
+        showToast('Could not delete.', 'error');
+    }
+}
+
+// ==================== BTL STOCK TRACKING ====================
+function computeBtlStock(btlAgentId) {
+    const items = lfGetAll(LF_KEYS.ITEMS);
+    const stock = {};
+    items.forEach(item => { stock[item.id] = { itemName: item.name, qty: 0, rate: item.salePrice || 0 }; });
+
+    const btlAccount = lfGetAll(LF_KEYS.ACCOUNTS).find(a => a.type === 'Employee/BTL' && a.linkedUserId === btlAgentId);
+    if (!btlAccount) return stock;
+
+    lfGetAll(LF_KEYS.RSO_LOADS).filter(l => l.rsoUserId === btlAgentId && l.partyType === 'Employee/BTL').forEach(l => {
+        (l.items || []).forEach(i => {
+            if (!stock[i.itemId]) stock[i.itemId] = { itemName: i.itemName, qty: 0, rate: i.rate || 0 };
+            if (i.rate > 0) stock[i.itemId].rate = i.rate;
+            stock[i.itemId].qty += i.qty;
+        });
+    });
+
+    return stock;
+}
+
+function renderBtlStockTracking() {
+    const container = $('btl-stock-tracking-body');
+    if (!container) return;
+
+    const selectedAgent = $('btl-stock-agent-select')?.value || '';
+    const agents = lfGetAll(LF_KEYS.BTL_AGENTS).sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+
+    const select = $('btl-stock-agent-select');
+    if (select) {
+        const current = select.value;
+        select.innerHTML = '<option value="">All BTL Agents</option>' +
+            agents.map(a => `<option value="${a.id}">${escapeHtml(a.name)}</option>`).join('');
+        select.value = current;
+    }
+
+    if (selectedAgent) {
+        const agent = lfFindById(LF_KEYS.BTL_AGENTS, selectedAgent);
+        const stock = computeBtlStock(selectedAgent);
+        container.innerHTML = buildBtlStockCard(agent ? agent.name : 'BTL', stock);
+        $('btl-stock-count').textContent = '1 agent';
+    } else {
+        const visibleAgents = agents.filter(a => {
+            const stock = computeBtlStock(a.id);
+            return Object.values(stock).some(s => s.qty !== 0);
+        });
+        if (visibleAgents.length === 0) {
+            container.innerHTML = '<p class="hint">No BTL agents have stock currently.</p>';
+            $('btl-stock-count').textContent = '0 agents';
+            return;
+        }
+        container.innerHTML = visibleAgents.map(a => {
+            const stock = computeBtlStock(a.id);
+            return buildBtlStockCard(a.name, stock);
+        }).join('');
+        $('btl-stock-count').textContent = `${visibleAgents.length} agent${visibleAgents.length === 1 ? '' : 's'}`;
+    }
+}
+
+function buildBtlStockCard(agentName, stock) {
+    let rows = '';
+    let totalValue = 0;
+    Object.entries(stock).forEach(([itemId, s]) => {
+        if (s.qty === 0) return;
+        const val = s.qty * s.rate;
+        totalValue += val;
+        rows += `<tr><td>${escapeHtml(s.itemName)}</td><td class="num">${s.qty}</td><td class="num">${formatCurrency(s.rate)}</td><td class="num">${formatCurrency(val)}</td></tr>`;
+    });
+    if (!rows) rows = '<tr class="empty-row"><td colspan="4">No stock</td></tr>';
+    return `<div class="card" style="margin-bottom:1rem">
+        <div class="card-header" style="padding:0.75rem 1rem;font-weight:600">${escapeHtml(agentName)}<span style="float:right;font-size:0.85rem;opacity:0.7">Total: ${formatCurrency(totalValue)}</span></div>
+        <div class="table-scroll"><table class="data-table"><thead><tr><th>Item</th><th class="num">Qty</th><th class="num">Rate</th><th class="num">Value</th></tr></thead><tbody>${rows}</tbody></table></div>
+    </div>`;
+}
