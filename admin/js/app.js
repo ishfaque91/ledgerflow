@@ -808,9 +808,9 @@ const LD_CONFIGS = {
     },
     rso: {
         title: 'RSO Agents', collection: 'users',
-        columns: ['Full Name', 'Mobile', 'CNIC', 'Area'],
-        required: ['Full Name'],
-        template: [['Full Name','Mobile','CNIC','Area'],['Ahmed Ali','0333-1234567','42101-1234567-1','Nazimabad']]
+        columns: ['Full Name', 'Email', 'Password', 'Mobile', 'CNIC', 'Area'],
+        required: ['Full Name', 'Email', 'Password'],
+        template: [['Full Name','Email','Password','Mobile','CNIC','Area'],['Ahmed Ali','ahmed@example.com','pass123','0333-1234567','42101-1234567-1','Nazimabad']]
     },
     btl: {
         title: 'BTL Agents', collection: 'btlAgents',
@@ -967,11 +967,32 @@ async function parseLdData(raw) {
             }
         }
 
+        if (_ldCategory === 'rso') {
+            const email = (mapped['Email'] || '').trim().toLowerCase();
+            const password = mapped['Password'] || '';
+            if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                rowError = `Invalid email: ${mapped['Email']}`;
+            }
+            if (password && password.length < 6) {
+                rowError = 'Password must be at least 6 characters';
+            }
+        }
+
         let isDuplicate = false;
+        let similarMatch = null;
         const pk = (mapped[headers[0]] || '').toLowerCase();
         if (pk && existingNames.has(pk)) { isDuplicate = true; duplicates++; }
 
-        _ldParsed.push({ data: mapped, error: rowError, duplicate: isDuplicate, rowNum: idx + 2 });
+        if (!isDuplicate && pk) {
+            for (const existing of existingNames) {
+                if (existing.includes(pk) || pk.includes(existing)) {
+                    similarMatch = existing;
+                    break;
+                }
+            }
+        }
+
+        _ldParsed.push({ data: mapped, error: rowError, duplicate: isDuplicate, similar: similarMatch, rowNum: idx + 2 });
         if (rowError) _ldErrors++;
     });
 
@@ -999,7 +1020,8 @@ function renderLdPreview(headers, duplicates) {
         let cls = '', status = '<span style="color:var(--credit)">OK</span>';
         if (p.error) { cls = 'ld-row-err'; status = `<span style="color:var(--garnet)">${escapeHtml(p.error)}</span>`; }
         else if (p.duplicate) { cls = 'ld-row-dup'; status = '<span style="color:var(--amber)">Duplicate</span>'; }
-        return `<tr class="${cls}"><td>${p.rowNum}</td>${headers.map(h => `<td>${escapeHtml(p.data[h])}</td>`).join('')}<td>${status}</td></tr>`;
+        else if (p.similar) { cls = 'ld-row-dup'; status = `<span style="color:var(--amber)">Similar: "${escapeHtml(p.similar)}"</span>`; }
+        return `<tr class="${cls}"><td>${p.rowNum}</td>${headers.map(h => `<td>${h === 'Password' ? '******' : escapeHtml(p.data[h])}</td>`).join('')}<td>${status}</td></tr>`;
     }).join('');
 
     if (validCount > 0) $('ld-import-btn').classList.remove('hidden');
@@ -1046,20 +1068,57 @@ async function executeLdImport() {
                     break;
                 }
                 case 'rso': {
+                    const fullName = d['Full Name'];
+                    const email = (d['Email'] || '').trim().toLowerCase();
+                    const password = d['Password'] || '';
+                    const now = new Date().toISOString();
+
+                    // Create Firebase Auth account via secondary app
+                    let secondaryApp = null;
+                    let uid;
+                    try {
+                        secondaryApp = firebase.initializeApp(firebase.app().options, 'rso_import_' + Date.now() + '_' + Math.random());
+                        const secondaryAuth = secondaryApp.auth();
+                        const cred = await secondaryAuth.createUserWithEmailAndPassword(email, password);
+                        uid = cred.user.uid;
+                        await secondaryAuth.signOut();
+                    } finally {
+                        if (secondaryApp) try { await secondaryApp.delete(); } catch (_) {}
+                    }
+
+                    // Top-level user mapping
+                    await fbDb.collection('users').doc(uid).set({
+                        companyId: _ldCompanyId, email, fullName, role: 'rso'
+                    });
+
+                    // Company user record
                     const userRef = companyRef.collection('users').doc();
                     await userRef.set({
                         id: userRef.id,
-                        fullName: d['Full Name'], role: 'rso',
+                        fullName, username: email, status: 'active',
+                        linkedAuthUid: uid, role: 'rso',
                         mobile: d['Mobile'] || '', cnic: d['CNIC'] || '', area: d['Area'] || '',
-                        importBatch: batchId
+                        importBatch: batchId,
+                        createdAt: now, updatedAt: now
                     });
-                    const accRef = companyRef.collection('accounts').doc('rsoacc_' + userRef.id);
-                    await accRef.set({
-                        id: accRef.id,
-                        title: d['Full Name'], type: 'Employee/RSO',
-                        linkedUserId: userRef.id, openingAmount: 0, openingSide: 'Dr',
-                        importBatch: batchId
-                    });
+
+                    // Linked Employee/RSO account
+                    const existingAccSnap = await companyRef.collection('accounts')
+                        .where('type', '==', 'Employee/RSO').get();
+                    const existingByName = existingAccSnap.docs.find(doc =>
+                        (doc.data().title || '').toLowerCase().replace(/\s*\(rso\)\s*/i, '').trim() === fullName.toLowerCase().trim()
+                    );
+                    if (existingByName) {
+                        await existingByName.ref.update({ linkedUserId: userRef.id });
+                    } else {
+                        const accRef = companyRef.collection('accounts').doc('rsoacc_' + userRef.id);
+                        await accRef.set({
+                            id: accRef.id,
+                            title: fullName, type: 'Employee/RSO',
+                            linkedUserId: userRef.id, openingAmount: 0, openingSide: 'Dr',
+                            importBatch: batchId, createdAt: now, updatedAt: now
+                        });
+                    }
                     break;
                 }
                 case 'btl': {

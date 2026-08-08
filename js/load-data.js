@@ -32,12 +32,12 @@ const LOAD_DATA_CONFIGS = {
     },
     rso: {
         title: 'RSO Agents',
-        columns: ['Full Name', 'Mobile', 'CNIC', 'Area'],
-        required: ['Full Name'],
+        columns: ['Full Name', 'Email', 'Password', 'Mobile', 'CNIC', 'Area'],
+        required: ['Full Name', 'Email', 'Password'],
         template: [
-            ['Full Name', 'Mobile', 'CNIC', 'Area'],
-            ['Ahmed Ali', '0333-1234567', '42101-1234567-1', 'Nazimabad'],
-            ['Bilal Khan', '0300-9876543', '42201-7654321-3', 'Gulshan']
+            ['Full Name', 'Email', 'Password', 'Mobile', 'CNIC', 'Area'],
+            ['Ahmed Ali', 'ahmed@example.com', 'pass123', '0333-1234567', '42101-1234567-1', 'Nazimabad'],
+            ['Bilal Khan', 'bilal@example.com', 'pass123', '0300-9876543', '42201-7654321-3', 'Gulshan']
         ]
     },
     btl: {
@@ -202,17 +202,44 @@ function parseLoadData(raw) {
             }
         }
 
+        if (_loadDataCategory === 'rso') {
+            const email = (mapped['Email'] || '').trim().toLowerCase();
+            const password = mapped['Password'] || '';
+            if (email && !isValidEmail(email)) {
+                rowError = `Invalid email: ${mapped['Email']}`;
+            }
+            if (password && password.length < 6) {
+                rowError = 'Password must be at least 6 characters';
+            }
+            if (email) {
+                const emailInUse = lfGetAll(LF_KEYS.USERS).find(u => (u.username || '').toLowerCase() === email);
+                if (emailInUse) rowError = `Email already in use: ${email}`;
+            }
+        }
+
         let isDuplicate = false;
+        let similarMatch = null;
         const primaryKey = mapped[headers[0]] || '';
         if (primaryKey && existingNames.has(primaryKey.toLowerCase())) {
             isDuplicate = true;
             duplicates++;
         }
 
+        if (!isDuplicate && primaryKey) {
+            const pk = primaryKey.toLowerCase();
+            for (const existing of existingNames) {
+                if (existing.includes(pk) || pk.includes(existing)) {
+                    similarMatch = [...existingNames].find(n => n === existing);
+                    break;
+                }
+            }
+        }
+
         _loadDataParsed.push({
             data: mapped,
             error: rowError,
             duplicate: isDuplicate,
+            similar: similarMatch,
             rowNum: idx + 2
         });
 
@@ -274,10 +301,13 @@ function renderLoadDataPreview(headers, duplicates) {
         } else if (p.duplicate) {
             cls = 'load-data-row-dup';
             status = '<span style="color:var(--warning,#e6a200)">Duplicate</span>';
+        } else if (p.similar) {
+            cls = 'load-data-row-dup';
+            status = `<span style="color:var(--warning,#e6a200)">Similar: "${escapeHtml(p.similar)}"</span>`;
         }
         return `<tr class="${cls}">
             <td>${p.rowNum}</td>
-            ${headers.map(h => `<td>${escapeHtml(p.data[h])}</td>`).join('')}
+            ${headers.map(h => `<td>${h === 'Password' ? '******' : escapeHtml(p.data[h])}</td>`).join('')}
             <td>${status}</td>
         </tr>`;
     }).join('');
@@ -363,10 +393,24 @@ async function _importItem(d, batchId) {
 }
 
 async function _importRso(d, batchId) {
-    const userId = generateId();
-    await lfUpsert(LF_KEYS.USERS, {
-        id: userId,
-        fullName: d['Full Name'],
+    const fullName = d['Full Name'];
+    const email = (d['Email'] || '').trim().toLowerCase();
+    const password = d['Password'] || '';
+
+    // 1. Create Firebase Auth account
+    const uid = await createAuthAndUser(email, password, fullName, 'active', 'rso');
+
+    // 2. Create top-level user mapping
+    await fbDb.collection('users').doc(uid).set({
+        companyId: currentCompanyId, email, fullName, role: 'rso'
+    });
+
+    // 3. Create company user record
+    const created = await lfUpsert(LF_KEYS.USERS, {
+        fullName,
+        username: email,
+        status: 'active',
+        linkedAuthUid: uid,
         role: 'rso',
         mobile: d['Mobile'] || '',
         cnic: d['CNIC'] || '',
@@ -374,13 +418,31 @@ async function _importRso(d, batchId) {
         importBatch: batchId
     });
 
-    await lfUpsert(LF_KEYS.ACCOUNTS, {
-        id: 'rsoacc_' + userId,
-        title: d['Full Name'],
-        type: 'Employee/RSO',
-        linkedUserId: userId,
-        openingAmount: 0, openingSide: 'Dr',
-        importBatch: batchId
+    // 4. Create or link Employee/RSO account
+    const rsoAccounts = lfGetAll(LF_KEYS.ACCOUNTS).filter(a => a.type === 'Employee/RSO');
+    const byUserId = rsoAccounts.find(a => a.linkedUserId === created.id);
+    if (!byUserId) {
+        const byName = rsoAccounts.find(a =>
+            a.title.toLowerCase().replace(/\s*\(rso\)\s*/i, '').trim() === fullName.toLowerCase().trim()
+        );
+        if (byName) {
+            await lfUpsert(LF_KEYS.ACCOUNTS, { ...byName, linkedUserId: created.id });
+        } else {
+            await lfUpsert(LF_KEYS.ACCOUNTS, {
+                type: 'Employee/RSO', title: fullName,
+                linkedUserId: created.id, openingAmount: 0, openingSide: 'Dr',
+                mobile: '', phone: '', email: '', city: '', gst: '', ntn: '', address: '',
+                importBatch: batchId
+            });
+        }
+    }
+
+    // 5. Create default RSO rights
+    await lfUpsert(LF_KEYS.RIGHTS, {
+        id: created.id,
+        userId: created.id,
+        lockbackDays: 0,
+        permissions: buildDefaultPermissions('rso')
     });
 }
 
