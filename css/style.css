@@ -516,13 +516,13 @@ button { font-family: inherit; }
     text-align: center; cursor: pointer; transition: border-color 0.2s, background 0.2s;
 }
 .upload-zone:hover, .upload-zone.drag-over {
-    border-color: var(--primary); background: var(--primary-bg, rgba(91,79,233,0.06));
+    border-color: var(--teal); background: var(--teal-tint);
 }
-.upload-zone svg { color: var(--text-muted, #888); }
+.upload-zone svg { color: var(--ink-faint); }
 
 .load-data-row-ok { }
-.load-data-row-err { background: var(--danger-bg, rgba(220,50,50,0.08)) !important; }
-.load-data-row-dup { background: var(--warning-bg, rgba(245,180,50,0.1)) !important; }
+.load-data-row-err { background: var(--garnet-tint) !important; }
+.load-data-row-dup { background: var(--amber-tint) !important; }
 
 @keyframes modalIn {
     from { opacity: 0; transform: translateY(10px) scale(0.98); }
