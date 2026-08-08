@@ -92,8 +92,9 @@ function renderRsoLoadLedgerReport() {
         return { ...e, balance: running };
     });
 
-    $('rso-ll-opening').textContent = formatCurrency(opening);
-    $('rso-ll-closing').textContent = formatCurrency(rows.length ? rows[rows.length - 1].balance : opening);
+    const fmtQty = v => v.toLocaleString('en-US');
+    $('rso-ll-opening').textContent = fmtQty(opening);
+    $('rso-ll-closing').textContent = fmtQty(rows.length ? rows[rows.length - 1].balance : opening);
 
     const tbody = $('rso-load-ledger-table-body');
     if (rows.length === 0) {
@@ -106,9 +107,9 @@ function renderRsoLoadLedgerReport() {
             <td><span class="type-badge">${escapeHtml(e.type)}</span></td>
             <td>${escapeHtml(e.ref)}</td>
             <td>${escapeHtml(e.note) || '-'}</td>
-            <td class="num">${e.amountIn > 0 ? formatCurrency(e.amountIn) : '-'}</td>
-            <td class="num">${e.amountOut > 0 ? formatCurrency(e.amountOut) : '-'}</td>
-            <td class="num">${formatCurrency(e.balance)}</td>
+            <td class="num">${e.amountIn > 0 ? fmtQty(e.amountIn) : '-'}</td>
+            <td class="num">${e.amountOut > 0 ? fmtQty(e.amountOut) : '-'}</td>
+            <td class="num">${fmtQty(e.balance)}</td>
         </tr>
     `).join('');
 }
