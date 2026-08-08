@@ -362,45 +362,62 @@ async function deleteCompany(id) {
         return;
     }
 
+    const errors = [];
+
     try {
-        showToast(`Deleting ${c.companyName}...`, 'info', 10000);
+        showToast(`Deleting ${c.companyName}...`, 'info', 30000);
         const companyRef = fbDb.collection('companies').doc(id);
 
+        // 1. Collect all auth UIDs from company users + owner
         const usersSnap = await companyRef.collection('users').get();
         const allAuthUids = new Set();
-
         for (const doc of usersSnap.docs) {
             const u = doc.data();
             if (u.linkedAuthUid) allAuthUids.add(u.linkedAuthUid);
         }
         if (c.ownerUid) allAuthUids.add(c.ownerUid);
 
-        let deleteAuthUser = null;
-        try { deleteAuthUser = firebase.functions().httpsCallable('deleteAuthUser'); } catch (_) {}
-
+        // 2. Delete Firebase Auth accounts via Cloud Function
+        const deleteAuthUser = firebase.functions().httpsCallable('deleteAuthUser');
         for (const uid of allAuthUids) {
-            if (deleteAuthUser) {
-                try { await deleteAuthUser({ uid }); } catch (e) {
-                    console.warn('[Delete] Cloud Function deleteAuthUser failed for', uid, e.message);
-                }
-            }
-            try { await fbDb.collection('users').doc(uid).delete(); } catch (e) {
-                console.warn('[Delete] Could not delete top-level user mapping:', uid, e.message);
+            try {
+                await deleteAuthUser({ uid });
+            } catch (e) {
+                console.error('[Delete] deleteAuthUser failed for', uid, e);
+                errors.push(`Auth delete ${uid}: ${e.message}`);
             }
         }
 
+        // 3. Delete top-level user mappings
+        for (const uid of allAuthUids) {
+            try {
+                await fbDb.collection('users').doc(uid).delete();
+            } catch (e) {
+                console.warn('[Delete] top-level user mapping:', uid, e.message);
+            }
+        }
+
+        // 4. Delete all subcollections (data + company users)
         const allCollections = [...WIPE_COLLECTIONS, 'users'];
         for (const colName of allCollections) {
-            try { await deleteSubcollection(companyRef, colName); } catch (e) {
-                console.warn('[Delete] Error deleting subcollection', colName, e.message);
+            try {
+                await deleteSubcollection(companyRef, colName);
+            } catch (e) {
+                console.warn('[Delete] subcollection', colName, e.message);
             }
         }
 
+        // 5. Delete the company document itself
         await companyRef.delete();
-        showToast(`${c.companyName} and all its users permanently deleted.`, 'success');
+
+        if (errors.length) {
+            showToast(`Company deleted but ${errors.length} auth account(s) failed to delete from Firebase Auth. Check console.`, 'warning', 8000);
+        } else {
+            showToast(`${c.companyName} and all its users permanently deleted.`, 'success');
+        }
         showListView();
     } catch (e) {
-        console.error('[Delete]', e);
+        console.error('[Delete] Fatal error:', e);
         showToast('Delete failed: ' + e.message, 'error');
     }
 }
