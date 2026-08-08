@@ -34,7 +34,7 @@ function _buildRsoLoadLedgerEntries(rsoUserId) {
         entries.push({
             date: l.date, type: 'Purchase', ref: l.number || '',
             note: 'Load balance credited',
-            amountIn: l.loadQty, amountOut: 0
+            amountIn: l.loadQty, amountOut: 0, _order: 0
         });
     });
 
@@ -45,7 +45,7 @@ function _buildRsoLoadLedgerEntries(rsoUserId) {
         entries.push({
             date: s.date, type: 'Sale', ref: s.number || '',
             note: s.customerName || '',
-            amountIn: 0, amountOut: s.loadQty
+            amountIn: 0, amountOut: s.loadQty, _order: 2
         });
     });
 
@@ -56,15 +56,14 @@ function _buildRsoLoadLedgerEntries(rsoUserId) {
         entries.push({
             date: r.date, type: 'Return', ref: r.number || '',
             note: r.customerName || '',
-            amountIn: r.loadQty, amountOut: 0
+            amountIn: r.loadQty, amountOut: 0, _order: 1
         });
     });
 
     entries.sort((a, b) => {
         const d = (a.date || '').localeCompare(b.date || '');
         if (d !== 0) return d;
-        const order = { 'Purchase': 0, 'Return': 1, 'Sale': 2 };
-        return (order[a.type] || 9) - (order[b.type] || 9);
+        return a._order - b._order;
     });
 
     return entries;

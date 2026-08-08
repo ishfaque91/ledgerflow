@@ -5,7 +5,7 @@
  * Google's servers over its own connection and is never touched here — this
  * only ever intercepts same-origin GET requests.
  */
-const CACHE_NAME = 'teleflow-shell-v17';
+const CACHE_NAME = 'teleflow-shell-v18';
 const APP_SHELL = [
     './',
     './index.html',
@@ -20,7 +20,7 @@ const APP_SHELL = [
     './js/users.js',
     './js/rights.js',
     './js/rso.js',
-    './js/sim-activation.js?v=17',
+    './js/sim-activation.js?v=18',
     './js/integrity.js',
     './js/dataentry.js?v=17',
     './js/vouchers.js',
