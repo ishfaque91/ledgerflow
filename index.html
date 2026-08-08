@@ -577,6 +577,7 @@
                         <a href="#" data-page="page-backup" onclick="navigateTo('page-backup',this); renderBackupSummary();"><span class="hub-opt-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v6c0 1.66 4 3 9 3s9-1.34 9-3V5"/><path d="M3 11v6c0 1.66 4 3 9 3s9-1.34 9-3v-6"/></svg></span><span class="hub-opt-label">Backup Data</span><svg class="hub-opt-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></a>
                         <a href="#" data-page="page-change-password" onclick="navigateTo('page-change-password',this); initChangePasswordPage();"><span class="hub-opt-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="15" r="4"/><path d="m10.5 11.5 8-8"/><path d="m15.5 6.5 3 3"/><path d="m18 4 2 2"/></svg></span><span class="hub-opt-label">Change Password</span><svg class="hub-opt-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></a>
                         <a href="#" data-page="page-settings" onclick="navigateTo('page-settings',this); initSettingsPage();"><span class="hub-opt-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span><span class="hub-opt-label">Settings</span><svg class="hub-opt-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></a>
+                        <a href="#" data-page="page-load-data" onclick="navigateTo('page-load-data',this);"><span class="hub-opt-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></span><span class="hub-opt-label">Load Data</span><svg class="hub-opt-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></a>
                 </div>
             </div>
         </section>
@@ -3524,6 +3525,76 @@
 
         </section>
 
+        <!-- ============ LOAD DATA ============ -->
+        <section id="page-load-data" class="page">
+            <div class="page-head">
+                <div>
+                    <h1>Load Data</h1>
+                    <p class="page-sub">Import master data from Excel files to set up your franchise.</p>
+                </div>
+                <button class="btn btn-ghost" onclick="navigateTo('page-hub-utility')">Back</button>
+            </div>
+
+            <div id="load-data-categories" class="dash-tab-grid">
+                <div class="dash-tab accent-indigo" onclick="openLoadDataImport('accounts')">
+                    <span class="dash-tab-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="18" rx="2"/><path d="M2 9h20"/><path d="M10 3v18"/></svg></span>
+                    <span class="dash-tab-name">Accounts</span>
+                </div>
+                <div class="dash-tab accent-teal" onclick="openLoadDataImport('items')">
+                    <span class="dash-tab-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></span>
+                    <span class="dash-tab-name">Items Catalog</span>
+                </div>
+                <div class="dash-tab accent-blue" onclick="openLoadDataImport('rso')">
+                    <span class="dash-tab-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span>
+                    <span class="dash-tab-name">RSO Agents</span>
+                </div>
+                <div class="dash-tab accent-cyan" onclick="openLoadDataImport('btl')">
+                    <span class="dash-tab-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+                    <span class="dash-tab-name">BTL Agents</span>
+                </div>
+                <div class="dash-tab accent-green" onclick="openLoadDataImport('rso_customers')">
+                    <span class="dash-tab-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+                    <span class="dash-tab-name">RSO Customers</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Load Data Import Modal -->
+        <div class="modal-backdrop hidden" id="load-data-modal">
+            <div class="modal modal-xl">
+                <div class="modal-head">
+                    <h2 id="load-data-modal-title">Import Data</h2>
+                    <button class="icon-btn" onclick="closeLoadDataImport()" title="Close"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+                </div>
+                <div class="modal-body" style="min-height:300px">
+                    <div id="load-data-upload-zone" class="upload-zone">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity:0.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                        <p style="margin:0.5rem 0 0.25rem;font-weight:600">Drop Excel file here or click to browse</p>
+                        <p style="margin:0;font-size:0.82rem;opacity:0.6">Accepts .xlsx files only</p>
+                        <input type="file" id="load-data-file" accept=".xlsx,.xls" style="display:none" onchange="onLoadDataFileSelected(this)">
+                        <button class="btn btn-ghost" style="margin-top:0.75rem" onclick="$('load-data-file').click()">Choose File</button>
+                        <button class="btn btn-outline-text" style="margin-top:0.5rem" onclick="downloadLoadDataTemplate()">Download Template</button>
+                    </div>
+                    <div id="load-data-preview" class="hidden">
+                        <div class="toolbar-row" style="margin-bottom:0.5rem">
+                            <span class="count-pill" id="load-data-count">0 rows</span>
+                            <span class="count-pill" id="load-data-errors" style="background:var(--danger-bg,#fee);color:var(--danger,#d33)"></span>
+                            <button class="btn btn-ghost" onclick="resetLoadDataImport()">Choose Different File</button>
+                        </div>
+                        <div class="card table-card" style="max-height:350px;overflow:auto">
+                            <div class="table-scroll">
+                                <table class="data-table" id="load-data-table"><thead id="load-data-thead"></thead><tbody id="load-data-tbody"></tbody></table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-foot">
+                    <button class="btn btn-ghost" onclick="closeLoadDataImport()">Cancel</button>
+                    <button class="btn btn-primary hidden" id="load-data-import-btn" onclick="executeLoadDataImport()"><span class="btn-label">Import Data</span><span class="btn-spinner hidden"></span></button>
+                </div>
+            </div>
+        </div>
+
     </main>
 </div>
 </div>
@@ -3558,6 +3629,7 @@
 <script src="js/utility.js"></script>
 <script src="js/tools.js"></script>
 <script src="js/export.js"></script>
+<script src="js/load-data.js"></script>
 <script src="js/auth.js"></script>
 <script>
     if ('serviceWorker' in navigator) {

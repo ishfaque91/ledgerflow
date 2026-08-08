@@ -508,6 +508,21 @@ button { font-family: inherit; }
     animation: modalIn .22s var(--ease);
 }
 .modal-lg { max-width: 740px; }
+.modal-xl { max-width: 960px; }
+
+.upload-zone {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 2.5rem 1rem; border: 2px dashed var(--border); border-radius: var(--radius-lg, 12px);
+    text-align: center; cursor: pointer; transition: border-color 0.2s, background 0.2s;
+}
+.upload-zone:hover, .upload-zone.drag-over {
+    border-color: var(--primary); background: var(--primary-bg, rgba(91,79,233,0.06));
+}
+.upload-zone svg { color: var(--text-muted, #888); }
+
+.load-data-row-ok { }
+.load-data-row-err { background: var(--danger-bg, rgba(220,50,50,0.08)) !important; }
+.load-data-row-dup { background: var(--warning-bg, rgba(245,180,50,0.1)) !important; }
 
 @keyframes modalIn {
     from { opacity: 0; transform: translateY(10px) scale(0.98); }
