@@ -568,6 +568,8 @@
                     <a href="#" data-page="page-activations" onclick="navigateTo('page-activations',this)"><span class="hub-opt-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg></span><span class="hub-opt-label">SIM Activations</span><svg class="hub-opt-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></a>
                     <a href="#" data-page="page-verification" onclick="navigateTo('page-verification',this)"><span class="hub-opt-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></span><span class="hub-opt-label">Monthly Verification</span><svg class="hub-opt-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></a>
                     <a href="#" data-page="page-bvs-devices" onclick="navigateTo('page-bvs-devices',this)"><span class="hub-opt-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></span><span class="hub-opt-label">BVS Devices</span><svg class="hub-opt-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></a>
+                    <a href="#" data-page="page-commission-report" onclick="renderCommissionReport();navigateTo('page-commission-report',this)"><span class="hub-opt-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span><span class="hub-opt-label">Commission Report</span><svg class="hub-opt-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></a>
+                    <a href="#" data-page="page-sim-status" onclick="renderSimStatusReport();navigateTo('page-sim-status',this)"><span class="hub-opt-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></span><span class="hub-opt-label">SIM Status Report</span><svg class="hub-opt-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></a>
                     <a href="#" data-page="page-rso-reports" onclick="navigateTo('page-rso-reports',this)"><span class="hub-opt-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></span><span class="hub-opt-label">RSO Reports</span><svg class="hub-opt-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></a>
                 </div>
             </div>
@@ -2951,7 +2953,10 @@
                             <div class="field"><label for="btl-agent-mobile">Mobile</label><div class="phone-control"><span class="phone-prefix">+92</span><input type="tel" id="btl-agent-mobile" placeholder="333 2392852" maxlength="11" oninput="formatPhoneInput(this)"></div></div>
                             <div class="field"><label for="btl-agent-area">Area / Stall</label><input type="text" id="btl-agent-area" placeholder="e.g. Tariq Road Stall"></div>
                         </div>
-                        <div class="field"><label for="btl-agent-cnic">CNIC</label><input type="text" id="btl-agent-cnic" placeholder="42101-1234567-1" maxlength="15"></div>
+                        <div class="field-grid">
+                            <div class="field"><label for="btl-agent-cnic">CNIC</label><input type="text" id="btl-agent-cnic" placeholder="42101-1234567-1" maxlength="15"></div>
+                            <div class="field"><label for="btl-agent-commission-rate">Commission Rate (per SIM)</label><input type="number" id="btl-agent-commission-rate" placeholder="e.g. 50" min="0" step="1"></div>
+                        </div>
                     </div>
                 </form>
                 <div class="modal-foot">
@@ -3280,7 +3285,7 @@
         <!-- ============ BVS DEVICES ============ -->
         <section id="page-bvs-devices" class="page">
             <div class="page-head">
-                <div><h1>BVS Device Register</h1><p class="page-sub">Track BVS devices — which retailer has which device.</p></div>
+                <div><h1>BVS Device Register</h1><p class="page-sub">Track BVS devices — assignment, usage, and verification counts.</p></div>
                 <button class="btn btn-primary" onclick="openBvsDeviceForm()">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                     Add Device
@@ -3294,7 +3299,7 @@
                 <span class="count-pill" id="bvs-count">0 devices</span>
             </div>
             <div class="card table-card"><div class="table-scroll">
-                <table class="data-table"><thead><tr><th>IMEI</th><th>Assigned To</th><th>Status</th><th>Since</th><th></th></tr></thead>
+                <table class="data-table"><thead><tr><th>IMEI</th><th>Assigned To</th><th>Status</th><th>Since</th><th>This Month</th><th></th></tr></thead>
                 <tbody id="bvs-table-body"></tbody></table>
             </div></div>
         </section>
@@ -3339,6 +3344,51 @@
                 <div class="modal-foot">
                     <button class="btn btn-ghost" onclick="closeBvsAssignForm()">Cancel</button>
                     <button class="btn btn-primary" id="bvs-assign-save-btn" onclick="saveBvsAssignment()"><span class="btn-label">Assign</span><span class="btn-spinner hidden"></span></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- BVS Log Usage Modal -->
+        <div class="modal-backdrop hidden" id="bvs-usage-modal">
+            <div class="modal">
+                <div class="modal-head">
+                    <h2>Log Verification Count — <span id="bvs-usage-imei"></span></h2>
+                    <button class="icon-btn" onclick="closeBvsUsageForm()" title="Close"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+                </div>
+                <form class="modal-body" onsubmit="return false;">
+                    <input type="hidden" id="bvs-usage-device-id">
+                    <div class="form-section">
+                        <div class="field-grid">
+                            <div class="field"><label for="bvs-usage-date">Date <span class="req">*</span></label><input type="date" id="bvs-usage-date" required></div>
+                            <div class="field"><label for="bvs-usage-count">Verifications Done <span class="req">*</span></label><input type="number" id="bvs-usage-count" min="1" placeholder="e.g. 25" required></div>
+                        </div>
+                        <div class="field"><label for="bvs-usage-note">Note</label><input type="text" id="bvs-usage-note" placeholder="Optional note"></div>
+                    </div>
+                </form>
+                <div class="modal-foot">
+                    <button class="btn btn-ghost" onclick="closeBvsUsageForm()">Cancel</button>
+                    <button class="btn btn-primary" id="bvs-usage-save-btn" onclick="saveBvsUsageLog()"><span class="btn-label">Save</span><span class="btn-spinner hidden"></span></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- BVS Usage Report Modal -->
+        <div class="modal-backdrop hidden" id="bvs-report-modal">
+            <div class="modal modal-lg">
+                <div class="modal-head">
+                    <h2>Device Usage Report — <span id="bvs-report-imei"></span></h2>
+                    <button class="icon-btn" onclick="closeBvsReportModal()" title="Close"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+                </div>
+                <div class="modal-body">
+                    <div class="toolbar-row" style="margin-bottom:1rem">
+                        <div class="field" style="margin:0"><label for="bvs-report-from" style="font-size:.8rem">From</label><input type="date" id="bvs-report-from" onchange="refreshBvsReport()"></div>
+                        <div class="field" style="margin:0"><label for="bvs-report-to" style="font-size:.8rem">To</label><input type="date" id="bvs-report-to" onchange="refreshBvsReport()"></div>
+                        <div class="count-pill" id="bvs-report-total" style="align-self:flex-end">Total: 0</div>
+                    </div>
+                    <div id="bvs-report-body"></div>
+                </div>
+                <div class="modal-foot">
+                    <button class="btn btn-ghost" onclick="closeBvsReportModal()">Close</button>
                 </div>
             </div>
         </div>

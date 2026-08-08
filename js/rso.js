@@ -1832,6 +1832,7 @@ function openBtlAgentForm(id = null) {
         $('btl-agent-mobile').value = a.mobile || '';
         $('btl-agent-area').value = a.area || '';
         $('btl-agent-cnic').value = a.cnic || '';
+        $('btl-agent-commission-rate').value = a.commissionRate || '';
     } else {
         $('btl-agent-modal-title').textContent = 'New BTL Agent';
     }
@@ -1850,6 +1851,7 @@ async function saveBtlAgent() {
     const mobile = sanitizeInput($('btl-agent-mobile').value);
     const area = sanitizeInput($('btl-agent-area').value);
     const cnic = sanitizeInput($('btl-agent-cnic').value);
+    const commissionRate = parseFloat($('btl-agent-commission-rate').value) || 0;
 
     if (!name) { showToast('Agent name is required.', 'warning'); return; }
 
@@ -1858,7 +1860,7 @@ async function saveBtlAgent() {
 
     try {
         const agentId = id || generateId();
-        const record = { id: agentId, name, mobile, area, cnic };
+        const record = { id: agentId, name, mobile, area, cnic, commissionRate };
         await lfUpsert(LF_KEYS.BTL_AGENTS, record);
 
         const existingAccount = lfGetAll(LF_KEYS.ACCOUNTS).find(a => a.type === 'Employee/BTL' && a.linkedUserId === agentId);
@@ -1868,7 +1870,7 @@ async function saveBtlAgent() {
                 title: name,
                 type: 'Employee/BTL',
                 linkedUserId: agentId,
-                openingBalance: 0
+                openingAmount: 0, openingSide: 'Dr'
             });
         } else if (existingAccount.title !== name) {
             existingAccount.title = name;
@@ -2039,7 +2041,7 @@ function openBtlActivationForm(id) {
         }
     } else {
         $('btl-act-id').value = '';
-        $('btl-act-date').value = todayISO();
+        $('btl-act-date').value = new Date().toISOString().slice(0, 10);
         sel.value = '';
         $('btl-act-serial').value = '';
         $('btl-act-cnic').value = '';

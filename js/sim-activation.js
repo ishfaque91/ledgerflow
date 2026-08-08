@@ -502,6 +502,12 @@ async function deleteVerification(id) {
 }
 
 // ==================== BVS DEVICE REGISTER ====================
+function _bvsMonthlyCount(device) {
+    const logs = device.usageLogs || [];
+    const thisMonth = new Date().toISOString().slice(0, 7);
+    return logs.filter(l => (l.date || '').startsWith(thisMonth)).reduce((s, l) => s + (l.count || 0), 0);
+}
+
 function renderBvsDeviceList() {
     const tbody = $('bvs-table-body');
     if (!tbody) return;
@@ -521,22 +527,26 @@ function renderBvsDeviceList() {
     $('bvs-count').textContent = `${devices.length} device${devices.length === 1 ? '' : 's'}`;
 
     if (devices.length === 0) {
-        tbody.innerHTML = `<tr class="empty-row"><td colspan="5">No BVS devices registered yet.</td></tr>`;
+        tbody.innerHTML = `<tr class="empty-row"><td colspan="6">No BVS devices registered yet.</td></tr>`;
         return;
     }
 
     tbody.innerHTML = devices.map(d => {
         const statusClass = d.status === 'Assigned' ? 'is-dr' : (d.status === 'Available' ? 'is-cr' : '');
+        const monthCount = _bvsMonthlyCount(d);
         return `
         <tr>
             <td><strong>${escapeHtml(d.imei)}</strong></td>
             <td>${escapeHtml(d.currentCustomerName || '—')}</td>
             <td><span class="balance-tag ${statusClass}">${escapeHtml(d.status || 'Available')}</span></td>
             <td>${d.assignedDate || '—'}</td>
+            <td class="num">${monthCount > 0 ? monthCount.toLocaleString('en-US') : '—'}</td>
             <td>
                 <div class="row-actions">
                     ${d.status === 'Available' ? `<button class="btn-outline-text" onclick="openBvsAssignForm('${d.id}')">Assign</button>` : ''}
                     ${d.status === 'Assigned' ? `<button class="btn-outline-text" onclick="unassignBvsDevice('${d.id}')">Unassign</button>` : ''}
+                    <button class="btn-outline-text" onclick="openBvsUsageForm('${d.id}')">Log Usage</button>
+                    <button class="btn-outline-text" onclick="openBvsReportModal('${d.id}')">Report</button>
                     <button class="btn-outline-text" onclick="viewBvsHistory('${d.id}')">History</button>
                     <button class="btn-danger-text" onclick="deleteBvsDevice('${d.id}')">Delete</button>
                 </div>
@@ -675,6 +685,126 @@ function viewBvsHistory(deviceId) {
 }
 
 function closeBvsHistoryModal() { $('bvs-history-modal').classList.add('hidden'); }
+
+// ==================== BVS USAGE TRACKING ====================
+function openBvsUsageForm(deviceId) {
+    const d = lfFindById(LF_KEYS.BVS_DEVICES, deviceId);
+    if (!d) return;
+    $('bvs-usage-device-id').value = deviceId;
+    $('bvs-usage-imei').textContent = d.imei;
+    $('bvs-usage-date').value = new Date().toISOString().slice(0, 10);
+    $('bvs-usage-count').value = '';
+    $('bvs-usage-note').value = '';
+    $('bvs-usage-modal').classList.remove('hidden');
+    setTimeout(() => $('bvs-usage-count')?.focus(), 80);
+}
+
+function closeBvsUsageForm() { $('bvs-usage-modal').classList.add('hidden'); }
+
+async function saveBvsUsageLog() {
+    const deviceId = $('bvs-usage-device-id').value;
+    const date = $('bvs-usage-date').value;
+    const count = parseInt($('bvs-usage-count').value) || 0;
+    const note = sanitizeInput($('bvs-usage-note').value);
+    const saveBtn = $('bvs-usage-save-btn');
+
+    if (!date) { showToast('Select a date.', 'warning'); return; }
+    if (count <= 0) { showToast('Enter a verification count greater than 0.', 'warning'); return; }
+
+    const d = lfFindById(LF_KEYS.BVS_DEVICES, deviceId);
+    if (!d) { showToast('Device not found.', 'error'); return; }
+
+    const logs = d.usageLogs || [];
+    const existingIdx = logs.findIndex(l => l.date === date);
+    if (existingIdx >= 0) {
+        logs[existingIdx] = { date, count, note, updatedAt: new Date().toISOString() };
+    } else {
+        logs.push({ date, count, note, createdAt: new Date().toISOString() });
+    }
+    logs.sort((a, b) => a.date.localeCompare(b.date));
+
+    setBtnLoading(saveBtn, true);
+    try {
+        await lfUpsert(LF_KEYS.BVS_DEVICES, { ...d, usageLogs: logs });
+        showToast(`Logged ${count} verifications for ${date}.`, 'success');
+        closeBvsUsageForm();
+    } catch (e) {
+        console.error(e);
+        showToast('Could not save usage log.', 'error');
+    } finally {
+        setBtnLoading(saveBtn, false);
+    }
+}
+
+let _bvsReportDeviceId = null;
+
+function openBvsReportModal(deviceId) {
+    const d = lfFindById(LF_KEYS.BVS_DEVICES, deviceId);
+    if (!d) return;
+    _bvsReportDeviceId = deviceId;
+    $('bvs-report-imei').textContent = d.imei;
+
+    const now = new Date();
+    const firstOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0, 10);
+    $('bvs-report-from').value = firstOfMonth;
+    $('bvs-report-to').value = now.toISOString().slice(0, 10);
+
+    $('bvs-report-modal').classList.remove('hidden');
+    refreshBvsReport();
+}
+
+function closeBvsReportModal() {
+    $('bvs-report-modal').classList.add('hidden');
+    _bvsReportDeviceId = null;
+}
+
+function refreshBvsReport() {
+    if (!_bvsReportDeviceId) return;
+    const d = lfFindById(LF_KEYS.BVS_DEVICES, _bvsReportDeviceId);
+    if (!d) return;
+
+    const from = $('bvs-report-from').value;
+    const to = $('bvs-report-to').value;
+    const logs = (d.usageLogs || []).filter(l => {
+        if (from && l.date < from) return false;
+        if (to && l.date > to) return false;
+        return true;
+    });
+
+    const total = logs.reduce((s, l) => s + (l.count || 0), 0);
+    $('bvs-report-total').textContent = `Total: ${total.toLocaleString('en-US')} verifications`;
+
+    const container = $('bvs-report-body');
+    if (logs.length === 0) {
+        container.innerHTML = '<p class="hint">No usage records in this period.</p>';
+        return;
+    }
+
+    container.innerHTML = `<table class="data-table"><thead><tr><th>Date</th><th>Verifications</th><th>Note</th><th></th></tr></thead><tbody>` +
+        logs.map(l => `<tr>
+            <td>${l.date}</td>
+            <td class="num">${(l.count || 0).toLocaleString('en-US')}</td>
+            <td>${escapeHtml(l.note || '')}</td>
+            <td><button class="btn-danger-text" onclick="deleteBvsUsageLog('${_bvsReportDeviceId}','${l.date}')">Delete</button></td>
+        </tr>`).join('') +
+        `<tr style="font-weight:600"><td>Total</td><td class="num">${total.toLocaleString('en-US')}</td><td></td><td></td></tr>` +
+        '</tbody></table>';
+}
+
+async function deleteBvsUsageLog(deviceId, date) {
+    if (!confirm(`Delete usage log for ${date}?`)) return;
+    const d = lfFindById(LF_KEYS.BVS_DEVICES, deviceId);
+    if (!d) return;
+    const logs = (d.usageLogs || []).filter(l => l.date !== date);
+    try {
+        await lfUpsert(LF_KEYS.BVS_DEVICES, { ...d, usageLogs: logs });
+        showToast('Usage log deleted.', 'success');
+        refreshBvsReport();
+    } catch (e) {
+        console.error(e);
+        showToast('Could not delete.', 'error');
+    }
+}
 
 async function deleteBvsDevice(id) {
     const d = lfFindById(LF_KEYS.BVS_DEVICES, id);
